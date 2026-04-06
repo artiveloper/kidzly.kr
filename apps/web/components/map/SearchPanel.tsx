@@ -9,6 +9,7 @@ import { DaycareList } from './DaycareList';
 interface SearchPanelProps {
   searchQuery: string;
   onSearchChange: (v: string) => void;
+  onClearSearch: () => void;
   onSearch: (v: string) => void;
   recentSearches: string[];
   onRemoveRecentSearch: (s: string) => void;
@@ -23,6 +24,7 @@ interface SearchPanelProps {
 export function SearchPanel({
   searchQuery,
   onSearchChange,
+  onClearSearch,
   onSearch,
   recentSearches,
   onRemoveRecentSearch,
@@ -58,7 +60,7 @@ export function SearchPanel({
           {searchQuery && (
             <button
               type="button"
-              onClick={() => onSearchChange('')}
+              onClick={onClearSearch}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X size={14} />

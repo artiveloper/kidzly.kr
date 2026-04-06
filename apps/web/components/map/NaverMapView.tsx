@@ -1,10 +1,15 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { List } from 'lucide-react';
 import type { Daycare, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS } from '@/domain/daycare';
+
+export type NaverMapViewHandle = {
+    panTo: (lat: number, lng: number) => void;
+    getCurrentBounds: () => MapBounds | null;
+};
 
 interface NaverMapViewProps {
   daycares: Daycare[];
@@ -63,18 +68,34 @@ function getBounds(map: naver.maps.Map): MapBounds {
   return { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() };
 }
 
-export function NaverMapView({
+export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(function NaverMapView({
   daycares,
   selectedId,
   onSelectDaycare,
   onBoundsChange,
   onOpenBottomSheet,
-}: NaverMapViewProps) {
+}, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
   const onBoundsChangeRef = useRef(onBoundsChange);
+  const isProgrammaticMoveRef = useRef(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+      panTo(lat: number, lng: number) {
+          if (!mapRef.current) return;
+          isProgrammaticMoveRef.current = true;
+          mapRef.current.panTo(
+              new naver.maps.LatLng(lat, lng),
+              { duration: 400, easing: 'easeOutCubic' }
+          );
+      },
+      getCurrentBounds() {
+          if (!mapRef.current) return null;
+          return getBounds(mapRef.current);
+      },
+  }));
 
   // onBoundsChange를 ref로 유지해 idle 리스너 재등록 없이 최신 함수 호출
   useEffect(() => {
@@ -96,8 +117,12 @@ export function NaverMapView({
 
     mapRef.current = map;
 
-    // idle: 지도 이동/줌 완료 후 발생
+    // idle: 지도 이동/줌 완료 후 발생 (programmatic panTo는 무시)
     naver.maps.Event.addListener(map, 'idle', () => {
+      if (isProgrammaticMoveRef.current) {
+        isProgrammaticMoveRef.current = false;
+        return;
+      }
       onBoundsChangeRef.current(getBounds(map));
     });
 
@@ -180,4 +205,4 @@ export function NaverMapView({
       </button>
     </div>
   );
-}
+});

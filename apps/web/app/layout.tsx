@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Noto_Sans } from "next/font/google"
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
+import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { cn } from "@workspace/ui/lib/utils";
 
 const notoSans = Noto_Sans({subsets:['latin'],variable:'--font-sans'})
@@ -24,9 +25,11 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", notoSans.variable)}
     >
       <body>
-        <ReactQueryProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </ReactQueryProvider>
+        <NuqsAdapter>
+          <ReactQueryProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ReactQueryProvider>
+        </NuqsAdapter>
       </body>
     </html>
   )

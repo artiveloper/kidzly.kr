@@ -6,7 +6,7 @@ import { MapLayout } from '@/components/map/MapLayout'
 
 export default async function Page() {
     const state = await runPrefetch(
-        daycarePrefetch.bounds(DEFAULT_BOUNDS)
+        daycarePrefetch.bounds({ bounds: DEFAULT_BOUNDS })
     )
 
     return (

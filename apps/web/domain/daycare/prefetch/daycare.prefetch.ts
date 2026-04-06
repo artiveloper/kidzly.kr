@@ -1,12 +1,12 @@
 import 'server-only'
 import type { QueryClient } from '@tanstack/react-query'
 import { daycareQueryOptions } from '../query-options/daycare.query-options'
-import type { MapBounds } from '../types'
+import { DEFAULT_BOUNDS } from '../types'
 
 export const daycarePrefetch = {
-    bounds(bounds: MapBounds) {
+    bounds(params: Parameters<typeof daycareQueryOptions.bounds>[0] = { bounds: DEFAULT_BOUNDS }) {
         return async (queryClient: QueryClient) => {
-            await queryClient.prefetchQuery(daycareQueryOptions.bounds(bounds))
+            await queryClient.prefetchQuery(daycareQueryOptions.bounds(params))
         }
     },
 }

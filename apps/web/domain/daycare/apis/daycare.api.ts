@@ -32,21 +32,32 @@ export async function fetchDaycares(options: { limit?: number } = {}): Promise<D
     return (data ?? []).map(toDaycare);
 }
 
-export async function fetchDaycaresInBounds(bounds: MapBounds, limit = 300): Promise<Daycare[]> {
+export async function fetchDaycaresInBounds(
+    bounds: MapBounds,
+    options: { query?: string; limit?: number } = {}
+): Promise<Daycare[]> {
     const { south, north, west, east } = bounds;
+    const { query, limit = 300 } = options;
     const supabase = createSupabaseClient();
 
-    const { data, error } = await supabase
+    let req = supabase
         .from('daycares')
         .select(DAYCARE_COLUMNS)
         .eq('status', '정상')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
-        .filter('latitude::float8', 'gte', south)
-        .filter('latitude::float8', 'lte', north)
-        .filter('longitude::float8', 'gte', west)
-        .filter('longitude::float8', 'lte', east)
-        .limit(limit);
+
+    if (query) {
+        req = req.or(`name.ilike.%${query}%,address.ilike.%${query}%`)
+    } else {
+        req = req
+            .filter('latitude::float8', 'gte', south)
+            .filter('latitude::float8', 'lte', north)
+            .filter('longitude::float8', 'gte', west)
+            .filter('longitude::float8', 'lte', east)
+    }
+
+    const { data, error } = await req.limit(limit);
 
     if (error) {
         console.error('[fetchDaycaresInBounds]', error.message);

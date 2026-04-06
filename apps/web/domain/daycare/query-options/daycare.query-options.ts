@@ -3,9 +3,10 @@ import { fetchDaycaresInBounds } from '../apis/daycare.api'
 import type { MapBounds } from '../types'
 
 export const daycareQueryOptions = {
-    bounds: (bounds: MapBounds) => ({
-        queryKey: daycareQueryKeys.bounds(bounds),
-        queryFn: () => fetchDaycaresInBounds(bounds),
+    bounds: (params: { bounds: MapBounds; query?: string }) => ({
+        queryKey: daycareQueryKeys.bounds(params),
+        queryFn: () => fetchDaycaresInBounds(params.bounds, { query: params.query }),
         staleTime: 30 * 1000,
+        placeholderData: (prev: unknown) => prev,
     }),
 }
