@@ -1,5 +1,10 @@
-export type { Daycare, DaycareType, MapBounds } from './types'
-export { DAYCARE_TYPE_LABELS, DEFAULT_BOUNDS } from './types'
+export type { Daycare, DaycareType, DaycareServiceType, MapBounds } from './types'
+export {
+    DAYCARE_TYPE_LABELS,
+    DAYCARE_SERVICE_LABELS,
+    DAYCARE_SERVICE_TYPES,
+    DEFAULT_BOUNDS,
+} from './types'
 export { daycareQueryKeys } from './query-keys/daycare.query-keys'
 export { daycareQueryOptions } from './query-options/daycare.query-options'
 export { useDaycaresInBounds } from './hooks/daycare.hooks'

@@ -34,10 +34,10 @@ export async function fetchDaycares(options: { limit?: number } = {}): Promise<D
 
 export async function fetchDaycaresInBounds(
     bounds: MapBounds,
-    options: { query?: string; limit?: number } = {}
+    options: { query?: string; vehicleOperation?: boolean; services?: string[]; limit?: number } = {}
 ): Promise<Daycare[]> {
     const { south, north, west, east } = bounds;
-    const { query, limit = 300 } = options;
+    const { query, vehicleOperation, services, limit = 300 } = options;
     const supabase = createSupabaseClient();
 
     let req = supabase
@@ -55,6 +55,17 @@ export async function fetchDaycaresInBounds(
             .filter('latitude::float8', 'lte', north)
             .filter('longitude::float8', 'gte', west)
             .filter('longitude::float8', 'lte', east)
+    }
+
+    if (vehicleOperation) {
+        req = req.eq('vehicle_operation', '운영')
+    }
+
+    if (services && services.length > 0) {
+        // 콤마 구분 문자열 내 부분 일치 — 선택한 서비스 모두 포함 (AND)
+        for (const s of services) {
+            req = req.ilike('services', `%${s}%`)
+        }
     }
 
     const { data, error } = await req.limit(limit);

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo, useRef, useCallback } from 'react';
-import { parseAsString, useQueryState } from 'nuqs';
-import type { DaycareType, MapBounds } from '@/domain/daycare';
+import { parseAsArrayOf, parseAsBoolean, parseAsString, useQueryState } from 'nuqs';
+import type { DaycareServiceType, DaycareType, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds } from '@/domain/daycare';
 import { Header } from './Header';
 import { SearchPanel } from './SearchPanel';
@@ -11,19 +11,23 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 
 export function MapLayout() {
     const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
-    const [searchQuery, setSearchQuery] = useQueryState(
-        'q',
-        parseAsString.withDefault('')
-    );
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
-    const [activeFilter, setActiveFilter] = useState<DaycareType | 'all'>('all');
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
-    const { data: daycares = [], isFetching } = useDaycaresInBounds(
-        bounds,
-        searchQuery || undefined
+    const [searchQuery, setSearchQuery] = useQueryState('q', parseAsString.withDefault(''));
+    const [activeType, setActiveType] = useQueryState('type', parseAsString.withDefault('all'));
+    const [vehicleOperation, setVehicleOperation] = useQueryState('vehicle', parseAsBoolean.withDefault(false));
+    const [activeServices, setActiveServices] = useQueryState(
+        'services',
+        parseAsArrayOf(parseAsString).withDefault([])
     );
+
+    const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
+        query: searchQuery || undefined,
+        vehicleOperation: vehicleOperation || undefined,
+        services: activeServices.length > 0 ? activeServices : undefined,
+    });
 
     const mapViewRef = useRef<NaverMapViewHandle>(null);
     const boundsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -37,9 +41,9 @@ export function MapLayout() {
 
     const filteredDaycares = useMemo(() => {
         return daycares.filter(
-            (d) => activeFilter === 'all' || d.type === activeFilter
+            (d) => activeType === 'all' || d.type === activeType
         );
-    }, [daycares, activeFilter]);
+    }, [daycares, activeType]);
 
     const handleSearch = (query: string) => {
         const trimmed = query.trim();
@@ -52,19 +56,24 @@ export function MapLayout() {
     const panelProps = {
         searchQuery,
         onSearchChange: setSearchQuery,
-        onSearch: handleSearch,
-        recentSearches,
-        onRemoveRecentSearch: (s: string) =>
-            setRecentSearches((prev) => prev.filter((r) => r !== s)),
-        activeFilter,
-        onFilterChange: setActiveFilter,
-        daycares: filteredDaycares,
-        selectedId,
         onClearSearch: () => {
             setSearchQuery(null);
             const currentBounds = mapViewRef.current?.getCurrentBounds();
             if (currentBounds) setBounds(currentBounds);
         },
+        onSearch: handleSearch,
+        recentSearches,
+        onRemoveRecentSearch: (s: string) =>
+            setRecentSearches((prev) => prev.filter((r) => r !== s)),
+        activeType: activeType as DaycareType | 'all',
+        onTypeChange: (f: DaycareType | 'all') => setActiveType(f === 'all' ? null : f),
+        vehicleOperation,
+        onVehicleOperationChange: (v: boolean) => setVehicleOperation(v || null),
+        activeServices: activeServices as DaycareServiceType[],
+        onServicesChange: (services: DaycareServiceType[]) =>
+            setActiveServices(services.length > 0 ? services : null),
+        daycares: filteredDaycares,
+        selectedId,
         onSelectDaycare: (id: string) => {
             setSelectedId((prev) => (prev === id ? null : id));
             setIsBottomSheetOpen(false);
