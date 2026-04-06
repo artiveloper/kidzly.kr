@@ -1,19 +1,17 @@
-import { Button } from "@workspace/ui/components/button"
+import { runPrefetch } from '@/lib/react-query/prefetch'
+import { daycarePrefetch } from '@/domain/daycare/server'
+import { DEFAULT_BOUNDS } from '@/domain/daycare'
+import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
+import { MapLayout } from '@/components/map/MapLayout'
 
-export default function Page() {
-  return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="text-muted-foreground font-mono text-xs">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
-  )
+export default async function Page() {
+    const state = await runPrefetch(
+        daycarePrefetch.bounds(DEFAULT_BOUNDS)
+    )
+
+    return (
+        <HydrationBoundary state={state}>
+            <MapLayout />
+        </HydrationBoundary>
+    )
 }
