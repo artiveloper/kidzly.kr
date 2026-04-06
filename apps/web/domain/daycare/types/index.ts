@@ -23,13 +23,25 @@ export type Daycare = {
     name: string;
     address: string;
     phone: string;
+    fax: string | null;
     type: DaycareType;
     typeName: string;
     status: string;
+    representativeName: string | null;
     capacity: number | null;
     currentChildCount: number | null;
+    nurseryRoomCount: number | null;
+    nurseryRoomSize: number | null;
+    playgroundCount: number | null;
+    cctvCount: number | null;
+    childcareStaffCount: number | null;
+    ageRange: { min: number; max: number } | null;
     latitude: number | null;
     longitude: number | null;
+    services: string | null;
+    vehicleOperation: string | null;
+    certifiedDate: string | null;
+    dataStandardDate: string | null;
 };
 
 export type MapBounds = {

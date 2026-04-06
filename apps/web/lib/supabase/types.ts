@@ -24,6 +24,12 @@ export type Database = {
           playground_count: number | null;
           cctv_count: number | null;
           childcare_staff_count: number | null;
+          class_count_age_0: number | null;
+          class_count_age_1: number | null;
+          class_count_age_2: number | null;
+          class_count_age_3: number | null;
+          class_count_age_4: number | null;
+          class_count_age_5: number | null;
           class_count_total: number | null;
           child_count_total: number | null;
           staff_total: number | null;

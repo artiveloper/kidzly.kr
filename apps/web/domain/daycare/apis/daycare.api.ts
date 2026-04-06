@@ -10,7 +10,7 @@ function createSupabaseClient() {
 }
 
 const DAYCARE_COLUMNS =
-    'daycare_code, sigungu_code, sido_name, sigungu_name, name, type_name, status, address, phone, latitude, longitude, capacity, current_child_count';
+    'daycare_code, sigungu_code, sido_name, sigungu_name, name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, representative_name, certified_date, data_standard_date, services, vehicle_operation';
 
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<Daycare[]> {
     const { limit = 200 } = options;

@@ -6,6 +6,7 @@ import type { DaycareServiceType, DaycareType, MapBounds } from '@/domain/daycar
 import { DEFAULT_BOUNDS, useDaycaresInBounds } from '@/domain/daycare';
 import { Header } from './Header';
 import { SearchPanel } from './SearchPanel';
+import { DaycareDetail } from './DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { MobileBottomSheet } from './MobileBottomSheet';
 
@@ -53,6 +54,21 @@ export function MapLayout() {
         );
     };
 
+    const selectedDaycare = selectedId ? daycares.find((d) => d.id === selectedId) ?? null : null;
+
+    const handleSelectDaycare = (id: string) => {
+        setSelectedId(id);
+        setIsBottomSheetOpen(true);
+        const daycare = daycares.find((d) => d.id === id);
+        if (daycare?.latitude && daycare?.longitude) {
+            mapViewRef.current?.panTo(daycare.latitude, daycare.longitude);
+        }
+    };
+
+    const handleBack = () => {
+        setSelectedId(null);
+    };
+
     const panelProps = {
         searchQuery,
         onSearchChange: setSearchQuery,
@@ -74,14 +90,7 @@ export function MapLayout() {
             setActiveServices(services.length > 0 ? services : null),
         daycares: filteredDaycares,
         selectedId,
-        onSelectDaycare: (id: string) => {
-            setSelectedId((prev) => (prev === id ? null : id));
-            setIsBottomSheetOpen(false);
-            const daycare = daycares.find((d) => d.id === id);
-            if (daycare?.latitude && daycare?.longitude) {
-                mapViewRef.current?.panTo(daycare.latitude, daycare.longitude);
-            }
-        },
+        onSelectDaycare: handleSelectDaycare,
         isLoading: isFetching,
     };
 
@@ -91,7 +100,16 @@ export function MapLayout() {
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    <SearchPanel {...panelProps} />
+                    <div className="relative flex-1 overflow-hidden h-full">
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? '-translate-x-full' : 'translate-x-0'}`}>
+                            <SearchPanel {...panelProps} />
+                        </div>
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? 'translate-x-0' : 'translate-x-full'}`}>
+                            {selectedDaycare && (
+                                <DaycareDetail daycare={selectedDaycare} onBack={handleBack} />
+                            )}
+                        </div>
+                    </div>
                 </aside>
 
                 <main className="flex-1 relative">
@@ -99,7 +117,7 @@ export function MapLayout() {
                         ref={mapViewRef}
                         daycares={filteredDaycares}
                         selectedId={selectedId}
-                        onSelectDaycare={(id) => setSelectedId((prev) => (prev === id ? null : id))}
+                        onSelectDaycare={handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}
                         onOpenBottomSheet={() => setIsBottomSheetOpen(true)}
                     />
@@ -108,9 +126,21 @@ export function MapLayout() {
 
             <MobileBottomSheet
                 isOpen={isBottomSheetOpen}
-                onClose={() => setIsBottomSheetOpen(false)}
+                onClose={() => {
+                    setIsBottomSheetOpen(false);
+                    setSelectedId(null);
+                }}
             >
-                <SearchPanel {...panelProps} />
+                <div className="relative overflow-hidden h-full">
+                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? '-translate-x-full' : 'translate-x-0'}`}>
+                        <SearchPanel {...panelProps} />
+                    </div>
+                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? 'translate-x-0' : 'translate-x-full'}`}>
+                        {selectedDaycare && (
+                            <DaycareDetail daycare={selectedDaycare} onBack={handleBack} />
+                        )}
+                    </div>
+                </div>
             </MobileBottomSheet>
         </div>
     );
