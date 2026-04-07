@@ -54,6 +54,17 @@ export function toDaycare(row: DaycareRow): Daycare {
         vehicleOperation: row.vehicle_operation ?? null,
         certifiedDate: row.certified_date ?? null,
         dataStandardDate: row.data_standard_date ?? null,
+        classCountByAge: [
+            row.class_count_age_0 ?? null,
+            row.class_count_age_1 ?? null,
+            row.class_count_age_2 ?? null,
+            row.class_count_age_3 ?? null,
+            row.class_count_age_4 ?? null,
+            row.class_count_age_5 ?? null,
+        ],
+        classCountInfantMixed: row.class_count_infant_mixed ?? null,
+        classCountChildMixed: row.class_count_child_mixed ?? null,
+        classCountSpecial: row.class_count_special ?? null,
         childCountByAge: [
             row.child_count_age_0 ?? null,
             row.child_count_age_1 ?? null,
@@ -62,6 +73,9 @@ export function toDaycare(row: DaycareRow): Daycare {
             row.child_count_age_4 ?? null,
             row.child_count_age_5 ?? null,
         ],
+        childCountInfantMixed: row.child_count_infant_mixed ?? null,
+        childCountChildMixed: row.child_count_child_mixed ?? null,
+        childCountSpecial: row.child_count_special ?? null,
         waitingChildByAge: [
             row.waiting_child_age_0 ?? null,
             row.waiting_child_age_1 ?? null,
@@ -70,7 +84,15 @@ export function toDaycare(row: DaycareRow): Daycare {
             row.waiting_child_age_4 ?? null,
             row.waiting_child_age_5 ?? null,
         ],
+        staffDirectorCount: row.staff_director_count ?? null,
         staffTeacherCount: row.staff_teacher_count ?? null,
+        staffSpecialTeacherCount: row.staff_special_teacher_count ?? null,
+        staffTherapistCount: row.staff_therapist_count ?? null,
+        staffNutritionistCount: row.staff_nutritionist_count ?? null,
+        staffNurseCount: row.staff_nurse_count ?? null,
+        staffNursingAssistantCount: row.staff_nursing_assistant_count ?? null,
+        staffCookCount: row.staff_cook_count ?? null,
+        staffOfficeCount: row.staff_office_count ?? null,
         staffTenure: (
             row.staff_tenure_under_1y !== null ||
             row.staff_tenure_1y_to_2y !== null ||

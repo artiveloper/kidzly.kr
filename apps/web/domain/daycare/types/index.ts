@@ -42,9 +42,24 @@ export type Daycare = {
     vehicleOperation: string | null;
     certifiedDate: string | null;
     dataStandardDate: string | null;
+    classCountByAge: (number | null)[];
+    classCountInfantMixed: number | null;
+    classCountChildMixed: number | null;
+    classCountSpecial: number | null;
     childCountByAge: (number | null)[];
     waitingChildByAge: (number | null)[];
+    childCountInfantMixed: number | null;
+    childCountChildMixed: number | null;
+    childCountSpecial: number | null;
+    staffDirectorCount: number | null;
     staffTeacherCount: number | null;
+    staffSpecialTeacherCount: number | null;
+    staffTherapistCount: number | null;
+    staffNutritionistCount: number | null;
+    staffNurseCount: number | null;
+    staffNursingAssistantCount: number | null;
+    staffCookCount: number | null;
+    staffOfficeCount: number | null;
     staffTenure: {
         under1y: number | null;
         y1to2: number | null;
