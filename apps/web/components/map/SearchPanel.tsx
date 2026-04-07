@@ -111,6 +111,7 @@ export function SearchPanel({
                 selectedId={selectedId}
                 onSelect={onSelectDaycare}
                 isLoading={isLoading}
+                activeAge={activeAge}
             />
         </div>
     );

@@ -33,6 +33,12 @@ export type Database = {
           class_count_total: number | null;
           child_count_total: number | null;
           staff_total: number | null;
+          waiting_child_age_0: number | null;
+          waiting_child_age_1: number | null;
+          waiting_child_age_2: number | null;
+          waiting_child_age_3: number | null;
+          waiting_child_age_4: number | null;
+          waiting_child_age_5: number | null;
           waiting_child_total: number | null;
           representative_name: string | null;
           certified_date: string | null;

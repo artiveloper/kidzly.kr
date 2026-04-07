@@ -1,12 +1,14 @@
 'use client';
 
-import { MapPin, Phone, Users } from 'lucide-react';
-import type { Daycare } from '@/domain/daycare';
+import { Clock, MapPin, Phone, Users } from 'lucide-react';
+import type { Daycare, DaycareAgeFilter } from '@/domain/daycare';
+import { DAYCARE_AGE_LABELS } from '@/domain/daycare';
 
 interface DaycareListItemProps {
   daycare: Daycare;
   selected: boolean;
   onClick: () => void;
+  activeAge: DaycareAgeFilter | null;
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -18,11 +20,14 @@ const TYPE_COLORS: Record<string, string> = {
   cooperative: 'bg-pink-50 text-pink-600',
 };
 
-export function DaycareListItem({ daycare, selected, onClick }: DaycareListItemProps) {
+export function DaycareListItem({ daycare, selected, onClick, activeAge }: DaycareListItemProps) {
   const occupancyRate =
     daycare.capacity && daycare.currentChildCount
       ? Math.round((daycare.currentChildCount / daycare.capacity) * 100)
       : null;
+
+  const waitingCount =
+    activeAge !== null ? daycare.waitingChildByAge[activeAge] : null;
 
   return (
     <button
@@ -78,6 +83,25 @@ export function DaycareListItem({ daycare, selected, onClick }: DaycareListItemP
               </div>
             )}
           </div>
+
+          {activeAge !== null && (
+            <div className={`flex items-center gap-1 mt-1.5 text-xs ${
+              waitingCount === null
+                ? 'text-gray-400'
+                : waitingCount === 0
+                  ? 'text-emerald-600'
+                  : 'text-amber-600'
+            }`}>
+              <Clock size={11} className="shrink-0" />
+              <span>
+                {waitingCount === null
+                  ? `${DAYCARE_AGE_LABELS[activeAge]} 정보 없음`
+                  : waitingCount === 0
+                    ? `${DAYCARE_AGE_LABELS[activeAge]} 대기 없음`
+                    : `${DAYCARE_AGE_LABELS[activeAge]} 대기 ${waitingCount}명`}
+              </span>
+            </div>
+          )}
         </div>
 
         {selected && (

@@ -54,5 +54,13 @@ export function toDaycare(row: DaycareRow): Daycare {
         vehicleOperation: row.vehicle_operation ?? null,
         certifiedDate: row.certified_date ?? null,
         dataStandardDate: row.data_standard_date ?? null,
+        waitingChildByAge: [
+            row.waiting_child_age_0 ?? null,
+            row.waiting_child_age_1 ?? null,
+            row.waiting_child_age_2 ?? null,
+            row.waiting_child_age_3 ?? null,
+            row.waiting_child_age_4 ?? null,
+            row.waiting_child_age_5 ?? null,
+        ],
     };
 }

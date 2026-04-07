@@ -1,6 +1,6 @@
 'use client';
 
-import type { Daycare } from '@/domain/daycare';
+import type { Daycare, DaycareAgeFilter } from '@/domain/daycare';
 import { DaycareListItem } from './DaycareListItem';
 
 interface DaycareListProps {
@@ -8,6 +8,7 @@ interface DaycareListProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   isLoading?: boolean;
+  activeAge?: DaycareAgeFilter | null;
 }
 
 export function DaycareList({
@@ -15,6 +16,7 @@ export function DaycareList({
   selectedId,
   onSelect,
   isLoading = false,
+  activeAge,
 }: DaycareListProps) {
   return (
     <div className="flex-1 overflow-y-auto relative">
@@ -50,6 +52,7 @@ export function DaycareList({
               daycare={daycare}
               selected={selectedId === daycare.id}
               onClick={() => onSelect(daycare.id)}
+              activeAge={activeAge ?? null}
             />
           ))}
         </>
