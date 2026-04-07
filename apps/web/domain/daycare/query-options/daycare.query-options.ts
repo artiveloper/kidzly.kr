@@ -8,6 +8,7 @@ export const daycareQueryOptions = {
             query: params.query,
             vehicleOperation: params.vehicleOperation,
             services: params.services,
+            age: params.age,
         }),
         staleTime: 30 * 1000,
         placeholderData: (prev: unknown) => prev,

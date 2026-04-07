@@ -6,7 +6,7 @@ import type { MapBounds } from '../types'
 
 export function useDaycaresInBounds(
     bounds: MapBounds,
-    params: { query?: string; vehicleOperation?: boolean; services?: string[] } = {}
+    params: { query?: string; vehicleOperation?: boolean; services?: string[]; age?: number } = {}
 ) {
     return useQuery(daycareQueryOptions.bounds({ bounds, ...params }))
 }

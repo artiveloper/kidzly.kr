@@ -86,3 +86,16 @@ export const DAYCARE_SERVICE_TYPES: DaycareServiceType[] = [
     '24시간', '방과후 전담', '방과후통합', '시간제보육',
     '야간연장형', '영아전담', '일반', '장애아전문', '장애아통합', '휴일보육',
 ];
+
+export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;
+
+export const DAYCARE_AGE_FILTERS: DaycareAgeFilter[] = [0, 1, 2, 3, 4, 5];
+
+export const DAYCARE_AGE_LABELS: Record<DaycareAgeFilter, string> = {
+    0: '만0세',
+    1: '만1세',
+    2: '만2세',
+    3: '만3세',
+    4: '만4세',
+    5: '만5세',
+};

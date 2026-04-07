@@ -34,10 +34,10 @@ export async function fetchDaycares(options: { limit?: number } = {}): Promise<D
 
 export async function fetchDaycaresInBounds(
     bounds: MapBounds,
-    options: { query?: string; vehicleOperation?: boolean; services?: string[]; limit?: number } = {}
+    options: { query?: string; vehicleOperation?: boolean; services?: string[]; age?: number; limit?: number } = {}
 ): Promise<Daycare[]> {
     const { south, north, west, east } = bounds;
-    const { query, vehicleOperation, services, limit = 300 } = options;
+    const { query, vehicleOperation, services, age, limit = 300 } = options;
     const supabase = createSupabaseClient();
 
     let req = supabase
@@ -66,6 +66,10 @@ export async function fetchDaycaresInBounds(
         for (const s of services) {
             req = req.ilike('services', `%${s}%`)
         }
+    }
+
+    if (age !== undefined) {
+        req = req.gt(`class_count_age_${age}`, 0);
     }
 
     const { data, error } = await req.limit(limit);

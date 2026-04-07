@@ -1,7 +1,9 @@
 'use client';
 
-import type { DaycareServiceType, DaycareType } from '@/domain/daycare';
+import type { DaycareAgeFilter, DaycareServiceType, DaycareType } from '@/domain/daycare';
 import {
+    DAYCARE_AGE_FILTERS,
+    DAYCARE_AGE_LABELS,
     DAYCARE_SERVICE_LABELS,
     DAYCARE_SERVICE_TYPES,
     DAYCARE_TYPE_LABELS,
@@ -18,6 +20,8 @@ interface DaycareFiltersProps {
     onVehicleOperationChange: (v: boolean) => void;
     activeServices: DaycareServiceType[];
     onServicesChange: (services: DaycareServiceType[]) => void;
+    activeAge: DaycareAgeFilter | null;
+    onAgeChange: (age: DaycareAgeFilter | null) => void;
 }
 
 function Pill({
@@ -51,6 +55,8 @@ export function DaycareFilters({
     onVehicleOperationChange,
     activeServices,
     onServicesChange,
+    activeAge,
+    onAgeChange,
 }: DaycareFiltersProps) {
     const toggleService = (service: DaycareServiceType) => {
         onServicesChange(
@@ -67,6 +73,19 @@ export function DaycareFilters({
                 {TYPE_FILTERS.map((f) => (
                     <Pill key={f} active={activeType === f} onClick={() => onTypeChange(f)}>
                         {DAYCARE_TYPE_LABELS[f]}
+                    </Pill>
+                ))}
+            </div>
+
+            {/* 연령 */}
+            <div className="flex gap-1.5 px-4 py-2.5 overflow-x-auto scrollbar-none">
+                {DAYCARE_AGE_FILTERS.map((age) => (
+                    <Pill
+                        key={age}
+                        active={activeAge === age}
+                        onClick={() => onAgeChange(activeAge === age ? null : age)}
+                    >
+                        {DAYCARE_AGE_LABELS[age]}
                     </Pill>
                 ))}
             </div>

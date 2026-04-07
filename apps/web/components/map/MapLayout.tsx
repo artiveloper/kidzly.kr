@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { parseAsArrayOf, parseAsBoolean, parseAsString, useQueryState } from 'nuqs';
-import type { DaycareServiceType, DaycareType, MapBounds } from '@/domain/daycare';
+import type { DaycareAgeFilter, DaycareServiceType, DaycareType, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds } from '@/domain/daycare';
 import { Header } from './Header';
 import { SearchPanel } from './SearchPanel';
@@ -23,11 +23,13 @@ export function MapLayout() {
         'services',
         parseAsArrayOf(parseAsString).withDefault([])
     );
+    const [activeAge, setActiveAge] = useQueryState('age', parseAsString.withDefault(''));
 
     const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
         query: searchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
         services: activeServices.length > 0 ? activeServices : undefined,
+        age: activeAge ? Number(activeAge) : undefined,
     });
 
     const mapViewRef = useRef<NaverMapViewHandle>(null);
@@ -88,6 +90,8 @@ export function MapLayout() {
         activeServices: activeServices as DaycareServiceType[],
         onServicesChange: (services: DaycareServiceType[]) =>
             setActiveServices(services.length > 0 ? services : null),
+        activeAge: (activeAge ? Number(activeAge) : null) as DaycareAgeFilter | null,
+        onAgeChange: (age: DaycareAgeFilter | null) => setActiveAge(age !== null ? String(age) : null),
         daycares: filteredDaycares,
         selectedId,
         onSelectDaycare: handleSelectDaycare,
