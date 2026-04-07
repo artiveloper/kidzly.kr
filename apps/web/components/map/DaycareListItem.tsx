@@ -65,7 +65,7 @@ export function DaycareListItem({ daycare, selected, onClick }: DaycareListItemP
                   {daycare.currentChildCount}/{daycare.capacity}명
                 </span>
                 <span
-                  className={`text-[10px] font-medium ${
+                  className={`text-xs font-medium ${
                     occupancyRate >= 90
                       ? 'text-red-500'
                       : occupancyRate >= 70
