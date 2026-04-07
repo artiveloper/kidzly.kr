@@ -42,7 +42,16 @@ export type Daycare = {
     vehicleOperation: string | null;
     certifiedDate: string | null;
     dataStandardDate: string | null;
+    childCountByAge: (number | null)[];
     waitingChildByAge: (number | null)[];
+    staffTeacherCount: number | null;
+    staffTenure: {
+        under1y: number | null;
+        y1to2: number | null;
+        y2to4: number | null;
+        y4to6: number | null;
+        over6y: number | null;
+    } | null;
 };
 
 export type MapBounds = {

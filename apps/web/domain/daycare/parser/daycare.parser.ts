@@ -54,6 +54,14 @@ export function toDaycare(row: DaycareRow): Daycare {
         vehicleOperation: row.vehicle_operation ?? null,
         certifiedDate: row.certified_date ?? null,
         dataStandardDate: row.data_standard_date ?? null,
+        childCountByAge: [
+            row.child_count_age_0 ?? null,
+            row.child_count_age_1 ?? null,
+            row.child_count_age_2 ?? null,
+            row.child_count_age_3 ?? null,
+            row.child_count_age_4 ?? null,
+            row.child_count_age_5 ?? null,
+        ],
         waitingChildByAge: [
             row.waiting_child_age_0 ?? null,
             row.waiting_child_age_1 ?? null,
@@ -62,5 +70,19 @@ export function toDaycare(row: DaycareRow): Daycare {
             row.waiting_child_age_4 ?? null,
             row.waiting_child_age_5 ?? null,
         ],
+        staffTeacherCount: row.staff_teacher_count ?? null,
+        staffTenure: (
+            row.staff_tenure_under_1y !== null ||
+            row.staff_tenure_1y_to_2y !== null ||
+            row.staff_tenure_2y_to_4y !== null ||
+            row.staff_tenure_4y_to_6y !== null ||
+            row.staff_tenure_over_6y !== null
+        ) ? {
+            under1y: row.staff_tenure_under_1y ?? null,
+            y1to2: row.staff_tenure_1y_to_2y ?? null,
+            y2to4: row.staff_tenure_2y_to_4y ?? null,
+            y4to6: row.staff_tenure_4y_to_6y ?? null,
+            over6y: row.staff_tenure_over_6y ?? null,
+        } : null,
     };
 }

@@ -175,11 +175,81 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
                     </div>
                 </Section>
 
+                {/* 연령별 현원 */}
+                {daycare.childCountByAge.some((v) => v !== null) && (
+                    <Section title="연령별 현원">
+                        <div className="py-2">
+                            <div className="grid grid-cols-3 gap-x-2 gap-y-0 text-xs text-gray-400 font-medium pb-1.5 border-b border-gray-100">
+                                <span>연령</span>
+                                <span className="text-center">아동 수</span>
+                                <span className="text-center">입소 대기</span>
+                            </div>
+                            {([0, 1, 2, 3, 4, 5] as const).map((age) => {
+                                const count = daycare.childCountByAge[age];
+                                const waiting = daycare.waitingChildByAge[age];
+                                if (count === null && waiting === null) return null;
+                                return (
+                                    <div key={age} className="grid grid-cols-3 gap-x-2 py-2 border-b border-gray-50 last:border-0 items-center">
+                                        <span className="text-xs font-medium text-gray-600">만{age}세</span>
+                                        <span className="text-center text-sm font-semibold text-gray-800">
+                                            {count !== null ? <>{count}<span className="text-xs font-normal text-gray-500 ml-0.5">명</span></> : <span className="text-gray-300">-</span>}
+                                        </span>
+                                        <span className="text-center text-sm font-semibold">
+                                            {waiting !== null
+                                                ? waiting === 0
+                                                    ? <span className="text-emerald-500">없음</span>
+                                                    : <span className="text-amber-500">{waiting}<span className="text-xs font-normal ml-0.5">명</span></span>
+                                                : <span className="text-gray-300">-</span>
+                                            }
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </Section>
+                )}
+
+                {/* 보육 교사 근속년수 */}
+                {daycare.staffTenure && (
+                    <Section title="보육 교사 근속년수">
+                        <div className="py-2 space-y-2.5">
+                            {([
+                                { label: '1년 미만', value: daycare.staffTenure.under1y },
+                                { label: '1~2년', value: daycare.staffTenure.y1to2 },
+                                { label: '2~4년', value: daycare.staffTenure.y2to4 },
+                                { label: '4~6년', value: daycare.staffTenure.y4to6 },
+                                { label: '6년 이상', value: daycare.staffTenure.over6y },
+                            ] as const).map(({ label, value }) => {
+                                const count = (value !== null && daycare.staffTeacherCount !== null)
+                                    ? Math.round(value / 100 * daycare.staffTeacherCount)
+                                    : null;
+                                return (
+                                    <div key={label} className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-500 w-14 shrink-0">{label}</span>
+                                        <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                                            <div
+                                                className="h-full bg-emerald-400 rounded-full transition-all"
+                                                style={{ width: `${value ?? 0}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-xs font-semibold text-gray-700 w-16 text-right shrink-0">
+                                            {value !== null
+                                                ? <>{value}%{count !== null && <span className="text-gray-400 font-normal ml-1">({count}명)</span>}</>
+                                                : '-'
+                                            }
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </Section>
+                )}
+
                 {/* 운영 정보 */}
                 <Section title="운영 정보">
                     <InfoRow icon={<Users size={15} />} label="보육 교직원">
-                        {daycare.childcareStaffCount !== null
-                            ? <>{daycare.childcareStaffCount}<span className="text-gray-500 text-xs ml-0.5">명</span></>
+                        {daycare.staffTeacherCount !== null
+                            ? <>{daycare.staffTeacherCount}<span className="text-gray-500 text-xs ml-0.5">명</span></>
                             : <span className="text-gray-400">-</span>
                         }
                     </InfoRow>

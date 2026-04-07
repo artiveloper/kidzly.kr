@@ -33,6 +33,18 @@ export type Database = {
           class_count_total: number | null;
           child_count_total: number | null;
           staff_total: number | null;
+          child_count_age_0: number | null;
+          child_count_age_1: number | null;
+          child_count_age_2: number | null;
+          child_count_age_3: number | null;
+          child_count_age_4: number | null;
+          child_count_age_5: number | null;
+          staff_teacher_count: number | null;
+          staff_tenure_under_1y: number | null;
+          staff_tenure_1y_to_2y: number | null;
+          staff_tenure_2y_to_4y: number | null;
+          staff_tenure_4y_to_6y: number | null;
+          staff_tenure_over_6y: number | null;
           waiting_child_age_0: number | null;
           waiting_child_age_1: number | null;
           waiting_child_age_2: number | null;
