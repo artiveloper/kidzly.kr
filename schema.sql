@@ -54,11 +54,11 @@ create table daycares
     child_count_infant_mixed      integer,
     child_count_child_mixed       integer,
     child_count_special           integer,
-    staff_tenure_under_1y         integer,
-    staff_tenure_1y_to_2y         integer,
-    staff_tenure_2y_to_4y         integer,
-    staff_tenure_4y_to_6y         integer,
-    staff_tenure_over_6y          integer,
+    staff_tenure_under_1y         double precision,
+    staff_tenure_1y_to_2y         double precision,
+    staff_tenure_2y_to_4y         double precision,
+    staff_tenure_4y_to_6y         double precision,
+    staff_tenure_over_6y          double precision,
     staff_director_count          integer,
     staff_teacher_count           integer,
     staff_special_teacher_count   integer,
@@ -120,7 +120,7 @@ comment on column daycares.playground_count is '놀이터 수';
 
 comment on column daycares.cctv_count is 'CCTV 설치 수';
 
-comment on column daycares.childcare_staff_count is '차량 수';
+comment on column daycares.childcare_staff_count is '보육교직원 수';
 
 comment on column daycares.class_count_total is '반 수 합계';
 
@@ -128,7 +128,7 @@ comment on column daycares.child_count_total is '아동 수 합계';
 
 comment on column daycares.staff_total is '교직원 수 합계';
 
-comment on column daycares.waiting_child_total is '여성 교직원 수 합계';
+comment on column daycares.waiting_child_total is '입소대기 아동 수 합계';
 
 comment on column daycares.representative_name is '대표자명';
 
@@ -240,40 +240,4 @@ grant delete, insert, references, select, trigger, truncate, update on daycares 
 grant delete, insert, references, select, trigger, truncate, update on daycares to authenticated;
 
 grant delete, insert, references, select, trigger, truncate, update on daycares to service_role;
-
-
-
--- auto-generated definition
-create table sigungus
-(
-    arcode    varchar(10)             not null
-        primary key,
-    sidoname  varchar(50)             not null,
-    sigunname varchar(50)             not null,
-    synced_at timestamp default now() not null
-)
-    using ???;
-
-comment on table sigungus is '시군구 정보 (cpmsapi020)';
-
-comment on column sigungus.arcode is '시군구코드';
-
-comment on column sigungus.sidoname is '시도명';
-
-comment on column sigungus.sigunname is '시군구명';
-
-comment on column sigungus.synced_at is '동기화 시각';
-
-alter table sigungus
-    owner to postgres;
-
-create index idx_sigungus_sidoname
-    on sigungus using ??? (sidoname);
-
-grant delete, insert, references, select, trigger, truncate, update on sigungus to anon;
-
-grant delete, insert, references, select, trigger, truncate, update on sigungus to authenticated;
-
-grant delete, insert, references, select, trigger, truncate, update on sigungus to service_role;
-
 
