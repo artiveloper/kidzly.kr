@@ -1,16 +1,16 @@
-import { Geist, Geist_Mono, Noto_Sans } from "next/font/google"
+import { Noto_Sans_KR } from "next/font/google"
 
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@workspace/ui/lib/utils"
 
-const notoSans = Noto_Sans({subsets:['latin'],variable:'--font-sans'})
-
-const fontMono = Geist_Mono({
+const notoSans = Noto_Sans_KR({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-sans",
+  display: "swap",
 })
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", notoSans.variable)}
+      className={cn("font-sans antialiased", notoSans.variable)}
     >
       <body>
         <NuqsAdapter>
