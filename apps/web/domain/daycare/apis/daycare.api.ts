@@ -1,24 +1,27 @@
 import { isServer } from '@tanstack/react-query';
 import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { toDaycare } from '../parser/daycare.parser';
-import type { Daycare, MapBounds } from '../types';
+import { toDaycareListItem, toDaycareDetail } from '../parser/daycare.parser';
+import type { DaycareListItem, DaycareDetail, MapBounds } from '../types';
 import type { SigunguRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
     return isServer ? createServerClient() : createBrowserClient();
 }
 
-const DAYCARE_COLUMNS =
-    'daycare_code, sigungu_code, sido_name, sigungu_name, name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, services, vehicle_operation';
+const LIST_COLUMNS =
+    'daycare_code, name, type_name, address, latitude, longitude, capacity, current_child_count, phone, services, vehicle_operation, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5';
 
-export async function fetchDaycares(options: { limit?: number } = {}): Promise<Daycare[]> {
+const DETAIL_COLUMNS =
+    'daycare_code, name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, services, vehicle_operation';
+
+export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
     const { limit = 200 } = options;
     const supabase = createServerClient();
 
     const { data, error } = await supabase
         .from('daycares')
-        .select(DAYCARE_COLUMNS)
+        .select(LIST_COLUMNS)
         .eq('status', '정상')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
@@ -29,20 +32,20 @@ export async function fetchDaycares(options: { limit?: number } = {}): Promise<D
         return [];
     }
 
-    return (data ?? []).map(toDaycare);
+    return (data ?? []).map(toDaycareListItem);
 }
 
 export async function fetchDaycaresInBounds(
     bounds: MapBounds,
     options: { query?: string; vehicleOperation?: boolean; services?: string[]; age?: number; limit?: number } = {}
-): Promise<Daycare[]> {
+): Promise<DaycareListItem[]> {
     const { south, north, west, east } = bounds;
     const { query, vehicleOperation, services, age, limit = 300 } = options;
     const supabase = createSupabaseClient();
 
     let req = supabase
         .from('daycares')
-        .select(DAYCARE_COLUMNS)
+        .select(LIST_COLUMNS)
         .eq('status', '정상')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
@@ -79,7 +82,24 @@ export async function fetchDaycaresInBounds(
         throw new Error(error.message);
     }
 
-    return (data ?? []).map(toDaycare);
+    return (data ?? []).map(toDaycareListItem);
+}
+
+export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
+    const supabase = createSupabaseClient();
+
+    const { data, error } = await supabase
+        .from('daycares')
+        .select(DETAIL_COLUMNS)
+        .eq('daycare_code', id)
+        .single();
+
+    if (error) {
+        console.error('[fetchDaycareDetail]', error.message);
+        throw new Error(error.message);
+    }
+
+    return toDaycareDetail(data);
 }
 
 export async function fetchDaycareTypeNames(): Promise<string[]> {

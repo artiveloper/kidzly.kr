@@ -3,7 +3,7 @@
 import Script from 'next/script';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { List } from 'lucide-react';
-import type { Daycare, MapBounds } from '@/domain/daycare';
+import type { DaycareListItem, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS } from '@/domain/daycare';
 
 export type NaverMapViewHandle = {
@@ -12,7 +12,7 @@ export type NaverMapViewHandle = {
 };
 
 interface NaverMapViewProps {
-  daycares: Daycare[];
+  daycares: DaycareListItem[];
   selectedId: string | null;
   onSelectDaycare: (id: string) => void;
   onBoundsChange: (bounds: MapBounds) => void;

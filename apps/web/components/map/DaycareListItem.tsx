@@ -2,11 +2,11 @@
 
 import { Clock, MapPin, Phone, Users } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
-import type { Daycare, DaycareAgeFilter } from '@/domain/daycare';
+import type { DaycareListItem, DaycareAgeFilter } from '@/domain/daycare';
 import { DAYCARE_AGE_LABELS } from '@/domain/daycare';
 
 interface DaycareListItemProps {
-  daycare: Daycare;
+  daycare: DaycareListItem;
   onClick: () => void;
   activeAge: DaycareAgeFilter | null; // 연령 필터 선택 시 해당 연령 대기 정보 표시
 }

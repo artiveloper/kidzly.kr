@@ -1,4 +1,20 @@
-export type Daycare = {
+export type DaycareListItem = {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+    typeName: string;
+    latitude: number | null;
+    longitude: number | null;
+    capacity: number | null;
+    currentChildCount: number | null;
+    services: string | null;
+    vehicleOperation: string | null;
+    ageRange: { min: number; max: number } | null;
+    waitingChildByAge: (number | null)[];
+};
+
+export type DaycareDetail = {
     id: string;
     name: string;
     address: string;

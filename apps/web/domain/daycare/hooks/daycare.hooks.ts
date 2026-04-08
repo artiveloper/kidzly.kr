@@ -11,6 +11,10 @@ export function useDaycaresInBounds(
     return useQuery(daycareQueryOptions.bounds({ bounds, ...params }))
 }
 
+export function useDaycareDetail(id: string) {
+    return useQuery(daycareQueryOptions.detail(id))
+}
+
 export function useDaycareTypeNames() {
     return useQuery(daycareQueryOptions.typeNames())
 }

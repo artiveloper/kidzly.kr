@@ -1,5 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
-import type { Daycare } from '../types';
+import type { DaycareListItem, DaycareDetail } from '../types';
 
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
     const counts = [
@@ -23,7 +23,32 @@ function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
     };
 }
 
-export function toDaycare(row: DaycareRow): Daycare {
+export function toDaycareListItem(row: DaycareRow): DaycareListItem {
+    return {
+        id: row.daycare_code,
+        name: row.name,
+        address: row.address ?? '',
+        phone: row.phone ?? '',
+        typeName: row.type_name ?? '',
+        latitude: row.latitude ? parseFloat(row.latitude) : null,
+        longitude: row.longitude ? parseFloat(row.longitude) : null,
+        capacity: row.capacity,
+        currentChildCount: row.current_child_count,
+        services: row.services ?? null,
+        vehicleOperation: row.vehicle_operation ?? null,
+        ageRange: toAgeRange(row),
+        waitingChildByAge: [
+            row.waiting_child_age_0 ?? null,
+            row.waiting_child_age_1 ?? null,
+            row.waiting_child_age_2 ?? null,
+            row.waiting_child_age_3 ?? null,
+            row.waiting_child_age_4 ?? null,
+            row.waiting_child_age_5 ?? null,
+        ],
+    };
+}
+
+export function toDaycareDetail(row: DaycareRow): DaycareDetail {
     return {
         id: row.daycare_code,
         name: row.name,
@@ -66,9 +91,6 @@ export function toDaycare(row: DaycareRow): Daycare {
             row.child_count_age_4 ?? null,
             row.child_count_age_5 ?? null,
         ],
-        childCountInfantMixed: row.child_count_infant_mixed ?? null,
-        childCountChildMixed: row.child_count_child_mixed ?? null,
-        childCountSpecial: row.child_count_special ?? null,
         waitingChildByAge: [
             row.waiting_child_age_0 ?? null,
             row.waiting_child_age_1 ?? null,
@@ -77,6 +99,9 @@ export function toDaycare(row: DaycareRow): Daycare {
             row.waiting_child_age_4 ?? null,
             row.waiting_child_age_5 ?? null,
         ],
+        childCountInfantMixed: row.child_count_infant_mixed ?? null,
+        childCountChildMixed: row.child_count_child_mixed ?? null,
+        childCountSpecial: row.child_count_special ?? null,
         staffDirectorCount: row.staff_director_count ?? null,
         staffTeacherCount: row.staff_teacher_count ?? null,
         staffSpecialTeacherCount: row.staff_special_teacher_count ?? null,

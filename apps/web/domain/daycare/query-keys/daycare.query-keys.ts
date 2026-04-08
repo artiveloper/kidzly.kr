@@ -14,6 +14,9 @@ export const daycareQueryKeys = {
     bounds: (params: DaycareQueryParams) =>
         [...daycareQueryKeys.all, 'bounds', params] as const,
 
+    detail: (id: string) =>
+        [...daycareQueryKeys.all, 'detail', id] as const,
+
     typeNames: ['daycare', 'typeNames'] as const,
 
     serviceTypes: ['daycare', 'serviceTypes'] as const,

@@ -58,7 +58,7 @@ export function MapLayout() {
         );
     };
 
-    const selectedDaycare = selectedId ? daycares.find((d) => d.id === selectedId) ?? null : null;
+    const selectedListItem = selectedId ? daycares.find((d) => d.id === selectedId) ?? null : null;
 
     const handleSelectDaycare = (id: string) => {
         setSelectedId(id);
@@ -108,12 +108,12 @@ export function MapLayout() {
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
                     <div className="relative flex-1 overflow-hidden h-full">
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? '-translate-x-full' : 'translate-x-0'}`}>
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
                             <SearchPanel {...panelProps} />
                         </div>
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? 'translate-x-0' : 'translate-x-full'}`}>
-                            {selectedDaycare && (
-                                <DaycareDetail daycare={selectedDaycare} onBack={handleBack} />
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
+                            {selectedId && selectedListItem && (
+                                <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
                             )}
                         </div>
                     </div>
@@ -139,12 +139,12 @@ export function MapLayout() {
                 }}
             >
                 <div className="relative overflow-hidden h-full">
-                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? '-translate-x-full' : 'translate-x-0'}`}>
+                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
                         <SearchPanel {...panelProps} />
                     </div>
-                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedDaycare ? 'translate-x-0' : 'translate-x-full'}`}>
-                        {selectedDaycare && (
-                            <DaycareDetail daycare={selectedDaycare} onBack={handleBack} />
+                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
+                        {selectedId && selectedListItem && (
+                            <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
                         )}
                     </div>
                 </div>

@@ -4,10 +4,12 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@workspace/ui/components/table';
-import type { Daycare } from '@/domain/daycare';
+import type { DaycareListItem, DaycareDetail } from '@/domain/daycare';
+import { useDaycareDetail } from '@/domain/daycare';
 
 interface DaycareDetailProps {
-    daycare: Daycare;
+    id: string;
+    listItem: DaycareListItem;
     onBack: () => void;
 }
 
@@ -71,7 +73,7 @@ function InfoGrid({ rows }: { rows: { label: string; value: React.ReactNode }[] 
     );
 }
 
-export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
+function DetailContent({ daycare }: { daycare: DaycareDetail }) {
     const occupancyRate =
         daycare.capacity && daycare.currentChildCount
             ? Math.round((daycare.currentChildCount / daycare.capacity) * 100)
@@ -117,33 +119,7 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
     ].filter(Boolean) as { label: string; value: React.ReactNode }[]
 
     return (
-      <div className="flex h-full flex-col">
-        {/* Header */}
-        <div className="relative flex shrink-0 items-center border-b border-gray-100 px-4 py-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="absolute left-2.5"
-            aria-label="목록으로"
-          >
-            <ArrowLeft size={18} />
-          </Button>
-          <div className="flex-1 px-10 text-center">
-            <h2 className="leading-snug font-semibold text-gray-900">
-              {daycare.name}
-            </h2>
-            {daycare.dataStandardDate && (
-              <p className="mt-0.5 text-xs text-gray-400">
-                {formatDate(daycare.dataStandardDate)} 기준
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="divide-y-8 divide-gray-100">
+        <div className="divide-y-8 divide-gray-100">
 
             {/* 기본 정보 */}
             {basicInfoRows.length > 0 && (
@@ -346,8 +322,58 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
               </div>
             )}
 
+        </div>
+    )
+}
 
+function DetailSkeleton() {
+    return (
+        <div className="divide-y-8 divide-gray-100 animate-pulse">
+            {[80, 120, 100, 140].map((h, i) => (
+                <div key={i} className="px-4 py-5">
+                    <div className="h-3.5 w-14 rounded bg-gray-200 mb-4" />
+                    <div className="rounded-lg bg-gray-100" style={{ height: h }} />
+                </div>
+            ))}
+        </div>
+    )
+}
+
+export function DaycareDetail({ id, listItem, onBack }: DaycareDetailProps) {
+    const { data: detail, isLoading } = useDaycareDetail(id)
+
+    return (
+      <div className="flex h-full flex-col">
+        {/* Header */}
+        <div className="relative flex shrink-0 items-center border-b border-gray-100 px-4 py-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="absolute left-2.5"
+            aria-label="목록으로"
+          >
+            <ArrowLeft size={18} />
+          </Button>
+          <div className="flex-1 px-10 text-center">
+            <h2 className="leading-snug font-semibold text-gray-900">
+              {listItem.name}
+            </h2>
+            {detail?.dataStandardDate && (
+              <p className="mt-0.5 text-xs text-gray-400">
+                {formatDate(detail.dataStandardDate)} 기준
+              </p>
+            )}
           </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <DetailSkeleton />
+          ) : detail ? (
+            <DetailContent daycare={detail} />
+          ) : null}
         </div>
       </div>
     )

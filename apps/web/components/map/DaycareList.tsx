@@ -1,10 +1,10 @@
 'use client';
 
-import type { Daycare, DaycareAgeFilter } from '@/domain/daycare';
+import type { DaycareListItem as DaycareListItemType, DaycareAgeFilter } from '@/domain/daycare';
 import { DaycareListItem } from './DaycareListItem';
 
 interface DaycareListProps {
-  daycares: Daycare[];
+  daycares: DaycareListItemType[];
   onSelect: (id: string) => void;
   isLoading?: boolean;
   activeAge?: DaycareAgeFilter | null;

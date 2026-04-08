@@ -1,6 +1,6 @@
 import { keepPreviousData } from '@tanstack/react-query'
 import { daycareQueryKeys, type DaycareQueryParams } from '../query-keys/daycare.query-keys'
-import { fetchDaycaresInBounds, fetchDaycareTypeNames, fetchDaycareServiceTypes } from '../apis/daycare.api'
+import { fetchDaycaresInBounds, fetchDaycareDetail, fetchDaycareTypeNames, fetchDaycareServiceTypes } from '../apis/daycare.api'
 
 export const daycareQueryOptions = {
     bounds: (params: DaycareQueryParams) => ({
@@ -13,6 +13,12 @@ export const daycareQueryOptions = {
         }),
         staleTime: 30 * 1000,
         placeholderData: keepPreviousData,
+    }),
+
+    detail: (id: string) => ({
+        queryKey: daycareQueryKeys.detail(id),
+        queryFn: () => fetchDaycareDetail(id),
+        staleTime: 5 * 60 * 1000,
     }),
 
     typeNames: () => ({
