@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { cn } from "@workspace/ui/lib/utils"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const notoSans = Noto_Sans_KR({
   subsets: ["latin"],
@@ -25,6 +27,8 @@ export default function RootLayout({
       className={cn("font-sans antialiased", notoSans.variable)}
     >
       <body>
+        <Analytics />
+        <SpeedInsights />
         <NuqsAdapter>
           <ReactQueryProvider>
             <ThemeProvider>{children}</ThemeProvider>
