@@ -5,8 +5,8 @@ import { parseAsArrayOf, parseAsBoolean, parseAsString, useQueryState } from 'nu
 import type { DaycareAgeFilter, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, useDaycareTypeNames, useDaycareServiceTypes } from '@/domain/daycare';
 import { Header } from './Header';
-import { SearchPanel } from './SearchPanel';
-import { DaycareDetail } from './DaycareDetail';
+import { SearchPanel } from '../list/SearchPanel';
+import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { MobileBottomSheet } from './MobileBottomSheet';
 
