@@ -5,7 +5,6 @@ import { DaycareListItem } from './DaycareListItem';
 
 interface DaycareListProps {
   daycares: Daycare[];
-  selectedId: string | null;
   onSelect: (id: string) => void;
   isLoading?: boolean;
   activeAge?: DaycareAgeFilter | null;
@@ -13,7 +12,6 @@ interface DaycareListProps {
 
 export function DaycareList({
   daycares,
-  selectedId,
   onSelect,
   isLoading = false,
   activeAge,
@@ -50,7 +48,6 @@ export function DaycareList({
             <DaycareListItem
               key={daycare.id}
               daycare={daycare}
-              selected={selectedId === daycare.id}
               onClick={() => onSelect(daycare.id)}
               activeAge={activeAge ?? null}
             />

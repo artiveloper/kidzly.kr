@@ -24,7 +24,6 @@ interface SearchPanelProps {
     activeAge: DaycareAgeFilter | null;
     onAgeChange: (age: DaycareAgeFilter | null) => void;
     daycares: Daycare[];
-    selectedId: string | null;
     onSelectDaycare: (id: string) => void;
     isLoading?: boolean;
 }
@@ -47,7 +46,6 @@ export function SearchPanel({
     activeAge,
     onAgeChange,
     daycares,
-    selectedId,
     onSelectDaycare,
     isLoading = false,
 }: SearchPanelProps) {
@@ -114,7 +112,6 @@ export function SearchPanel({
             {/* List */}
             <DaycareList
                 daycares={daycares}
-                selectedId={selectedId}
                 onSelect={onSelectDaycare}
                 isLoading={isLoading}
                 activeAge={activeAge}

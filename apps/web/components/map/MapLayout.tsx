@@ -97,7 +97,6 @@ export function MapLayout() {
         activeAge: (activeAge ? Number(activeAge) : null) as DaycareAgeFilter | null,
         onAgeChange: (age: DaycareAgeFilter | null) => setActiveAge(age !== null ? String(age) : null),
         daycares: filteredDaycares,
-        selectedId,
         onSelectDaycare: handleSelectDaycare,
         isLoading: isFetching,
     };
