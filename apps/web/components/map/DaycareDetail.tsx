@@ -22,7 +22,7 @@ function StatCard({ label, value, unit }: { label: string; value: React.ReactNod
         <div className="flex flex-col items-center justify-center rounded-lg border border-gray-100 p-3 gap-0.5">
             <span className="text-sm text-gray-600">{label}</span>
             <span className="text-base font-bold text-gray-800">
-                {value ?? <span className="text-gray-300">–</span>}
+                {value ?? <span className="text-gray-300">미제공</span>}
                 {value !== null && value !== undefined && unit && (
                     <span className="text-sm font-normal text-gray-400 ml-0.5">{unit}</span>
                 )}
@@ -51,7 +51,7 @@ function calcYearsSince(dateStr: string | null): number | null {
 }
 
 function AgeRangeBadge({ ageRange }: { ageRange: { min: number; max: number } | null }) {
-    if (!ageRange) return <span className="text-gray-300">–</span>;
+    if (!ageRange) return <span className="text-gray-300">미제공</span>;
     if (ageRange.min === ageRange.max) {
         return <span>만 {ageRange.min}세</span>;
     }
@@ -196,10 +196,10 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
                         <TableRow key={age}>
                           <TableCell className="text-gray-600">만{age}세</TableCell>
                           <TableCell className="text-center text-gray-800">
-                            {classCount !== null ? classCount : <span className="text-gray-300">–</span>}
+                            {classCount !== null ? classCount : <span className="text-gray-300">미제공</span>}
                           </TableCell>
                           <TableCell className="text-center text-gray-800">
-                            {count !== null ? count : <span className="text-gray-300">–</span>}
+                            {count !== null ? count : <span className="text-gray-300">미제공</span>}
                           </TableCell>
                           <TableCell className="text-center">
                             {waiting !== null ? (
@@ -208,7 +208,7 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
                               ) : (
                                 <span className="text-amber-500">{waiting}</span>
                               )
-                            ) : <span className="text-gray-300">–</span>}
+                            ) : <span className="text-gray-300">미제공</span>}
                           </TableCell>
                         </TableRow>
                       )
@@ -221,12 +221,12 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
                       <TableRow key={label}>
                         <TableCell className="text-gray-600">{label}</TableCell>
                         <TableCell className="text-center text-gray-800">
-                          {classCount !== null ? classCount : <span className="text-gray-300">–</span>}
+                          {classCount !== null ? classCount : <span className="text-gray-300">미제공</span>}
                         </TableCell>
                         <TableCell className="text-center text-gray-800">
-                          {count !== null ? count : <span className="text-gray-300">–</span>}
+                          {count !== null ? count : <span className="text-gray-300">미제공</span>}
                         </TableCell>
-                        <TableCell className="text-center text-gray-300">미제공</TableCell>
+                        <TableCell className="text-center"><span className="text-gray-300">미제공</span></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -336,7 +336,7 @@ export function DaycareDetail({ daycare, onBack }: DaycareDetailProps) {
                             />
                           </div>
                           <span className="shrink-0 text-right text-sm text-gray-800 w-8">
-                            {count !== null ? <>{count}<span className="text-gray-400 ml-0.5">명</span></> : <span className="text-gray-300">–</span>}
+                            {count !== null ? <>{count}<span className="text-gray-400 ml-0.5">명</span></> : <span className="text-gray-300">미제공</span>}
                           </span>
                         </div>
                       )
