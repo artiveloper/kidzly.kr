@@ -1,14 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
-import type { Daycare, DaycareType } from '../types';
-
-function toType(typeName: string | null): DaycareType {
-    if (!typeName) return 'private';
-    if (typeName.includes('국공립') || typeName.includes('공립')) return 'national';
-    if (typeName.includes('직장')) return 'workplace';
-    if (typeName.includes('가정')) return 'home';
-    if (typeName.includes('부모협동')) return 'cooperative';
-    return 'private';
-}
+import type { Daycare } from '../types';
 
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
     const counts = [
@@ -23,9 +14,12 @@ function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
         .map((count, age) => ({ age, count }))
         .filter(({ count }) => count !== null && count > 0);
     if (present.length === 0) return null;
+    const first = present[0];
+    const last = present[present.length - 1];
+    if (!first || !last) return null;
     return {
-        min: present[0].age,
-        max: present[present.length - 1].age,
+        min: first.age,
+        max: last.age,
     };
 }
 
@@ -36,7 +30,6 @@ export function toDaycare(row: DaycareRow): Daycare {
         address: row.address ?? '',
         phone: row.phone ?? '',
         fax: row.fax ?? null,
-        type: toType(row.type_name),
         typeName: row.type_name ?? '',
         status: row.status ?? '',
         representativeName: row.representative_name ?? null,

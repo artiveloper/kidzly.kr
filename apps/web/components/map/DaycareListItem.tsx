@@ -11,14 +11,6 @@ interface DaycareListItemProps {
   activeAge: DaycareAgeFilter | null;
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  national: 'bg-blue-50 text-blue-600',
-  public: 'bg-sky-50 text-sky-600',
-  private: 'bg-orange-50 text-orange-600',
-  home: 'bg-purple-50 text-purple-600',
-  workplace: 'bg-indigo-50 text-indigo-600',
-  cooperative: 'bg-pink-50 text-pink-600',
-};
 
 export function DaycareListItem({ daycare, selected, onClick, activeAge }: DaycareListItemProps) {
   const occupancyRate =
@@ -42,12 +34,8 @@ export function DaycareListItem({ daycare, selected, onClick, activeAge }: Dayca
             <span className="font-semibold text-sm text-gray-900 truncate">
               {daycare.name}
             </span>
-            <span
-              className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                TYPE_COLORS[daycare.type] ?? 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              {daycare.typeName || daycare.type}
+            <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+              {daycare.typeName}
             </span>
           </div>
 

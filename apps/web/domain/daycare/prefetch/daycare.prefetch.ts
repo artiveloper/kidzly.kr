@@ -9,4 +9,16 @@ export const daycarePrefetch = {
             await queryClient.prefetchQuery(daycareQueryOptions.bounds(params))
         }
     },
+
+    typeNames() {
+        return async (queryClient: QueryClient) => {
+            await queryClient.prefetchQuery(daycareQueryOptions.typeNames())
+        }
+    },
+
+    serviceTypes() {
+        return async (queryClient: QueryClient) => {
+            await queryClient.prefetchQuery(daycareQueryOptions.serviceTypes())
+        }
+    },
 }

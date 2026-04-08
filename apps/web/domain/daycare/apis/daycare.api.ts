@@ -82,6 +82,32 @@ export async function fetchDaycaresInBounds(
     return (data ?? []).map(toDaycare);
 }
 
+export async function fetchDaycareTypeNames(): Promise<string[]> {
+    const supabase = createSupabaseClient();
+
+    const result = await supabase.from('daycare_type_names' as never).select('type_name');
+
+    if (result.error) {
+        console.error('[fetchDaycareTypeNames]', result.error.message);
+        return [];
+    }
+
+    return (result.data as Array<{ type_name: string }> ?? []).map((r) => r.type_name);
+}
+
+export async function fetchDaycareServiceTypes(): Promise<string[]> {
+    const supabase = createSupabaseClient();
+
+    const result = await supabase.from('daycare_service_types' as never).select('service_name');
+
+    if (result.error) {
+        console.error('[fetchDaycareServiceTypes]', result.error.message);
+        return [];
+    }
+
+    return (result.data as Array<{ service_name: string }> ?? []).map((r) => r.service_name);
+}
+
 export async function fetchSigungus(): Promise<SigunguRow[]> {
     const supabase = createServerClient();
 

@@ -1,30 +1,9 @@
-export type DaycareType =
-    | 'national'
-    | 'public'
-    | 'private'
-    | 'home'
-    | 'workplace'
-    | 'cooperative';
-
-export type DaycareServiceType =
-    | '24시간'
-    | '방과후 전담'
-    | '방과후통합'
-    | '시간제보육'
-    | '야간연장형'
-    | '영아전담'
-    | '일반'
-    | '장애아전문'
-    | '장애아통합'
-    | '휴일보육';
-
 export type Daycare = {
     id: string;
     name: string;
     address: string;
     phone: string;
     fax: string | null;
-    type: DaycareType;
     typeName: string;
     status: string;
     representativeName: string | null;
@@ -84,33 +63,6 @@ export const DEFAULT_BOUNDS: MapBounds = {
     east: 127.080,
 };
 
-export const DAYCARE_TYPE_LABELS: Record<DaycareType | 'all', string> = {
-    all: '전체',
-    national: '국공립',
-    public: '공립',
-    private: '민간',
-    home: '가정',
-    workplace: '직장',
-    cooperative: '부모협동',
-};
-
-export const DAYCARE_SERVICE_LABELS: Record<DaycareServiceType, string> = {
-    '24시간': '🕐 24시간',
-    '방과후 전담': '📚 방과후전담',
-    '방과후통합': '🎒 방과후통합',
-    '시간제보육': '⏱️ 시간제',
-    '야간연장형': '🌙 야간연장',
-    '영아전담': '👶 영아전담',
-    '일반': '⭐ 일반',
-    '장애아전문': '💙 장애아전문',
-    '장애아통합': '🤝 장애아통합',
-    '휴일보육': '📅 휴일보육',
-};
-
-export const DAYCARE_SERVICE_TYPES: DaycareServiceType[] = [
-    '24시간', '방과후 전담', '방과후통합', '시간제보육',
-    '야간연장형', '영아전담', '일반', '장애아전문', '장애아통합', '휴일보육',
-];
 
 export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;
 

@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { parseAsArrayOf, parseAsBoolean, parseAsString, useQueryState } from 'nuqs';
-import type { DaycareAgeFilter, DaycareServiceType, DaycareType, MapBounds } from '@/domain/daycare';
-import { DEFAULT_BOUNDS, useDaycaresInBounds } from '@/domain/daycare';
+import type { DaycareAgeFilter, MapBounds } from '@/domain/daycare';
+import { DEFAULT_BOUNDS, useDaycaresInBounds, useDaycareTypeNames, useDaycareServiceTypes } from '@/domain/daycare';
 import { Header } from './Header';
 import { SearchPanel } from './SearchPanel';
 import { DaycareDetail } from './DaycareDetail';
@@ -25,6 +25,8 @@ export function MapLayout() {
     );
     const [activeAge, setActiveAge] = useQueryState('age', parseAsString.withDefault(''));
 
+    const { data: typeNames = [] } = useDaycareTypeNames();
+    const { data: serviceTypes = [] } = useDaycareServiceTypes();
     const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
         query: searchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
@@ -44,7 +46,7 @@ export function MapLayout() {
 
     const filteredDaycares = useMemo(() => {
         return daycares.filter(
-            (d) => activeType === 'all' || d.type === activeType
+            (d) => activeType === 'all' || d.typeName === activeType
         );
     }, [daycares, activeType]);
 
@@ -83,12 +85,14 @@ export function MapLayout() {
         recentSearches,
         onRemoveRecentSearch: (s: string) =>
             setRecentSearches((prev) => prev.filter((r) => r !== s)),
-        activeType: activeType as DaycareType | 'all',
-        onTypeChange: (f: DaycareType | 'all') => setActiveType(f === 'all' ? null : f),
+        typeNames,
+        activeType,
+        onTypeChange: (f: string) => setActiveType(f === 'all' ? null : f),
         vehicleOperation,
         onVehicleOperationChange: (v: boolean) => setVehicleOperation(v || null),
-        activeServices: activeServices as DaycareServiceType[],
-        onServicesChange: (services: DaycareServiceType[]) =>
+        serviceTypes,
+        activeServices,
+        onServicesChange: (services: string[]) =>
             setActiveServices(services.length > 0 ? services : null),
         activeAge: (activeAge ? Number(activeAge) : null) as DaycareAgeFilter | null,
         onAgeChange: (age: DaycareAgeFilter | null) => setActiveAge(age !== null ? String(age) : null),

@@ -1,7 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
-import type { Daycare, DaycareAgeFilter, DaycareServiceType, DaycareType } from '@/domain/daycare';
+import type { Daycare, DaycareAgeFilter } from '@/domain/daycare';
 import { RecentSearches } from './RecentSearches';
 import { DaycareFilters } from './DaycareFilters';
 import { DaycareList } from './DaycareList';
@@ -13,12 +13,14 @@ interface SearchPanelProps {
     onSearch: (v: string) => void;
     recentSearches: string[];
     onRemoveRecentSearch: (s: string) => void;
-    activeType: DaycareType | 'all';
-    onTypeChange: (f: DaycareType | 'all') => void;
+    typeNames: string[];
+    activeType: string;
+    onTypeChange: (f: string) => void;
     vehicleOperation: boolean;
     onVehicleOperationChange: (v: boolean) => void;
-    activeServices: DaycareServiceType[];
-    onServicesChange: (services: DaycareServiceType[]) => void;
+    serviceTypes: string[];
+    activeServices: string[];
+    onServicesChange: (services: string[]) => void;
     activeAge: DaycareAgeFilter | null;
     onAgeChange: (age: DaycareAgeFilter | null) => void;
     daycares: Daycare[];
@@ -34,10 +36,12 @@ export function SearchPanel({
     onSearch,
     recentSearches,
     onRemoveRecentSearch,
+    typeNames,
     activeType,
     onTypeChange,
     vehicleOperation,
     onVehicleOperationChange,
+    serviceTypes,
     activeServices,
     onServicesChange,
     activeAge,
@@ -95,10 +99,12 @@ export function SearchPanel({
 
             {/* Filters */}
             <DaycareFilters
+                typeNames={typeNames}
                 activeType={activeType}
                 onTypeChange={onTypeChange}
                 vehicleOperation={vehicleOperation}
                 onVehicleOperationChange={onVehicleOperationChange}
+                serviceTypes={serviceTypes}
                 activeServices={activeServices}
                 onServicesChange={onServicesChange}
                 activeAge={activeAge}
