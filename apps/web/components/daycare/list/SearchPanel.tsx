@@ -1,7 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
-import type { DaycareListItem, DaycareAgeFilter } from '@/domain/daycare';
+import type { DaycareListItem } from '@/domain/daycare';
 import { RecentSearches } from './RecentSearches';
 import { DaycareFilters } from './DaycareFilters';
 import { DaycareList } from './DaycareList';
@@ -13,16 +13,6 @@ interface SearchPanelProps {
     onSearch: (v: string) => void;
     recentSearches: string[];
     onRemoveRecentSearch: (s: string) => void;
-    typeNames: string[];
-    activeType: string;
-    onTypeChange: (f: string) => void;
-    vehicleOperation: boolean;
-    onVehicleOperationChange: (v: boolean) => void;
-    serviceTypes: string[];
-    activeServices: string[];
-    onServicesChange: (services: string[]) => void;
-    activeAge: DaycareAgeFilter | null;
-    onAgeChange: (age: DaycareAgeFilter | null) => void;
     daycares: DaycareListItem[];
     onSelectDaycare: (id: string) => void;
     isLoading?: boolean;
@@ -35,16 +25,6 @@ export function SearchPanel({
     onSearch,
     recentSearches,
     onRemoveRecentSearch,
-    typeNames,
-    activeType,
-    onTypeChange,
-    vehicleOperation,
-    onVehicleOperationChange,
-    serviceTypes,
-    activeServices,
-    onServicesChange,
-    activeAge,
-    onAgeChange,
     daycares,
     onSelectDaycare,
     isLoading = false,
@@ -96,25 +76,13 @@ export function SearchPanel({
             )}
 
             {/* Filters */}
-            <DaycareFilters
-                typeNames={typeNames}
-                activeType={activeType}
-                onTypeChange={onTypeChange}
-                vehicleOperation={vehicleOperation}
-                onVehicleOperationChange={onVehicleOperationChange}
-                serviceTypes={serviceTypes}
-                activeServices={activeServices}
-                onServicesChange={onServicesChange}
-                activeAge={activeAge}
-                onAgeChange={onAgeChange}
-            />
+            <DaycareFilters />
 
             {/* List */}
             <DaycareList
                 daycares={daycares}
                 onSelect={onSelectDaycare}
                 isLoading={isLoading}
-                activeAge={activeAge}
             />
         </div>
     );

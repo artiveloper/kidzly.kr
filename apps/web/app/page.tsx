@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { runPrefetch } from '@/lib/react-query/prefetch'
 import { daycarePrefetch } from '@/domain/daycare/server'
 import { DEFAULT_BOUNDS } from '@/domain/daycare'
@@ -13,7 +14,9 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={state}>
-            <MapLayout />
+            <Suspense>
+                <MapLayout />
+            </Suspense>
         </HydrationBoundary>
     )
 }

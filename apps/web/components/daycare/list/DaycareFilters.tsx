@@ -1,20 +1,8 @@
 'use client';
 
+import { useQueryState } from 'nuqs';
 import type { DaycareAgeFilter } from '@/domain/daycare';
-import { DAYCARE_AGE_FILTERS, DAYCARE_AGE_LABELS } from '@/domain/daycare';
-
-interface DaycareFiltersProps {
-    typeNames: string[];
-    activeType: string;
-    onTypeChange: (f: string) => void;
-    vehicleOperation: boolean;
-    onVehicleOperationChange: (v: boolean) => void;
-    serviceTypes: string[];
-    activeServices: string[];
-    onServicesChange: (services: string[]) => void;
-    activeAge: DaycareAgeFilter | null;
-    onAgeChange: (age: DaycareAgeFilter | null) => void;
-}
+import { DAYCARE_AGE_FILTERS, DAYCARE_AGE_LABELS, useDaycareTypeNames, useDaycareServiceTypes, daycareFilterParsers } from '@/domain/daycare';
 
 function Pill({
     active,
@@ -40,35 +28,33 @@ function Pill({
     );
 }
 
-export function DaycareFilters({
-    typeNames,
-    activeType,
-    onTypeChange,
-    vehicleOperation,
-    onVehicleOperationChange,
-    serviceTypes,
-    activeServices,
-    onServicesChange,
-    activeAge,
-    onAgeChange,
-}: DaycareFiltersProps) {
+export function DaycareFilters() {
+    const { data: typeNames = [] } = useDaycareTypeNames();
+    const { data: serviceTypes = [] } = useDaycareServiceTypes();
+
+    const [activeType, setActiveType] = useQueryState('type', daycareFilterParsers.type);
+    const [vehicleOperation, setVehicleOperation] = useQueryState('vehicle', daycareFilterParsers.vehicle);
+    const [activeServices, setActiveServices] = useQueryState('services', daycareFilterParsers.services);
+    const [activeAgeStr, setActiveAge] = useQueryState('age', daycareFilterParsers.age);
+
+    const activeAge = (activeAgeStr ? Number(activeAgeStr) : null) as DaycareAgeFilter | null;
+
     const toggleService = (service: string) => {
-        onServicesChange(
-            activeServices.includes(service)
-                ? activeServices.filter((s) => s !== service)
-                : [...activeServices, service]
-        );
+        const next = activeServices.includes(service)
+            ? activeServices.filter((s) => s !== service)
+            : [...activeServices, service];
+        setActiveServices(next.length > 0 ? next : null);
     };
 
     return (
         <div className="border-b border-gray-100 divide-y divide-gray-50">
             {/* 유형 */}
             <div className="flex gap-1.5 px-4 py-2.5 overflow-x-auto scrollbar-none">
-                <Pill active={activeType === 'all'} onClick={() => onTypeChange('all')}>
+                <Pill active={activeType === 'all'} onClick={() => setActiveType(null)}>
                     전체
                 </Pill>
                 {typeNames.map((name) => (
-                    <Pill key={name} active={activeType === name} onClick={() => onTypeChange(name)}>
+                    <Pill key={name} active={activeType === name} onClick={() => setActiveType(name)}>
                         {name}
                     </Pill>
                 ))}
@@ -80,7 +66,7 @@ export function DaycareFilters({
                     <Pill
                         key={age}
                         active={activeAge === age}
-                        onClick={() => onAgeChange(activeAge === age ? null : age)}
+                        onClick={() => setActiveAge(activeAge === age ? null : String(age))}
                     >
                         {DAYCARE_AGE_LABELS[age]}
                     </Pill>
@@ -89,7 +75,7 @@ export function DaycareFilters({
 
             {/* 통학차량 + 제공서비스 */}
             <div className="flex gap-1.5 px-4 py-2.5 overflow-x-auto scrollbar-none">
-                <Pill active={vehicleOperation} onClick={() => onVehicleOperationChange(!vehicleOperation)}>
+                <Pill active={vehicleOperation} onClick={() => setVehicleOperation(vehicleOperation ? null : true)}>
                     🚌 통학차량
                 </Pill>
                 {serviceTypes.map((s) => (
