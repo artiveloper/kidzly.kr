@@ -37,8 +37,8 @@ export function DaycareList({
         <>
           <div className="px-4 py-2.5 flex items-center gap-2">
             <p className="text-xs text-gray-500">
-              현재 지역{' '}
-              <span className="font-semibold text-gray-900">{daycares.length}</span>개
+              총 {' '}
+              <span className="font-semibold text-gray-900">{daycares.length}</span>개 어린이집
             </p>
             {isLoading && (
               <span className="text-[10px] text-emerald-500 font-medium">업데이트 중...</span>
