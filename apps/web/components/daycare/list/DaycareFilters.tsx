@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryState } from 'nuqs';
-import { ChevronDown, Check, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import React from 'react';
 import type { DaycareAgeFilter } from '@/domain/daycare';
 import {
@@ -17,13 +17,6 @@ import {
     DropdownMenuContent,
     DropdownMenuCheckboxItem,
 } from '@workspace/ui/components/dropdown-menu';
-import {
-    Drawer,
-    DrawerTrigger,
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
-} from '@workspace/ui/components/drawer';
 import { cn } from '@workspace/ui/lib/utils';
 import { Button } from '@workspace/ui/components/button';
 
@@ -46,68 +39,22 @@ function FilterTrigger({
     )
 }
 
-function DrawerOption({
-    label,
-    checked,
-    onClick,
-}: {
-    label: string;
-    checked: boolean;
-    onClick: () => void;
-}) {
-    return (
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={onClick}
-        className="h-auto w-full justify-between px-2 py-3.5 text-sm font-medium"
-      >
-        {label}
-        {checked && <Check size={16} className="shrink-0" />}
-      </Button>
-    )
-}
-
 function FilterMenu({
     label,
     active,
-    title,
     dropdownContent,
-    drawerContent,
 }: {
     label: string;
     active: boolean;
-    title: string;
     dropdownContent: React.ReactNode;
-    drawerContent: React.ReactNode;
 }) {
     return (
-        <>
-            {/* 데스크톱: DropdownMenu */}
-            <div className="hidden md:block">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <FilterTrigger label={label} active={active} />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>{dropdownContent}</DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
-            {/* 모바일: Drawer */}
-            <div className="md:hidden">
-                <Drawer>
-                    <DrawerTrigger asChild>
-                        <FilterTrigger label={label} active={active} />
-                    </DrawerTrigger>
-                    <DrawerContent className="h-[50dvh]">
-                        <DrawerHeader>
-                            <DrawerTitle>{title}</DrawerTitle>
-                        </DrawerHeader>
-                        <div className="pb-8 overflow-y-auto">{drawerContent}</div>
-                    </DrawerContent>
-                </Drawer>
-            </div>
-        </>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <FilterTrigger label={label} active={active} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>{dropdownContent}</DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 
@@ -174,7 +121,6 @@ export function DaycareFilters() {
         <FilterMenu
           label={typeLabel}
           active={isTypeActive}
-          title="어린이집 유형"
           dropdownContent={
             <>
               {typeNames.map((name) => (
@@ -189,25 +135,12 @@ export function DaycareFilters() {
               ))}
             </>
           }
-          drawerContent={
-            <div className="flex flex-col">
-              {typeNames.map((name) => (
-                <DrawerOption
-                  key={name}
-                  label={name}
-                  checked={activeType.includes(name)}
-                  onClick={() => toggleType(name)}
-                />
-              ))}
-            </div>
-          }
         />
 
         {/* 연령 */}
         <FilterMenu
           label={ageLabel}
           active={isAgeActive}
-          title="연령"
           dropdownContent={
             <>
               {DAYCARE_AGE_FILTERS.map((age) => (
@@ -221,25 +154,12 @@ export function DaycareFilters() {
               ))}
             </>
           }
-          drawerContent={
-            <div className="flex flex-col">
-              {DAYCARE_AGE_FILTERS.map((age) => (
-                <DrawerOption
-                  key={age}
-                  label={DAYCARE_AGE_LABELS[age]}
-                  checked={activeAge === String(age)}
-                  onClick={() => toggleAge(age)}
-                />
-              ))}
-            </div>
-          }
         />
 
         {/* 지원서비스 */}
         <FilterMenu
           label={servicesLabel}
           active={isServicesActive}
-          title="지원서비스"
           dropdownContent={
             <>
               <DropdownMenuCheckboxItem
@@ -260,25 +180,6 @@ export function DaycareFilters() {
                 </DropdownMenuCheckboxItem>
               ))}
             </>
-          }
-          drawerContent={
-            <div className="flex flex-col">
-              <DrawerOption
-                label="통학차량"
-                checked={vehicleOperation}
-                onClick={() =>
-                  setVehicleOperation(vehicleOperation ? null : true)
-                }
-              />
-              {serviceTypes.map((s) => (
-                <DrawerOption
-                  key={s}
-                  label={s}
-                  checked={activeServices.includes(s)}
-                  onClick={() => toggleService(s)}
-                />
-              ))}
-            </div>
           }
         />
 

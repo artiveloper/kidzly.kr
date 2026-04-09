@@ -8,7 +8,7 @@ import { Header } from './Header';
 import { SearchPanel } from '../list/SearchPanel';
 import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
-import { MobileBottomSheet } from './MobileBottomSheet';
+import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/drawer';
 
 export function MapLayout() {
     const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
@@ -115,24 +115,29 @@ export function MapLayout() {
                 </main>
             </div>
 
-            <MobileBottomSheet
-                isOpen={isBottomSheetOpen}
-                onClose={() => {
-                    setIsBottomSheetOpen(false);
-                    setSelectedId(null);
+            <Drawer
+                open={isBottomSheetOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setIsBottomSheetOpen(false);
+                        setSelectedId(null);
+                    }
                 }}
             >
-                <div className="relative overflow-hidden h-full">
-                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
-                        <SearchPanel {...panelProps} />
+                <DrawerContent className="md:hidden h-[65dvh]">
+                    <DrawerTitle className="sr-only">어린이집 목록</DrawerTitle>
+                    <div className="relative overflow-hidden flex-1">
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
+                            <SearchPanel {...panelProps} />
+                        </div>
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
+                            {selectedId && selectedListItem && (
+                                <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
+                            )}
+                        </div>
                     </div>
-                    <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
-                        {selectedId && selectedListItem && (
-                            <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
-                        )}
-                    </div>
-                </div>
-            </MobileBottomSheet>
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }
