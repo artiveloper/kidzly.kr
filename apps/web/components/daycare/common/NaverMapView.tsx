@@ -117,8 +117,15 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
 
     mapRef.current = map;
 
+    // 초기화 시 idle이 한 번 자동 발생하므로 건너뜀
+    let isFirstIdle = true;
+
     // idle: 지도 이동/줌 완료 후 발생 (programmatic panTo는 무시)
     naver.maps.Event.addListener(map, 'idle', () => {
+      if (isFirstIdle) {
+        isFirstIdle = false;
+        return;
+      }
       if (isProgrammaticMoveRef.current) {
         isProgrammaticMoveRef.current = false;
         return;
@@ -126,8 +133,8 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
       onBoundsChangeRef.current(getBounds(map));
     });
 
-    // 초기 bounds 즉시 emit
-    onBoundsChangeRef.current(getBounds(map));
+    // 초기 bounds는 DEFAULT_BOUNDS로 고정 → prefetch cache key와 일치
+    onBoundsChangeRef.current(DEFAULT_BOUNDS);
   }, [scriptLoaded]);
 
   // 마커 동기화
