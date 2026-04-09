@@ -4,5 +4,5 @@ export const daycareFilterParsers = {
     type: parseAsArrayOf(parseAsString).withDefault([]),
     vehicle: parseAsBoolean.withDefault(false),
     services: parseAsArrayOf(parseAsString).withDefault([]),
-    age: parseAsArrayOf(parseAsString).withDefault([]),
+    age: parseAsString,
 };

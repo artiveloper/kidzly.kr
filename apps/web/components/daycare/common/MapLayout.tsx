@@ -26,7 +26,7 @@ export function MapLayout() {
         query: searchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
         services: activeServices.length > 0 ? activeServices : undefined,
-        ages: activeAge.length > 0 ? activeAge.map(Number) : undefined,
+        ages: activeAge !== null ? [Number(activeAge)] : undefined,
     });
 
     const mapViewRef = useRef<NaverMapViewHandle>(null);

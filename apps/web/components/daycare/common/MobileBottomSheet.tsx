@@ -26,7 +26,7 @@ export function MobileBottomSheet({ isOpen, onClose, children }: MobileBottomShe
     <>
       {/* Backdrop */}
       <div
-        className={`md:hidden fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${
+        className={`md:hidden fixed inset-0 z-[10000] bg-black/30 transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -35,7 +35,7 @@ export function MobileBottomSheet({ isOpen, onClose, children }: MobileBottomShe
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-300 ease-out h-[65dvh] ${
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-[10001] bg-white rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-300 ease-out h-[65dvh] ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >

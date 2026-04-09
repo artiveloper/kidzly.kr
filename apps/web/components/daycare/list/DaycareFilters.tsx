@@ -118,14 +118,11 @@ export function DaycareFilters() {
     const [activeType, setActiveType] = useQueryState('type', daycareFilterParsers.type);
     const [vehicleOperation, setVehicleOperation] = useQueryState('vehicle', daycareFilterParsers.vehicle);
     const [activeServices, setActiveServices] = useQueryState('services', daycareFilterParsers.services);
-    const [activeAges, setActiveAges] = useQueryState('age', daycareFilterParsers.age);
+    const [activeAge, setActiveAge] = useQueryState('age', daycareFilterParsers.age);
 
     const toggleAge = (age: DaycareAgeFilter) => {
         const key = String(age);
-        const next = activeAges.includes(key)
-            ? activeAges.filter((a) => a !== key)
-            : [...activeAges, key];
-        setActiveAges(next.length > 0 ? next : null);
+        setActiveAge(activeAge === key ? null : key);
     };
 
     const toggleService = (service: string) => {
@@ -143,7 +140,7 @@ export function DaycareFilters() {
     };
 
     const isTypeActive = activeType.length > 0;
-    const isAgeActive = activeAges.length > 0;
+    const isAgeActive = activeAge !== null;
     const servicesCount = activeServices.length + (vehicleOperation ? 1 : 0);
     const isServicesActive = servicesCount > 0;
 
@@ -152,10 +149,8 @@ export function DaycareFilters() {
         : activeType.length > 1
         ? `${activeType[0]} 외 ${activeType.length - 1}개`
         : '유형';
-    const ageLabel = activeAges.length === 1
-        ? DAYCARE_AGE_LABELS[Number(activeAges[0]) as DaycareAgeFilter]
-        : activeAges.length > 1
-        ? `${DAYCARE_AGE_LABELS[Number(activeAges[0]) as DaycareAgeFilter]} 외 ${activeAges.length - 1}개`
+    const ageLabel = activeAge !== null
+        ? DAYCARE_AGE_LABELS[Number(activeAge) as DaycareAgeFilter]
         : '연령';
     const firstServiceLabel = vehicleOperation ? '통학차량' : activeServices[0];
     const servicesLabel = servicesCount === 1
@@ -168,136 +163,136 @@ export function DaycareFilters() {
 
     const resetAll = () => {
         setActiveType(null);
-        setActiveAges(null);
+        setActiveAge(null);
         setActiveServices(null);
         setVehicleOperation(null);
     };
 
     return (
-        <div className="flex gap-2 px-4 py-2.5 overflow-x-auto scrollbar-none">
-            {/* 유형 */}
-            <FilterMenu
-                label={typeLabel}
-                active={isTypeActive}
-                title="어린이집 유형"
-                dropdownContent={
-                    <>
-                        {typeNames.map((name) => (
-                            <DropdownMenuCheckboxItem
-                                key={name}
-                                checked={activeType.includes(name)}
-                                onCheckedChange={() => toggleType(name)}
-                                onSelect={(e) => e.preventDefault()}
-                            >
-                                {name}
-                            </DropdownMenuCheckboxItem>
-                        ))}
-                    </>
-                }
-                drawerContent={
-                    <div className="flex flex-col">
-                        {typeNames.map((name) => (
-                            <DrawerOption
-                                key={name}
-                                label={name}
-                                checked={activeType.includes(name)}
-                                onClick={() => toggleType(name)}
-                            />
-                        ))}
-                    </div>
-                }
-            />
-
-            {/* 연령 */}
-            <FilterMenu
-                label={ageLabel}
-                active={isAgeActive}
-                title="연령"
-                dropdownContent={
-                    <>
-                        {DAYCARE_AGE_FILTERS.map((age) => (
-                            <DropdownMenuCheckboxItem
-                                key={age}
-                                checked={activeAges.includes(String(age))}
-                                onCheckedChange={() => toggleAge(age)}
-                                onSelect={(e) => e.preventDefault()}
-                            >
-                                {DAYCARE_AGE_LABELS[age]}
-                            </DropdownMenuCheckboxItem>
-                        ))}
-                    </>
-                }
-                drawerContent={
-                    <div className="flex flex-col">
-                        {DAYCARE_AGE_FILTERS.map((age) => (
-                            <DrawerOption
-                                key={age}
-                                label={DAYCARE_AGE_LABELS[age]}
-                                checked={activeAges.includes(String(age))}
-                                onClick={() => toggleAge(age)}
-                            />
-                        ))}
-                    </div>
-                }
-            />
-
-            {/* 지원서비스 */}
-            <FilterMenu
-                label={servicesLabel}
-                active={isServicesActive}
-                title="지원서비스"
-                dropdownContent={
-                    <>
-                        <DropdownMenuCheckboxItem
-                            checked={vehicleOperation}
-                            onCheckedChange={(v) => setVehicleOperation(v ? true : null)}
-                            onSelect={(e) => e.preventDefault()}
-                        >
-                            통학차량
-                        </DropdownMenuCheckboxItem>
-                        {serviceTypes.map((s) => (
-                            <DropdownMenuCheckboxItem
-                                key={s}
-                                checked={activeServices.includes(s)}
-                                onCheckedChange={() => toggleService(s)}
-                                onSelect={(e) => e.preventDefault()}
-                            >
-                                {s}
-                            </DropdownMenuCheckboxItem>
-                        ))}
-                    </>
-                }
-                drawerContent={
-                    <div className="flex flex-col">
-                        <DrawerOption
-                            label="통학차량"
-                            checked={vehicleOperation}
-                            onClick={() => setVehicleOperation(vehicleOperation ? null : true)}
-                        />
-                        {serviceTypes.map((s) => (
-                            <DrawerOption
-                                key={s}
-                                label={s}
-                                checked={activeServices.includes(s)}
-                                onClick={() => toggleService(s)}
-                            />
-                        ))}
-                    </div>
-                }
-            />
-
-            {/* 초기화 */}
-            {isAnyActive && (
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    className="shrink-0 whitespace-nowrap text-muted-foreground"
-                    onClick={resetAll}
+      <div className="scrollbar-none flex gap-2 overflow-x-auto px-4 py-2.5">
+        {/* 유형 */}
+        <FilterMenu
+          label={typeLabel}
+          active={isTypeActive}
+          title="어린이집 유형"
+          dropdownContent={
+            <>
+              {typeNames.map((name) => (
+                <DropdownMenuCheckboxItem
+                  key={name}
+                  checked={activeType.includes(name)}
+                  onCheckedChange={() => toggleType(name)}
+                  onSelect={(e) => e.preventDefault()}
                 >
-                    <X size={14} />
-                    초기화
-                </Button>
-            )}
-        </div>
-    );
+                  {name}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </>
+          }
+          drawerContent={
+            <div className="flex flex-col">
+              {typeNames.map((name) => (
+                <DrawerOption
+                  key={name}
+                  label={name}
+                  checked={activeType.includes(name)}
+                  onClick={() => toggleType(name)}
+                />
+              ))}
+            </div>
+          }
+        />
+
+        {/* 연령 */}
+        <FilterMenu
+          label={ageLabel}
+          active={isAgeActive}
+          title="연령"
+          dropdownContent={
+            <>
+              {DAYCARE_AGE_FILTERS.map((age) => (
+                <DropdownMenuCheckboxItem
+                  key={age}
+                  checked={activeAge === String(age)}
+                  onCheckedChange={() => toggleAge(age)}
+                >
+                  {DAYCARE_AGE_LABELS[age]}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </>
+          }
+          drawerContent={
+            <div className="flex flex-col">
+              {DAYCARE_AGE_FILTERS.map((age) => (
+                <DrawerOption
+                  key={age}
+                  label={DAYCARE_AGE_LABELS[age]}
+                  checked={activeAge === String(age)}
+                  onClick={() => toggleAge(age)}
+                />
+              ))}
+            </div>
+          }
+        />
+
+        {/* 지원서비스 */}
+        <FilterMenu
+          label={servicesLabel}
+          active={isServicesActive}
+          title="지원서비스"
+          dropdownContent={
+            <>
+              <DropdownMenuCheckboxItem
+                checked={vehicleOperation}
+                onCheckedChange={(v) => setVehicleOperation(v ? true : null)}
+                onSelect={(e) => e.preventDefault()}
+              >
+                통학차량
+              </DropdownMenuCheckboxItem>
+              {serviceTypes.map((s) => (
+                <DropdownMenuCheckboxItem
+                  key={s}
+                  checked={activeServices.includes(s)}
+                  onCheckedChange={() => toggleService(s)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {s}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </>
+          }
+          drawerContent={
+            <div className="flex flex-col">
+              <DrawerOption
+                label="통학차량"
+                checked={vehicleOperation}
+                onClick={() =>
+                  setVehicleOperation(vehicleOperation ? null : true)
+                }
+              />
+              {serviceTypes.map((s) => (
+                <DrawerOption
+                  key={s}
+                  label={s}
+                  checked={activeServices.includes(s)}
+                  onClick={() => toggleService(s)}
+                />
+              ))}
+            </div>
+          }
+        />
+
+        {/* 초기화 */}
+        {isAnyActive && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="shrink-0 px-2 text-muted-foreground"
+            onClick={resetAll}
+          >
+            <X size={14} />
+          </Button>
+        )}
+      </div>
+    )
 }
