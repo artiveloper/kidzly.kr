@@ -35,10 +35,9 @@ export function MobileBottomSheet({ isOpen, onClose, children }: MobileBottomShe
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-300 ease-out h-[65dvh] ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
-        style={{ maxHeight: '80vh', minHeight: '60vh' }}
       >
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
