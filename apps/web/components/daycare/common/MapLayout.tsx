@@ -9,7 +9,6 @@ import { SearchPanel } from '../list/SearchPanel';
 import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { MobileBottomSheet } from './MobileBottomSheet';
-import { DaycareFilters } from '../list/DaycareFilters';
 
 export function MapLayout() {
     const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
@@ -105,9 +104,6 @@ export function MapLayout() {
                 </aside>
 
                 <main className="flex-1 relative">
-                    <div className="absolute top-0 left-0 right-0 z-10 bg-transparent">
-                        <DaycareFilters />
-                    </div>
                     <NaverMapView
                         ref={mapViewRef}
                         daycares={filteredDaycares}

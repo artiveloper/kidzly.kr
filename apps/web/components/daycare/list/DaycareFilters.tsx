@@ -34,16 +34,16 @@ function FilterTrigger({
     ...props
 }: React.ComponentProps<'button'> & { label: string; active: boolean }) {
     return (
-        <Button
-            type="button"
-            variant={active ? 'default' : 'outline'}
-            className={cn('shrink-0 whitespace-nowrap', className)}
-            {...props}
-        >
-            {label}
-            <ChevronDown size={11} className="shrink-0" />
-        </Button>
-    );
+      <Button
+        size="sm"
+        variant={active ? "default" : "outline"}
+        className={cn("shrink-0 whitespace-nowrap", className)}
+        {...props}
+      >
+        {label}
+        <ChevronDown size={11} className="shrink-0" />
+      </Button>
+    )
 }
 
 function DrawerOption({
@@ -56,16 +56,16 @@ function DrawerOption({
     onClick: () => void;
 }) {
     return (
-        <Button
-            type="button"
-            variant="ghost"
-            onClick={onClick}
-            className="w-full justify-between px-2 py-3.5 h-auto text-sm font-medium"
-        >
-            {label}
-            {checked && <Check size={16} className="shrink-0" />}
-        </Button>
-    );
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={onClick}
+        className="h-auto w-full justify-between px-2 py-3.5 text-sm font-medium"
+      >
+        {label}
+        {checked && <Check size={16} className="shrink-0" />}
+      </Button>
+    )
 }
 
 function FilterMenu({
@@ -289,7 +289,7 @@ export function DaycareFilters() {
             {/* 초기화 */}
             {isAnyActive && (
                 <Button
-                    type="button"
+                    size="sm"
                     variant="ghost"
                     className="shrink-0 whitespace-nowrap text-muted-foreground"
                     onClick={resetAll}
