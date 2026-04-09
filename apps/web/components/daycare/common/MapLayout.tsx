@@ -9,6 +9,7 @@ import { SearchPanel } from '../list/SearchPanel';
 import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { MobileBottomSheet } from './MobileBottomSheet';
+import { DaycareFilters } from '../list/DaycareFilters';
 
 export function MapLayout() {
     const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
@@ -26,7 +27,7 @@ export function MapLayout() {
         query: searchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
         services: activeServices.length > 0 ? activeServices : undefined,
-        age: activeAge ? Number(activeAge) : undefined,
+        ages: activeAge.length > 0 ? activeAge.map(Number) : undefined,
     });
 
     const mapViewRef = useRef<NaverMapViewHandle>(null);
@@ -41,7 +42,7 @@ export function MapLayout() {
 
     const filteredDaycares = useMemo(() => {
         return daycares.filter(
-            (d) => activeType === 'all' || d.typeName === activeType
+            (d) => activeType.length === 0 || activeType.includes(d.typeName)
         );
     }, [daycares, activeType]);
 
@@ -104,6 +105,9 @@ export function MapLayout() {
                 </aside>
 
                 <main className="flex-1 relative">
+                    <div className="absolute top-0 left-0 right-0 z-10 bg-transparent">
+                        <DaycareFilters />
+                    </div>
                     <NaverMapView
                         ref={mapViewRef}
                         daycares={filteredDaycares}

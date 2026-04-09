@@ -5,7 +5,7 @@ export type DaycareQueryParams = {
     query?: string
     vehicleOperation?: boolean
     services?: string[]
-    age?: number
+    ages?: number[]
 }
 
 export const daycareQueryKeys = {

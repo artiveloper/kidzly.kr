@@ -3,7 +3,6 @@
 import { Search, X } from 'lucide-react';
 import type { DaycareListItem } from '@/domain/daycare';
 import { RecentSearches } from './RecentSearches';
-import { DaycareFilters } from './DaycareFilters';
 import { DaycareList } from './DaycareList';
 
 interface SearchPanelProps {
@@ -74,9 +73,6 @@ export function SearchPanel({
                     onRemove={onRemoveRecentSearch}
                 />
             )}
-
-            {/* Filters */}
-            <DaycareFilters />
 
             {/* List */}
             <DaycareList

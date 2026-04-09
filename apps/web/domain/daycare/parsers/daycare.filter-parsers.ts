@@ -1,8 +1,8 @@
 import { parseAsArrayOf, parseAsBoolean, parseAsString } from 'nuqs/server';
 
 export const daycareFilterParsers = {
-    type: parseAsString.withDefault('all'),
+    type: parseAsArrayOf(parseAsString).withDefault([]),
     vehicle: parseAsBoolean.withDefault(false),
     services: parseAsArrayOf(parseAsString).withDefault([]),
-    age: parseAsString.withDefault(''),
+    age: parseAsArrayOf(parseAsString).withDefault([]),
 };

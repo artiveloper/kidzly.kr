@@ -34,7 +34,7 @@ export function DaycareList({ daycares, onSelect, isLoading = false }: DaycareLi
                 </div>
             ) : (
                 <>
-                    <div className="px-4 py-2.5 flex items-center gap-2">
+                    <div className="px-4 pt-2.5 pb-1 flex items-center gap-2">
                         <p className="text-xs text-gray-500">
                             총 {' '}
                             <span className="font-semibold text-gray-900">{daycares.length}</span>개 어린이집
