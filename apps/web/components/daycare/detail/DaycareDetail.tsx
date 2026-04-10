@@ -360,11 +360,13 @@ export function DaycareDetail({ id, listItem, onBack, onClose }: DaycareDetailPr
             <h2 className="leading-snug font-semibold text-gray-900">
               {listItem.name}
             </h2>
-            {detail?.dataStandardDate && (
+            {isLoading ? (
+              <div className="mt-1 mx-auto h-3 w-24 rounded bg-gray-200 animate-pulse" />
+            ) : detail?.dataStandardDate ? (
               <p className="mt-0.5 text-xs text-gray-400">
                 {formatDate(detail.dataStandardDate)} 기준
               </p>
-            )}
+            ) : null}
           </div>
           {onClose && (
             <Button
