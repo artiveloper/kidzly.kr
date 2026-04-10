@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@workspace/ui/components/table';
@@ -11,6 +11,7 @@ interface DaycareDetailProps {
     id: string;
     listItem: DaycareListItem;
     onBack: () => void;
+    onClose?: () => void;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -339,7 +340,7 @@ function DetailSkeleton() {
     )
 }
 
-export function DaycareDetail({ id, listItem, onBack }: DaycareDetailProps) {
+export function DaycareDetail({ id, listItem, onBack, onClose }: DaycareDetailProps) {
     const { data: detail, isLoading } = useDaycareDetail(id)
 
     return (
@@ -365,6 +366,17 @@ export function DaycareDetail({ id, listItem, onBack }: DaycareDetailProps) {
               </p>
             )}
           </div>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="absolute right-2.5"
+              aria-label="닫기"
+            >
+              <X size={18} />
+            </Button>
+          )}
         </div>
 
         {/* Content */}

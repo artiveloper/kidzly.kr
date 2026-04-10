@@ -124,15 +124,23 @@ export function MapLayout() {
                     }
                 }}
             >
-                <DrawerContent className="md:hidden h-[65dvh]">
+                <DrawerContent className="md:hidden !mt-14 !max-h-[calc(100dvh-56px)] h-[calc(100dvh-56px)]">
                     <DrawerTitle className="sr-only">어린이집 목록</DrawerTitle>
-                    <div className="relative overflow-hidden flex-1">
+<div className="relative overflow-hidden flex-1">
                         <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
                             <SearchPanel {...panelProps} />
                         </div>
                         <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
                             {selectedId && selectedListItem && (
-                                <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
+                                <DaycareDetail
+                                    id={selectedId}
+                                    listItem={selectedListItem}
+                                    onBack={handleBack}
+                                    onClose={() => {
+                                        setIsBottomSheetOpen(false);
+                                        setSelectedId(null);
+                                    }}
+                                />
                             )}
                         </div>
                     </div>
