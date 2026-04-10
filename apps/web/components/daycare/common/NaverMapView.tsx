@@ -26,7 +26,9 @@ const DEFAULT_CENTER = {
     lng: (DEFAULT_BOUNDS.east + DEFAULT_BOUNDS.west) / 2,
 };
 
-function markerHtml(name: string, selected: boolean): string {
+const NAME_MIN_ZOOM = 17;
+
+function markerHtml(name: string, selected: boolean, showName: boolean): string {
   if (selected) {
     return `
       <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
@@ -47,17 +49,35 @@ function markerHtml(name: string, selected: boolean): string {
         ">${name}</div>
       </div>`;
   }
+
+  const dot = `
+    <div style="
+      width:28px;height:28px;border-radius:50%;
+      background:#fff;border:2.5px solid #10b981;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,0.18);
+    ">
+      <div style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div>
+    </div>
+    <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #10b981;margin-top:-1px;"></div>`;
+
+  if (showName) {
+    return `
+      <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
+        ${dot}
+        <div style="
+          margin-top:2px;background:rgba(255,255,255,0.95);color:#111827;
+          font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;
+          white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;
+          font-family:-apple-system,sans-serif;
+          box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid rgba(16,185,129,0.25);
+        ">${name}</div>
+      </div>`;
+  }
+
   return `
     <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
-      <div style="
-        width:28px;height:28px;border-radius:50%;
-        background:#fff;border:2.5px solid #10b981;
-        display:flex;align-items:center;justify-content:center;
-        box-shadow:0 2px 6px rgba(0,0,0,0.18);
-      ">
-        <div style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div>
-      </div>
-      <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #10b981;margin-top:-1px;"></div>
+      ${dot}
     </div>`;
 }
 
@@ -81,6 +101,7 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
   const onBoundsChangeRef = useRef(onBoundsChange);
   const isProgrammaticMoveRef = useRef(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [zoom, setZoom] = useState(16);
 
   useImperativeHandle(ref, () => ({
       panTo(lat: number, lng: number) {
@@ -130,6 +151,7 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
         isProgrammaticMoveRef.current = false;
         return;
       }
+      setZoom(map.getZoom());
       onBoundsChangeRef.current(getBounds(map));
     });
 
@@ -157,7 +179,8 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
       if (!daycare.latitude || !daycare.longitude) continue;
 
       const isSelected = daycare.id === selectedId;
-      const html = markerHtml(daycare.name, isSelected);
+      const showName = zoom >= NAME_MIN_ZOOM;
+      const html = markerHtml(daycare.name, isSelected, showName);
       const anchor = isSelected
         ? new naver.maps.Point(19, 60)
         : new naver.maps.Point(14, 41);
@@ -177,7 +200,7 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
         existing.set(daycare.id, marker);
       }
     }
-  }, [scriptLoaded, daycares, selectedId, onSelectDaycare]);
+  }, [scriptLoaded, daycares, selectedId, onSelectDaycare, zoom]);
 
 
   if (!CLIENT_ID) {
