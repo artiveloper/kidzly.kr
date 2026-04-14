@@ -4,7 +4,7 @@ import { Search, X } from 'lucide-react';
 import type { DaycareListItem } from '@/domain/daycare';
 import { RecentSearches } from './RecentSearches';
 import { DaycareList } from './DaycareList';
-import { DaycareFilters } from './DaycareFilters';
+import { DaycareFilters } from './filters/DaycareFilters';
 
 interface SearchPanelProps {
     searchQuery: string;

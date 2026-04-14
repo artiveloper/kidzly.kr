@@ -9,8 +9,10 @@ import { SearchPanel } from '../list/SearchPanel';
 import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/drawer';
+import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 
 export function MapLayout() {
+    const isMobile = useIsMobile();
     const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -116,7 +118,7 @@ export function MapLayout() {
             </div>
 
             <Drawer
-                open={isBottomSheetOpen}
+                open={isBottomSheetOpen && isMobile}
                 onOpenChange={(open) => {
                     if (!open) {
                         setIsBottomSheetOpen(false);
