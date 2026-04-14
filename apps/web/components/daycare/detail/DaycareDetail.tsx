@@ -1,6 +1,7 @@
 'use client';
 
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, Check, Share2, X } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@workspace/ui/components/table';
@@ -9,7 +10,7 @@ import { useDaycareDetail } from '@/domain/daycare';
 
 interface DaycareDetailProps {
     id: string;
-    listItem: DaycareListItem;
+    listItem?: DaycareListItem;
     onBack: () => void;
     onClose?: () => void;
 }
@@ -342,6 +343,25 @@ function DetailSkeleton() {
 
 export function DaycareDetail({ id, listItem, onBack, onClose }: DaycareDetailProps) {
     const { data: detail, isLoading } = useDaycareDetail(id)
+    const [copied, setCopied] = useState(false)
+
+    const name = listItem?.name ?? detail?.name
+
+    const handleShare = async () => {
+        const url = `${window.location.origin}/?id=${id}`
+        const shareData = { title: name ?? '어린이집', url }
+        if (navigator.share && navigator.canShare?.(shareData)) {
+            try {
+                await navigator.share(shareData)
+            } catch {
+                // 사용자가 취소한 경우 무시
+            }
+        } else {
+            await navigator.clipboard.writeText(url)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        }
+    }
 
     return (
       <div className="flex h-full flex-col">
@@ -357,9 +377,13 @@ export function DaycareDetail({ id, listItem, onBack, onClose }: DaycareDetailPr
             <ArrowLeft size={18} />
           </Button>
           <div className="flex-1 px-10 text-center">
-            <h2 className="leading-snug font-semibold text-gray-900">
-              {listItem.name}
-            </h2>
+            {name ? (
+              <h2 className="leading-snug font-semibold text-gray-900">
+                {name}
+              </h2>
+            ) : (
+              <div className="mx-auto h-4 w-32 rounded bg-gray-200 animate-pulse" />
+            )}
             {isLoading ? (
               <div className="mt-1 mx-auto h-3 w-24 rounded bg-gray-200 animate-pulse" />
             ) : detail?.dataStandardDate ? (
@@ -368,6 +392,15 @@ export function DaycareDetail({ id, listItem, onBack, onClose }: DaycareDetailPr
               </p>
             ) : null}
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShare}
+            className={`absolute ${onClose ? 'right-11' : 'right-2.5'}`}
+            aria-label="공유"
+          >
+            {copied ? <Check size={18} className="text-emerald-500" /> : <Share2 size={18} />}
+          </Button>
           {onClose && (
             <Button
               variant="ghost"

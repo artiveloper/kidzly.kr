@@ -16,9 +16,9 @@ export function MapLayout() {
     const isMobile = useIsMobile();
     const [rawBounds, setRawBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
     const bounds = useDebounce(rawBounds, 600);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useQueryState('id', parseAsString);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(selectedId !== null);
 
     const [searchQuery, setSearchQuery] = useQueryState('q', parseAsString.withDefault(''));
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -93,12 +93,12 @@ export function MapLayout() {
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
                     <div className="relative flex-1 overflow-hidden h-full">
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? '-translate-x-full' : 'translate-x-0'}`}>
                             <SearchPanel {...panelProps} />
                         </div>
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
-                            {selectedId && selectedListItem && (
-                                <DaycareDetail id={selectedId} listItem={selectedListItem} onBack={handleBack} />
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? 'translate-x-0' : 'translate-x-full'}`}>
+                            {selectedId && (
+                                <DaycareDetail id={selectedId} listItem={selectedListItem ?? undefined} onBack={handleBack} />
                             )}
                         </div>
                     </div>
@@ -128,14 +128,14 @@ export function MapLayout() {
                 <DrawerContent className="md:hidden !mt-14 !max-h-[calc(100dvh-56px)] h-[calc(100dvh-56px)]">
                     <DrawerTitle className="sr-only">어린이집 목록</DrawerTitle>
 <div className="relative overflow-hidden flex-1">
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? '-translate-x-full' : 'translate-x-0'}`}>
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? '-translate-x-full' : 'translate-x-0'}`}>
                             <SearchPanel {...panelProps} />
                         </div>
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedListItem ? 'translate-x-0' : 'translate-x-full'}`}>
-                            {selectedId && selectedListItem && (
+                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? 'translate-x-0' : 'translate-x-full'}`}>
+                            {selectedId && (
                                 <DaycareDetail
                                     id={selectedId}
-                                    listItem={selectedListItem}
+                                    listItem={selectedListItem ?? undefined}
                                     onBack={handleBack}
                                     onClose={() => {
                                         setIsBottomSheetOpen(false);
