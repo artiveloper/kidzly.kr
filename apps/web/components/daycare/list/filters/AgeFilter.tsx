@@ -3,6 +3,7 @@ import { Button } from "@workspace/ui/components/button"
 import type { DaycareAgeFilter } from "@/domain/daycare"
 import { DAYCARE_AGE_FILTERS, DAYCARE_AGE_LABELS } from "@/domain/daycare"
 import { FilterBase } from "./FilterBase"
+import { DAYCARE_AGE_EMOJI } from "./filterEmojis"
 
 export default function AgeFilter({
     activeAge,
@@ -27,7 +28,7 @@ export default function AgeFilter({
                     variant={activeAge === String(age) ? "default" : "outline"}
                     onClick={() => toggleAge(age)}
                 >
-                    {DAYCARE_AGE_LABELS[age]}
+                    {DAYCARE_AGE_EMOJI[age]} {DAYCARE_AGE_LABELS[age]}
                 </Button>
             ))}
             dropdownContent={DAYCARE_AGE_FILTERS.map((age) => (
@@ -36,7 +37,7 @@ export default function AgeFilter({
                     checked={activeAge === String(age)}
                     onCheckedChange={() => toggleAge(age)}
                 >
-                    {DAYCARE_AGE_LABELS[age]}
+                    {DAYCARE_AGE_EMOJI[age]} {DAYCARE_AGE_LABELS[age]}
                 </DropdownMenuCheckboxItem>
             ))}
         />

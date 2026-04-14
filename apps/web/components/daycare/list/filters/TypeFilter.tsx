@@ -1,6 +1,7 @@
 import { DropdownMenuCheckboxItem } from "@workspace/ui/components/dropdown-menu"
 import { Button } from "@workspace/ui/components/button"
 import { FilterBase } from "./FilterBase"
+import { DAYCARE_TYPE_EMOJI } from "./filterEmojis"
 
 export default function TypeFilter({
     typeNames,
@@ -27,7 +28,7 @@ export default function TypeFilter({
                     variant={activeType.includes(name) ? "default" : "outline"}
                     onClick={() => toggleType(name)}
                 >
-                    {name}
+                    {DAYCARE_TYPE_EMOJI[name]} {name}
                 </Button>
             ))}
             dropdownContent={typeNames.map((name) => (
@@ -37,7 +38,7 @@ export default function TypeFilter({
                     onCheckedChange={() => toggleType(name)}
                     onSelect={(e) => e.preventDefault()}
                 >
-                    {name}
+                    {DAYCARE_TYPE_EMOJI[name]} {name}
                 </DropdownMenuCheckboxItem>
             ))}
         />

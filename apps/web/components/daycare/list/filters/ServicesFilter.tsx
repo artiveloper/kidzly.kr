@@ -1,6 +1,7 @@
 import { DropdownMenuCheckboxItem } from "@workspace/ui/components/dropdown-menu"
 import { Button } from "@workspace/ui/components/button"
 import { FilterBase } from "./FilterBase"
+import { DAYCARE_SERVICE_EMOJI } from "./filterEmojis"
 
 export default function ServicesFilter({
     serviceTypes,
@@ -31,7 +32,7 @@ export default function ServicesFilter({
                     variant={vehicleOperation ? "default" : "outline"}
                     onClick={toggleVehicle}
                 >
-                    통학차량
+                    {DAYCARE_SERVICE_EMOJI['통학차량']} 통학차량
                 </Button>,
                 ...serviceTypes.map((s) => (
                     <Button
@@ -40,7 +41,7 @@ export default function ServicesFilter({
                         variant={activeServices.includes(s) ? "default" : "outline"}
                         onClick={() => toggleService(s)}
                     >
-                        {s}
+                        {DAYCARE_SERVICE_EMOJI[s]} {s}
                     </Button>
                 )),
             ]}
@@ -51,7 +52,7 @@ export default function ServicesFilter({
                     onCheckedChange={toggleVehicle}
                     onSelect={(e) => e.preventDefault()}
                 >
-                    통학차량
+                    {DAYCARE_SERVICE_EMOJI['통학차량']} 통학차량
                 </DropdownMenuCheckboxItem>,
                 ...serviceTypes.map((s) => (
                     <DropdownMenuCheckboxItem
@@ -60,7 +61,7 @@ export default function ServicesFilter({
                         onCheckedChange={() => toggleService(s)}
                         onSelect={(e) => e.preventDefault()}
                     >
-                        {s}
+                        {DAYCARE_SERVICE_EMOJI[s]} {s}
                     </DropdownMenuCheckboxItem>
                 )),
             ]}
