@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { parseAsString, useQueryState } from 'nuqs';
 import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/domain/daycare';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Header } from './Header';
 import { SearchPanel } from '../list/SearchPanel';
 import { DaycareDetail } from '../detail/DaycareDetail';
@@ -13,33 +14,31 @@ import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 
 export function MapLayout() {
     const isMobile = useIsMobile();
-    const [bounds, setBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
+    const [rawBounds, setRawBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
+    const bounds = useDebounce(rawBounds, 600);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useQueryState('q', parseAsString.withDefault(''));
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [activeType] = useQueryState('type', daycareFilterParsers.type);
     const [vehicleOperation] = useQueryState('vehicle', daycareFilterParsers.vehicle);
     const [activeServices] = useQueryState('services', daycareFilterParsers.services);
     const [activeAge] = useQueryState('age', daycareFilterParsers.age);
 
     const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
-        query: searchQuery || undefined,
+        query: debouncedSearchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
         services: activeServices.length > 0 ? activeServices : undefined,
         ages: activeAge !== null ? [Number(activeAge)] : undefined,
     });
 
     const mapViewRef = useRef<NaverMapViewHandle>(null);
-    const boundsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-    const handleBoundsChange = useCallback((newBounds: MapBounds) => {
-        clearTimeout(boundsTimerRef.current);
-        boundsTimerRef.current = setTimeout(() => {
-            setBounds(newBounds);
-        }, 600);
-    }, []);
+    const handleBoundsChange = (newBounds: MapBounds) => {
+        setRawBounds(newBounds);
+    };
 
     const filteredDaycares = useMemo(() => {
         return daycares.filter(
@@ -76,7 +75,7 @@ export function MapLayout() {
         onClearSearch: () => {
             setSearchQuery(null);
             const currentBounds = mapViewRef.current?.getCurrentBounds();
-            if (currentBounds) setBounds(currentBounds);
+            if (currentBounds) setRawBounds(currentBounds);
         },
         onSearch: handleSearch,
         recentSearches,
