@@ -17,11 +17,9 @@ export function DaycareList({ daycares, isLoading = false }: DaycareListProps) {
     return (
         <div className="flex-1 overflow-y-auto relative">
             {/* 로딩 인디케이터 — 리스트 위에 얇은 바 */}
-            {isLoading && (
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-emerald-100 overflow-hidden z-10">
-                    <div className="h-full bg-emerald-500 animate-[loading_1s_ease-in-out_infinite]" />
-                </div>
-            )}
+            <div className={`absolute top-0 left-0 right-0 h-0.5 bg-emerald-100 overflow-hidden z-10 transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="h-full bg-emerald-500 animate-[loading_1s_ease-in-out_infinite]" />
+            </div>
 
             {daycares.length === 0 && !isLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center px-6">
