@@ -107,16 +107,16 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
     ].filter(Boolean) as { label: string; value: React.ReactNode }[]
 
     return (
-        <div className="space-y-3 p-3">
+        <div className="divide-y-6 divide-gray-100">
 
             {basicInfoRows.length > 0 && (
-                <div className="bg-white rounded-xl px-4 py-5">
+                <div className="px-3 py-5">
                     <SectionTitle>기본 정보</SectionTitle>
                     <InfoGrid rows={basicInfoRows} />
                 </div>
             )}
 
-            <div className="bg-white rounded-xl px-4 py-5">
+            <div className="px-3 py-5">
                 <SectionTitle>아동 현황</SectionTitle>
                 {daycare.capacity !== null && (
                     <div className="grid grid-cols-3 gap-2 mb-4">
@@ -196,7 +196,7 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
                 )}
             </div>
 
-            <div className="bg-white rounded-xl px-4 py-5">
+            <div className="px-3 py-5">
                 <SectionTitle>시설 · 운영</SectionTitle>
                 <InfoGrid
                     rows={[
@@ -235,7 +235,7 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
             </div>
 
             {(daycare.staffDirectorCount !== null || daycare.staffTeacherCount !== null || daycare.staffTenure) && (
-                <div className="bg-white rounded-xl px-4 py-5">
+                <div className="px-3 py-5">
                     <SectionTitle>교직원</SectionTitle>
                     {([
                         { label: '원장', value: daycare.staffDirectorCount },
@@ -309,9 +309,9 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
 
 export function DetailSkeleton() {
     return (
-        <div className="space-y-3 p-3 animate-pulse">
+        <div className="divide-y-2 divide-gray-100 animate-pulse">
             {[80, 120, 100, 140].map((h, i) => (
-                <div key={i} className="bg-white rounded-xl px-4 py-5">
+                <div key={i} className="px-3 py-5">
                     <div className="h-3.5 w-14 rounded bg-gray-200 mb-4" />
                     <div className="rounded-lg bg-gray-100" style={{ height: h }} />
                 </div>

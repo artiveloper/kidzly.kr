@@ -3,7 +3,7 @@ import { runPrefetch } from '@/lib/react-query/prefetch'
 import { daycarePrefetch } from '@/domain/daycare/server'
 import { DEFAULT_BOUNDS } from '@/domain/daycare'
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
-import { MapLayout } from '@/components/daycare/common/MapLayout'
+import { DaycareMap } from '@/components/daycare/common/DaycareMap'
 
 export default async function Page() {
     const state = await runPrefetch(
@@ -15,7 +15,7 @@ export default async function Page() {
     return (
         <HydrationBoundary state={state}>
             <Suspense>
-                <MapLayout />
+                <DaycareMap />
             </Suspense>
         </HydrationBoundary>
     )

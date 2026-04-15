@@ -67,25 +67,30 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
-  children,
+    children,
+    modal,
 }: Readonly<{
-  children: React.ReactNode
+    children: React.ReactNode
+    modal: React.ReactNode
 }>) {
-  return (
-    <html
-      lang="ko"
-      suppressHydrationWarning
-      className={cn("font-sans antialiased", notoSans.variable)}
-    >
-      <body>
-        <Analytics />
-        <SpeedInsights />
-        <NuqsAdapter>
-          <ReactQueryProvider>
-            <ThemeProvider>{children}</ThemeProvider>
-          </ReactQueryProvider>
-        </NuqsAdapter>
-      </body>
-    </html>
-  )
+    return (
+        <html
+            lang="ko"
+            suppressHydrationWarning
+            className={cn("font-sans antialiased", notoSans.variable)}
+        >
+            <body>
+                <Analytics />
+                <SpeedInsights />
+                <NuqsAdapter>
+                    <ReactQueryProvider>
+                        <ThemeProvider>
+                            {children}
+                            {modal}
+                        </ThemeProvider>
+                    </ReactQueryProvider>
+                </NuqsAdapter>
+            </body>
+        </html>
+    )
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Search, X } from 'lucide-react';
 import type { DaycareListItem } from '@/domain/daycare';
 import { RecentSearches } from './RecentSearches';
@@ -15,6 +16,7 @@ interface ListPanelProps {
     onRemoveRecentSearch: (s: string) => void;
     daycares: DaycareListItem[];
     isLoading?: boolean;
+    scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function ListPanel({
@@ -26,6 +28,7 @@ export function ListPanel({
     onRemoveRecentSearch,
     daycares,
     isLoading = false,
+    scrollRef,
 }: ListPanelProps) {
     return (
         <div className="flex flex-col h-full">
@@ -80,6 +83,7 @@ export function ListPanel({
             <DaycareList
                 daycares={daycares}
                 isLoading={isLoading}
+                scrollRef={scrollRef}
             />
         </div>
     );

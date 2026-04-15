@@ -6,18 +6,17 @@ import { List } from 'lucide-react';
 import type { DaycareListItem, MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS } from '@/domain/daycare';
 
-export type NaverMapViewHandle = {
+export type NaverMapHandle = {
     panTo: (lat: number, lng: number) => void;
     getCurrentBounds: () => MapBounds | null;
 };
 
-interface NaverMapViewProps {
+interface NaverMapProps {
     daycares: DaycareListItem[];
-    selectedId: string | null;
+    selectedId?: string | null;
     onSelectDaycare: (id: string) => void;
     onBoundsChange: (bounds: MapBounds) => void;
     onOpenBottomSheet: () => void;
-    onMapClick?: () => void;
 }
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
@@ -29,49 +28,40 @@ const DEFAULT_CENTER = {
 
 const NAME_MIN_ZOOM = 16;
 
-function markerHtml(name: string, selected: boolean, showName: boolean): string {
-    if (selected) {
-        return `
-      <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
-        <div style="
-          width:38px;height:38px;border-radius:50%;
-          background:#10b981;border:3px solid #fff;
-          display:flex;align-items:center;justify-content:center;
-          box-shadow:0 4px 12px rgba(16,185,129,0.5);
-        ">
-          <div style="width:10px;height:10px;border-radius:50%;background:#fff;"></div>
-        </div>
-        <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #10b981;margin-top:-2px;"></div>
-        <div style="
-          margin-top:3px;background:#111827;color:#fff;
-          font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;
-          white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;
-          font-family:-apple-system,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.3);
-        ">${name}</div>
-      </div>`;
-    }
+function markerHtml(name: string, showName: boolean, selected: boolean): string {
+    const color = selected ? '#059669' : '#10b981';
+    const size = selected ? 36 : 28;
+    const dotSize = selected ? 11 : 8;
+    const border = selected ? '3px' : '2.5px';
+    const shadow = selected
+        ? '0 4px 12px rgba(5,150,105,0.45)'
+        : '0 2px 6px rgba(0,0,0,0.18)';
 
     const dot = `
     <div style="
-      width:28px;height:28px;border-radius:50%;
-      background:#fff;border:2.5px solid #10b981;
+      width:${size}px;height:${size}px;border-radius:50%;
+      background:#fff;border:${border} solid ${color};
       display:flex;align-items:center;justify-content:center;
-      box-shadow:0 2px 6px rgba(0,0,0,0.18);
+      box-shadow:${shadow};
+      ${selected ? 'transform:scale(1.1);' : ''}
     ">
-      <div style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div>
+      <div style="width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:${color};"></div>
     </div>
-    <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #10b981;margin-top:-1px;"></div>`;
+    <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${color};margin-top:-1px;"></div>`;
 
-    if (showName) {
+    if (showName || selected) {
         return `
       <div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
         ${dot}
         <div style="
-          margin-top:2px;background:rgba(255,255,255,0.95);color:#111827;
-          font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;
+          margin-top:2px;background:${selected ? color : 'rgba(255,255,255,0.95)'};
+          color:${selected ? '#fff' : '#111827'};
+          font-size:${selected ? '11px' : '10px'};font-weight:${selected ? '700' : '600'};
+          padding:${selected ? '3px 8px' : '2px 6px'};border-radius:4px;
           white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;
           font-family:-apple-system,sans-serif;
-          box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid rgba(16,185,129,0.25);
+          box-shadow:${selected ? '0 2px 8px rgba(5,150,105,0.4)' : '0 1px 4px rgba(0,0,0,0.15)'};
+          border:1px solid ${selected ? color : 'rgba(16,185,129,0.25)'};
         ">${name}</div>
       </div>`;
     }
@@ -89,19 +79,17 @@ function getBounds(map: naver.maps.Map): MapBounds {
     return { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() };
 }
 
-export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(function NaverMapView({
+export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     daycares,
     selectedId,
     onSelectDaycare,
     onBoundsChange,
     onOpenBottomSheet,
-    onMapClick,
 }, ref) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<naver.maps.Map | null>(null);
     const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
     const onBoundsChangeRef = useRef(onBoundsChange);
-    const onMapClickRef = useRef(onMapClick);
     const isProgrammaticMoveRef = useRef(false);
     const [scriptLoaded, setScriptLoaded] = useState(false);
     const [zoom, setZoom] = useState(16);
@@ -121,14 +109,9 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
         },
     }));
 
-    // 콜백을 ref로 유지해 리스너 재등록 없이 최신 함수 호출
     useEffect(() => {
         onBoundsChangeRef.current = onBoundsChange;
     }, [onBoundsChange]);
-
-    useEffect(() => {
-        onMapClickRef.current = onMapClick;
-    }, [onMapClick]);
 
     // 지도 초기화
     useEffect(() => {
@@ -145,29 +128,15 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
 
         mapRef.current = map;
 
-        // 초기화 시 idle이 한 번 자동 발생하므로 건너뜀
         let isFirstIdle = true;
 
-        // idle: 지도 이동/줌 완료 후 발생 (programmatic panTo는 무시)
         naver.maps.Event.addListener(map, 'idle', () => {
-            if (isFirstIdle) {
-                isFirstIdle = false;
-                return;
-            }
-            if (isProgrammaticMoveRef.current) {
-                isProgrammaticMoveRef.current = false;
-                return;
-            }
+            if (isFirstIdle) { isFirstIdle = false; return; }
+            if (isProgrammaticMoveRef.current) { isProgrammaticMoveRef.current = false; return; }
             setZoom(map.getZoom());
             onBoundsChangeRef.current(getBounds(map));
         });
 
-        // 빈 지도 클릭 시 선택 해제
-        naver.maps.Event.addListener(map, 'click', () => {
-            onMapClickRef.current?.();
-        });
-
-        // 초기 bounds는 DEFAULT_BOUNDS로 고정 → prefetch cache key와 일치
         onBoundsChangeRef.current(DEFAULT_BOUNDS);
     }, [scriptLoaded]);
 
@@ -178,7 +147,6 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
         const existing = markersRef.current;
         const nextIds = new Set(daycares.map((d) => d.id));
 
-        // 사라진 마커 제거
         for (const [id, marker] of existing) {
             if (!nextIds.has(id)) {
                 marker.setMap(null);
@@ -186,25 +154,24 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
             }
         }
 
-        // 추가/업데이트
         for (const daycare of daycares) {
             if (!daycare.latitude || !daycare.longitude) continue;
 
-            const isSelected = daycare.id === selectedId;
             const showName = zoom >= NAME_MIN_ZOOM;
-            const html = markerHtml(daycare.name, isSelected, showName);
-            const anchor = isSelected
-                ? new naver.maps.Point(19, 60)
-                : new naver.maps.Point(14, 41);
+            const selected = daycare.id === selectedId;
+            const html = markerHtml(daycare.name, showName, selected);
+            const anchor = new naver.maps.Point(selected ? 18 : 14, selected ? 50 : 41);
 
             if (existing.has(daycare.id)) {
                 existing.get(daycare.id)!.setIcon({ content: html, anchor });
+                existing.get(daycare.id)!.setZIndex(selected ? 10 : 1);
             } else {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(daycare.latitude, daycare.longitude),
                     map,
                     icon: { content: html, anchor },
                     title: daycare.name,
+                    zIndex: selected ? 10 : 1,
                 });
                 naver.maps.Event.addListener(marker, 'click', () =>
                     onSelectDaycare(daycare.id),
@@ -212,8 +179,7 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
                 existing.set(daycare.id, marker);
             }
         }
-    }, [scriptLoaded, daycares, selectedId, onSelectDaycare, zoom]);
-
+    }, [scriptLoaded, daycares, onSelectDaycare, zoom, selectedId]);
 
     if (!CLIENT_ID) {
         return (
@@ -235,9 +201,7 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
                 strategy="afterInteractive"
                 onReady={() => setScriptLoaded(true)}
             />
-
             <div ref={containerRef} className="w-full h-full" />
-
             <button
                 onClick={onOpenBottomSheet}
                 className="md:hidden absolute bottom-6 right-4 flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 z-10"

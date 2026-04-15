@@ -1,10 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { Clock, MapPin, Phone, Users } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import type { DaycareListItem, DaycareAgeFilter } from '@/domain/daycare';
 import { DAYCARE_AGE_LABELS } from '@/domain/daycare';
-import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 
 interface DaycareListItemProps {
   daycare: DaycareListItem;
@@ -13,7 +13,6 @@ interface DaycareListItemProps {
 
 
 export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
-  const isMobile = useIsMobile();
   // 정원 대비 현원 비율 (정원 또는 현원이 없으면 null)
   const occupancyRate =
     daycare.capacity && daycare.currentChildCount
@@ -25,10 +24,8 @@ export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
     activeAge !== null ? daycare.waitingChildByAge[activeAge] : null;
 
   return (
-    <a
+    <Link
       href={`/daycare/${daycare.id}`}
-      target={isMobile ? '_self' : '_blank'}
-      rel={isMobile ? undefined : 'noopener noreferrer'}
       className="block border-b border-gray-100 px-4 py-3.5 transition-all hover:bg-gray-50"
     >
       <div className="flex items-start justify-between gap-2">
@@ -121,6 +118,6 @@ export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
           )}
         </div>
       </div>
-    </a>
+    </Link>
   )
 }

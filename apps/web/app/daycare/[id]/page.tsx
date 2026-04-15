@@ -1,10 +1,11 @@
-import { cache } from 'react';
+import { cache, Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch, fetchDaycareDetail } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
-import { DaycareDetailPage } from '@/components/daycare/detail/DaycareDetailPage';
+import { DaycareDetailView } from '@/components/daycare/detail/DaycareDetailView';
+import { DaycareDetailLoading } from '@/components/daycare/detail/DaycareDetailLoading';
 
 type Props = {
     params: Promise<{ id: string }>;
@@ -92,7 +93,11 @@ export default async function Page({ params }: Props) {
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
                 />
                 <HydrationBoundary state={state}>
-                    <DaycareDetailPage id={id} />
+                    <div className="min-h-screen bg-gray-50">
+                        <Suspense fallback={<DaycareDetailLoading />}>
+                            <DaycareDetailView id={id} />
+                        </Suspense>
+                    </div>
                 </HydrationBoundary>
             </>
         );

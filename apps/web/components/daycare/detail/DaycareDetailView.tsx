@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, Share2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDaycareDetail } from '@/domain/daycare';
@@ -9,9 +9,11 @@ import { DetailContent, formatDate } from './DaycareDetailContent';
 
 interface DaycareDetailInnerProps {
     id: string;
+    onBack?: () => void;
 }
 
-export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
+export function DaycareDetailView({ id, onBack }: DaycareDetailInnerProps) {
+    const router = useRouter();
     const { data: detail } = useDaycareDetail(id);
     const [copied, setCopied] = useState(false);
 
@@ -31,15 +33,21 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
         }
     };
 
+    const handleBack = () => {
+        if (onBack) {
+            onBack();
+        } else {
+            router.push('/');
+        }
+    };
+
     return (
         <>
             <div className="sticky top-0 z-10 border-b border-gray-200 bg-white">
                 <div className="max-w-2xl mx-auto flex items-center px-2 py-2">
-                    <Link href={`/?id=${id}`} aria-label="지도에서 보기" className="shrink-0">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft size={18} />
-                        </Button>
-                    </Link>
+                    <Button variant="ghost" size="icon" onClick={handleBack} aria-label="뒤로가기" className="shrink-0">
+                        <ArrowLeft size={18} />
+                    </Button>
 
                     <div className="flex-1 min-w-0 px-2 text-center">
                         <h1 className="text-sm font-semibold text-gray-900 truncate leading-snug">
