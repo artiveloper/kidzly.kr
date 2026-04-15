@@ -64,6 +64,11 @@ export const metadata: Metadata = {
     alternates: {
         canonical: BASE_URL,
     },
+    verification: {
+        other: {
+            "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51",
+        },
+    },
 }
 
 export default function RootLayout({
