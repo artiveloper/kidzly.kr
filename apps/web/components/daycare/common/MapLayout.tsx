@@ -9,7 +9,7 @@ import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/dom
 import { useDebounce } from '@/hooks/useDebounce';
 import { Badge } from '@workspace/ui/components/badge';
 import { Header } from './Header';
-import { SearchPanel } from '../list/SearchPanel';
+import { ListPanel } from '../list/ListPanel';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/drawer';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
@@ -91,7 +91,7 @@ export function MapLayout() {
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    <SearchPanel {...panelProps} />
+                    <ListPanel {...panelProps} />
                 </aside>
 
                 <main className="flex-1 relative">
@@ -179,7 +179,7 @@ export function MapLayout() {
                 <DrawerContent className="md:hidden !mt-14 !max-h-[calc(100dvh-56px)] h-[calc(100dvh-56px)]">
                     <DrawerTitle className="sr-only">어린이집 목록</DrawerTitle>
                     <div className="flex-1 overflow-hidden">
-                        <SearchPanel {...panelProps} />
+                        <ListPanel {...panelProps} />
                     </div>
                 </DrawerContent>
             </Drawer>

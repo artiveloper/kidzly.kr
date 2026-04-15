@@ -6,7 +6,7 @@ import { RecentSearches } from './RecentSearches';
 import { DaycareList } from './DaycareList';
 import { DaycareFilters } from './filters/DaycareFilters';
 
-interface SearchPanelProps {
+interface ListPanelProps {
     searchQuery: string;
     onSearchChange: (v: string) => void;
     onClearSearch: () => void;
@@ -17,7 +17,7 @@ interface SearchPanelProps {
     isLoading?: boolean;
 }
 
-export function SearchPanel({
+export function ListPanel({
     searchQuery,
     onSearchChange,
     onClearSearch,
@@ -26,7 +26,7 @@ export function SearchPanel({
     onRemoveRecentSearch,
     daycares,
     isLoading = false,
-}: SearchPanelProps) {
+}: ListPanelProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Search bar */}
