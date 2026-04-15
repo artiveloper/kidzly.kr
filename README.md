@@ -49,14 +49,6 @@ apps/web/domain/
 - **SSR Prefetch** — 페이지 진입 시 React Query로 prefetch → dehydrate → hydrate, SEO와 LCP 확보
 - **`queryOptions` 공유** — prefetch와 `useQuery`가 동일한 queryKey/queryFn을 사용하여 hydration 불일치 방지
 
-### 멀티 레이어 캐시 전략
-
-```
-L0: Next.js fetch cache  (ISR / revalidateTag)
-L1: React cache()        (RSC 렌더링 내 중복 요청 제거)
-L2: React Query cache    (UI 상태의 단일 출처)
-```
-
 ## 시작하기
 
 **필요 환경:** Node.js ≥ 20, pnpm 9
