@@ -19,83 +19,109 @@ const notoSans = Noto_Sans_KR({
 const BASE_URL = "https://kidzly.kr"
 
 export const metadata: Metadata = {
-    metadataBase: new URL(BASE_URL),
-    title: {
-        default: "키즐리 — 우리 아이 어린이집 찾기",
-        template: "%s | 키즐리",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "어린이집 찾기 | 국공립·민간 어린이집 비교 검색 - 키즐리",
+    template: "%s | 어린이집 검색 - 키즐리",
+  },
+  description:
+    "서울 및 전국 어린이집을 지도 기반으로 쉽게 찾아보세요. 국공립, 민간, 가정 어린이집 비교부터 운영시간, 위치, 서비스 정보까지 한눈에 확인할 수 있습니다.",
+  keywords: [
+    "어린이집 찾기",
+    "어린이집 검색",
+    "국공립 어린이집",
+    "민간 어린이집",
+    "가정 어린이집",
+    "어린이집 비교",
+    "서울 어린이집",
+    "어린이집 추천",
+    "어린이집 위치",
+    "어린이집 대기",
+    "보육시설 검색",
+    "유치원 어린이집 차이",
+    "전국 어린이집 정보",
+    "어린이집 지도",
+    "입소 대기",
+    "어린이집 대기",
+    "어린이집 대기신청",
+    "어린이집 대기현황",
+    "국공립 어린이집 대기",
+    "입소대기 신청",
+    "임신육아종합포털",
+    "임신육아종합포털 아이사랑",
+    "아이사랑",
+  ],
+  authors: [{ name: "키즐리" }],
+  creator: "키즐리",
+  publisher: "키즐리",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
-    description: "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 어린이집 유형, 운영 시간, 서비스 정보를 한눈에 확인하세요.",
-    keywords: ["어린이집", "어린이집 찾기", "어린이집 검색", "육아", "보육", "키즐리"],
-    authors: [{ name: "키즐리" }],
-    creator: "키즐리",
-    publisher: "키즐리",
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-            index: true,
-            follow: true,
-            "max-image-preview": "large",
-            "max-snippet": -1,
-        },
+  },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: BASE_URL,
+    siteName: "키즐리",
+    title: "어린이집 찾기 | 국공립·민간 어린이집 비교 - 키즐리",
+    description:
+      "우리 아이에게 맞는 어린이집을 쉽게 찾아보세요. 위치, 운영시간, 유형별 비교까지 한 번에.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "어린이집 찾기 키즐리",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "어린이집 찾기 | 키즐리",
+    description: "국공립·민간 어린이집 비교부터 위치 검색까지 한 번에.",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+  verification: {
+    other: {
+      "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51",
     },
-    openGraph: {
-        type: "website",
-        locale: "ko_KR",
-        url: BASE_URL,
-        siteName: "키즐리",
-        title: "키즐리 — 우리 아이 어린이집 찾기",
-        description: "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 어린이집 유형, 운영 시간, 서비스 정보를 한눈에 확인하세요.",
-        images: [
-            {
-                url: "/og-image.png",
-                width: 1200,
-                height: 630,
-                alt: "키즐리 — 우리 아이 어린이집 찾기",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "키즐리 — 우리 아이 어린이집 찾기",
-        description: "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요.",
-        images: ["/og-image.png"],
-    },
-    alternates: {
-        canonical: BASE_URL,
-    },
-    verification: {
-        other: {
-            "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51",
-        },
-    },
+  },
 }
 
 export default function RootLayout({
-    children,
-    modal,
+  children,
+  modal,
 }: Readonly<{
-    children: React.ReactNode
-    modal: React.ReactNode
+  children: React.ReactNode
+  modal: React.ReactNode
 }>) {
-    return (
-        <html
-            lang="ko"
-            suppressHydrationWarning
-            className={cn("font-sans antialiased", notoSans.variable)}
-        >
-            <body>
-                <Analytics />
-                <SpeedInsights />
-                <NuqsAdapter>
-                    <ReactQueryProvider>
-                        <ThemeProvider>
-                            {children}
-                            {modal}
-                        </ThemeProvider>
-                    </ReactQueryProvider>
-                </NuqsAdapter>
-            </body>
-        </html>
-    )
+  return (
+    <html
+      lang="ko"
+      suppressHydrationWarning
+      className={cn("font-sans antialiased", notoSans.variable)}
+    >
+      <body>
+        <Analytics />
+        <SpeedInsights />
+        <NuqsAdapter>
+          <ReactQueryProvider>
+            <ThemeProvider>
+              {children}
+              {modal}
+            </ThemeProvider>
+          </ReactQueryProvider>
+        </NuqsAdapter>
+      </body>
+    </html>
+  )
 }
