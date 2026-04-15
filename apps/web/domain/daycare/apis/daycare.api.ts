@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { toDaycareListItem, toDaycareDetail } from '../parser/daycare.parser';
 import type { DaycareListItem, DaycareDetail, MapBounds } from '../types';
-import type { SigunguRow } from '@/lib/supabase/types';
+import type { DaycareRow, SigunguRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
     return isServer ? createServerClient() : createBrowserClient();
@@ -127,6 +127,40 @@ export async function fetchDaycareServiceTypes(): Promise<string[]> {
     }
 
     return (result.data as Array<{ service_name: string }> ?? []).map((r) => r.service_name);
+}
+
+export async function fetchDaycareCount(): Promise<number> {
+    const supabase = createServerClient();
+
+    const { count, error } = await supabase
+        .from('daycares')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', '정상');
+
+    if (error) {
+        console.error('[fetchDaycareCount]', error.message);
+        return 0;
+    }
+
+    return count ?? 0;
+}
+
+export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<string[]> {
+    const { offset, limit } = options;
+    const supabase = createServerClient();
+
+    const { data, error } = await supabase
+        .from('daycares')
+        .select('daycare_code')
+        .eq('status', '정상')
+        .range(offset, offset + limit - 1);
+
+    if (error) {
+        console.error('[fetchDaycareIdsPaginated]', error.message);
+        return [];
+    }
+
+    return ((data ?? []) as Pick<DaycareRow, 'daycare_code'>[]).map((r) => r.daycare_code);
 }
 
 export async function fetchSigungus(): Promise<SigunguRow[]> {

@@ -10,6 +10,12 @@ export const daycarePrefetch = {
         }
     },
 
+    detail(id: string) {
+        return async (queryClient: QueryClient) => {
+            await queryClient.prefetchQuery(daycareQueryOptions.detail(id))
+        }
+    },
+
     typeNames() {
         return async (queryClient: QueryClient) => {
             await queryClient.prefetchQuery(daycareQueryOptions.typeNames())

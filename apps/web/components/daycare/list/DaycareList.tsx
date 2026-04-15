@@ -7,11 +7,10 @@ import { DaycareListItem } from './DaycareListItem';
 
 interface DaycareListProps {
     daycares: DaycareListItemType[];
-    onSelect: (id: string) => void;
     isLoading?: boolean;
 }
 
-export function DaycareList({ daycares, onSelect, isLoading = false }: DaycareListProps) {
+export function DaycareList({ daycares, isLoading = false }: DaycareListProps) {
     const [activeAgeStr] = useQueryState('age', daycareFilterParsers.age);
     const activeAge = (activeAgeStr ? Number(activeAgeStr) : null) as DaycareAgeFilter | null;
 
@@ -47,7 +46,6 @@ export function DaycareList({ daycares, onSelect, isLoading = false }: DaycareLi
                         <DaycareListItem
                             key={daycare.id}
                             daycare={daycare}
-                            onClick={() => onSelect(daycare.id)}
                             activeAge={activeAge}
                         />
                     ))}

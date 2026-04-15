@@ -4,15 +4,16 @@ import { Clock, MapPin, Phone, Users } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import type { DaycareListItem, DaycareAgeFilter } from '@/domain/daycare';
 import { DAYCARE_AGE_LABELS } from '@/domain/daycare';
+import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 
 interface DaycareListItemProps {
   daycare: DaycareListItem;
-  onClick: () => void;
   activeAge: DaycareAgeFilter | null; // 연령 필터 선택 시 해당 연령 대기 정보 표시
 }
 
 
-export function DaycareListItem({ daycare, onClick, activeAge }: DaycareListItemProps) {
+export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
+  const isMobile = useIsMobile();
   // 정원 대비 현원 비율 (정원 또는 현원이 없으면 null)
   const occupancyRate =
     daycare.capacity && daycare.currentChildCount
@@ -24,9 +25,11 @@ export function DaycareListItem({ daycare, onClick, activeAge }: DaycareListItem
     activeAge !== null ? daycare.waitingChildByAge[activeAge] : null;
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full border-b border-gray-100 px-4 py-3.5 text-left transition-all hover:bg-gray-50"
+    <a
+      href={`/daycare/${daycare.id}`}
+      target={isMobile ? '_self' : '_blank'}
+      rel={isMobile ? undefined : 'noopener noreferrer'}
+      className="block border-b border-gray-100 px-4 py-3.5 transition-all hover:bg-gray-50"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -118,6 +121,6 @@ export function DaycareListItem({ daycare, onClick, activeAge }: DaycareListItem
           )}
         </div>
       </div>
-    </button>
+    </a>
   )
 }

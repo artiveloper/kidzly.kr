@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { daycareQueryOptions } from '../query-options/daycare.query-options'
 import type { MapBounds } from '../types'
 
@@ -12,7 +12,7 @@ export function useDaycaresInBounds(
 }
 
 export function useDaycareDetail(id: string) {
-    return useQuery(daycareQueryOptions.detail(id))
+    return useSuspenseQuery(daycareQueryOptions.detail(id))
 }
 
 export function useDaycareTypeNames() {

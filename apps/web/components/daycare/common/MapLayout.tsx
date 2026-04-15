@@ -1,18 +1,21 @@
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { parseAsString, useQueryState } from 'nuqs';
+import { MapPin, Users, X, ChevronRight } from 'lucide-react';
 import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/domain/daycare';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Badge } from '@workspace/ui/components/badge';
 import { Header } from './Header';
 import { SearchPanel } from '../list/SearchPanel';
-import { DaycareDetail } from '../detail/DaycareDetail';
 import { NaverMapView, type NaverMapViewHandle } from './NaverMapView';
 import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/drawer';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 
 export function MapLayout() {
+    const router = useRouter();
     const isMobile = useIsMobile();
     const [rawBounds, setRawBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
     const bounds = useDebounce(rawBounds, 600);
@@ -54,19 +57,16 @@ export function MapLayout() {
         );
     };
 
-    const selectedListItem = selectedId ? daycares.find((d) => d.id === selectedId) ?? null : null;
+    const selectedMarkerItem = selectedId
+        ? (filteredDaycares.find((d) => d.id === selectedId) ?? daycares.find((d) => d.id === selectedId) ?? null)
+        : null;
 
     const handleSelectDaycare = (id: string) => {
-        setSelectedId(id);
-        setIsBottomSheetOpen(true);
-        const daycare = daycares.find((d) => d.id === id);
-        if (daycare?.latitude && daycare?.longitude) {
-            mapViewRef.current?.panTo(daycare.latitude, daycare.longitude);
+        if (isMobile) {
+            setSelectedId(id);
+        } else {
+            window.open(`/daycare/${id}`, '_blank', 'noopener,noreferrer');
         }
-    };
-
-    const handleBack = () => {
-        setSelectedId(null);
     };
 
     const panelProps = {
@@ -82,7 +82,6 @@ export function MapLayout() {
         onRemoveRecentSearch: (s: string) =>
             setRecentSearches((prev) => prev.filter((r) => r !== s)),
         daycares: filteredDaycares,
-        onSelectDaycare: handleSelectDaycare,
         isLoading: isFetching,
     };
 
@@ -92,16 +91,7 @@ export function MapLayout() {
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    <div className="relative flex-1 overflow-hidden h-full">
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? '-translate-x-full' : 'translate-x-0'}`}>
-                            <SearchPanel {...panelProps} />
-                        </div>
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? 'translate-x-0' : 'translate-x-full'}`}>
-                            {selectedId && (
-                                <DaycareDetail id={selectedId} listItem={selectedListItem ?? undefined} onBack={handleBack} />
-                            )}
-                        </div>
-                    </div>
+                    <SearchPanel {...panelProps} />
                 </aside>
 
                 <main className="flex-1 relative">
@@ -112,38 +102,84 @@ export function MapLayout() {
                         onSelectDaycare={handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}
                         onOpenBottomSheet={() => setIsBottomSheetOpen(true)}
+                        onMapClick={() => setSelectedId(null)}
                     />
+
+                    {/* 모바일 미니 카드 */}
+                    <div
+                        className={`md:hidden absolute left-3 right-3 bottom-20 z-20 transition-transform duration-300 ${selectedMarkerItem ? 'translate-y-0' : 'translate-y-[200%]'}`}
+                    >
+                        {selectedMarkerItem && (() => {
+                            const occupancyRate = selectedMarkerItem.capacity && selectedMarkerItem.currentChildCount
+                                ? Math.round((selectedMarkerItem.currentChildCount / selectedMarkerItem.capacity) * 100)
+                                : null;
+                            return (
+                                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                    <div className="px-4 pt-4 pb-3">
+                                        {/* 이름 + 유형 + 닫기 */}
+                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="font-semibold text-gray-900 truncate">
+                                                    {selectedMarkerItem.name}
+                                                </span>
+                                                <Badge variant="secondary" className="shrink-0">
+                                                    {selectedMarkerItem.typeName}
+                                                </Badge>
+                                            </div>
+                                            <button
+                                                onClick={() => setSelectedId(null)}
+                                                className="shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                                                aria-label="닫기"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+
+                                        {/* 주소 */}
+                                        <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-1">
+                                            <MapPin size={12} className="shrink-0 text-gray-400" />
+                                            <span className="truncate">{selectedMarkerItem.address}</span>
+                                        </div>
+
+                                        {/* 충원율 */}
+                                        {occupancyRate !== null && (
+                                            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                                                <Users size={12} className="shrink-0 text-gray-400" />
+                                                <span>
+                                                    {selectedMarkerItem.currentChildCount}/{selectedMarkerItem.capacity}명
+                                                </span>
+                                                <span className={`font-medium ${occupancyRate >= 90 ? 'text-red-500' : occupancyRate >= 70 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                                                    ({occupancyRate}%)
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* 상세보기 버튼 */}
+                                    <button
+                                        onClick={() => router.push(`/daycare/${selectedMarkerItem.id}`)}
+                                        className="w-full flex items-center justify-center gap-1.5 py-3 border-t border-gray-100 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                    >
+                                        상세보기
+                                        <ChevronRight size={15} />
+                                    </button>
+                                </div>
+                            );
+                        })()}
+                    </div>
                 </main>
             </div>
 
             <Drawer
                 open={isBottomSheetOpen && isMobile}
                 onOpenChange={(open) => {
-                    if (!open) {
-                        setIsBottomSheetOpen(false);
-                        setSelectedId(null);
-                    }
+                    if (!open) setIsBottomSheetOpen(false);
                 }}
             >
                 <DrawerContent className="md:hidden !mt-14 !max-h-[calc(100dvh-56px)] h-[calc(100dvh-56px)]">
                     <DrawerTitle className="sr-only">어린이집 목록</DrawerTitle>
-<div className="relative overflow-hidden flex-1">
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? '-translate-x-full' : 'translate-x-0'}`}>
-                            <SearchPanel {...panelProps} />
-                        </div>
-                        <div className={`absolute inset-0 transition-transform duration-300 ${selectedId ? 'translate-x-0' : 'translate-x-full'}`}>
-                            {selectedId && (
-                                <DaycareDetail
-                                    id={selectedId}
-                                    listItem={selectedListItem ?? undefined}
-                                    onBack={handleBack}
-                                    onClose={() => {
-                                        setIsBottomSheetOpen(false);
-                                        setSelectedId(null);
-                                    }}
-                                />
-                            )}
-                        </div>
+                    <div className="flex-1 overflow-hidden">
+                        <SearchPanel {...panelProps} />
                     </div>
                 </DrawerContent>
             </Drawer>

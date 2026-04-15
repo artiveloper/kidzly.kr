@@ -17,6 +17,7 @@ interface NaverMapViewProps {
   onSelectDaycare: (id: string) => void;
   onBoundsChange: (bounds: MapBounds) => void;
   onOpenBottomSheet: () => void;
+  onMapClick?: () => void;
 }
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
@@ -94,11 +95,13 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
   onSelectDaycare,
   onBoundsChange,
   onOpenBottomSheet,
+  onMapClick,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
   const onBoundsChangeRef = useRef(onBoundsChange);
+  const onMapClickRef = useRef(onMapClick);
   const isProgrammaticMoveRef = useRef(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [zoom, setZoom] = useState(16);
@@ -118,10 +121,14 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
       },
   }));
 
-  // onBoundsChange를 ref로 유지해 idle 리스너 재등록 없이 최신 함수 호출
+  // 콜백을 ref로 유지해 리스너 재등록 없이 최신 함수 호출
   useEffect(() => {
     onBoundsChangeRef.current = onBoundsChange;
   }, [onBoundsChange]);
+
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
 
   // 지도 초기화
   useEffect(() => {
@@ -153,6 +160,11 @@ export const NaverMapView = forwardRef<NaverMapViewHandle, NaverMapViewProps>(fu
       }
       setZoom(map.getZoom());
       onBoundsChangeRef.current(getBounds(map));
+    });
+
+    // 빈 지도 클릭 시 선택 해제
+    naver.maps.Event.addListener(map, 'click', () => {
+      onMapClickRef.current?.();
     });
 
     // 초기 bounds는 DEFAULT_BOUNDS로 고정 → prefetch cache key와 일치

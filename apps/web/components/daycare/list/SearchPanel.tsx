@@ -14,7 +14,6 @@ interface SearchPanelProps {
     recentSearches: string[];
     onRemoveRecentSearch: (s: string) => void;
     daycares: DaycareListItem[];
-    onSelectDaycare: (id: string) => void;
     isLoading?: boolean;
 }
 
@@ -26,7 +25,6 @@ export function SearchPanel({
     recentSearches,
     onRemoveRecentSearch,
     daycares,
-    onSelectDaycare,
     isLoading = false,
 }: SearchPanelProps) {
     return (
@@ -81,7 +79,6 @@ export function SearchPanel({
             {/* List */}
             <DaycareList
                 daycares={daycares}
-                onSelect={onSelectDaycare}
                 isLoading={isLoading}
             />
         </div>
