@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kidzly.kr/sitemap.xml
+
+#DaumWebMasterTool:e597cfa5df7291fea91391c23f2794db419290e46aee4a0a7e918b0d3fe8b89f:PoMn77621kMj1CLr9KFRhg==
