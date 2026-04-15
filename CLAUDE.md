@@ -192,12 +192,41 @@ export const articleQueryKeys = {
 ### 5.2 Query Options (MANDATORY)
 
 - All queries MUST use shared query option factories
-- No inline `useQuery({ ... })`
+- No inline `useQuery({ ... })` or `useSuspenseQuery({ ... })`
 - Query options must define:
   - queryKey
   - queryFn
   - staleTime (optional - uses global default if omitted)
   - gcTime (optional - uses global default if omitted)
+
+#### useQuery vs useSuspenseQuery
+
+**`useSuspenseQuery`를 기본으로 사용한다.** `useQuery`는 아래 예외 상황에서만 사용한다.
+
+| 훅 | 사용 기준 |
+|----|-----------|
+| **`useSuspenseQuery`** (기본) | 대부분의 데이터 조회. `isLoading` 분기 불필요, `data`가 항상 정의됨 |
+| **`useQuery`** (예외) | Suspense 경계를 둘 수 없는 구조이거나, `isLoading`을 직접 제어해야 할 때 |
+
+`useSuspenseQuery`를 사용하는 컴포넌트는 반드시 `<Suspense fallback={...}>` 경계 안에 위치해야 한다.
+
+```ts
+// hooks
+export function useDaycareDetail(id: string) {
+    return useSuspenseQuery(daycareQueryOptions.detail(id)) // data is always defined
+}
+
+// component
+export function DaycareDetail({ id }: { id: string }) {
+    const { data } = useDaycareDetail(id) // no isLoading check needed
+    return <div>{data.name}</div>
+}
+
+// parent — must wrap with Suspense
+<Suspense fallback={<DaycareDetailLoading />}>
+    <DaycareDetail id={id} />
+</Suspense>
+```
 
 #### useInfiniteQuery 예외
 
@@ -450,16 +479,17 @@ page change = same cache group
 
 ## 11. Suspense & Streaming Policy
 
-Use Suspense ONLY for async boundaries that affect layout stability.
+`useSuspenseQuery`를 사용하는 컴포넌트는 반드시 `<Suspense>` 경계 안에 위치해야 한다.
 
 Use Suspense:
-- Main content blocks
-- Route-level data sections
+- `useSuspenseQuery`를 사용하는 컴포넌트의 부모
+- 메인 콘텐츠 블록
+- 라우트 수준 데이터 섹션
 
 Do NOT use Suspense:
-- Small UI fragments
-- User-triggered refetch
-- Pagination loading
+- `useQuery`를 사용하는 컴포넌트 (직접 `isLoading` 처리)
+- 사용자 트리거 refetch
+- 페이지네이션 로딩
 
 Skeleton rules:
 - Must match final layout size
@@ -471,6 +501,8 @@ Skeleton rules:
 
 ### Loading
 - Initial load handled by Server Components
+- `useSuspenseQuery` — `<Suspense fallback={...}>` 로 로딩 처리, `isLoading` 분기 없음
+- `useQuery` — `isLoading` / `isPending` 분기로 직접 처리
 - Client loading only for pagination or manual refetch
 
 ### Error
