@@ -19,9 +19,9 @@ export function MapLayout() {
     const isMobile = useIsMobile();
     const [rawBounds, setRawBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
     const bounds = useDebounce(rawBounds, 600);
-    const [selectedId, setSelectedId] = useQueryState('id', parseAsString);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(selectedId !== null);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useQueryState('q', parseAsString.withDefault(''));
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -151,6 +151,25 @@ export function MapLayout() {
                                                 <span className={`font-medium ${occupancyRate >= 90 ? 'text-red-500' : occupancyRate >= 70 ? 'text-amber-500' : 'text-emerald-500'}`}>
                                                     ({occupancyRate}%)
                                                 </span>
+                                            </div>
+                                        )}
+
+                                        {/* 통학차량 + 지원서비스 */}
+                                        {(selectedMarkerItem.vehicleOperation === '운영' || selectedMarkerItem.services) && (
+                                            <div className="mt-2 flex flex-wrap gap-1">
+                                                {selectedMarkerItem.vehicleOperation === '운영' && (
+                                                    <Badge variant="outline">통학차량</Badge>
+                                                )}
+                                                {selectedMarkerItem.services &&
+                                                    selectedMarkerItem.services
+                                                        .split(',')
+                                                        .map((s) => s.trim())
+                                                        .filter(Boolean)
+                                                        .map((service) => (
+                                                            <Badge key={service} variant="outline">
+                                                                {service}
+                                                            </Badge>
+                                                        ))}
                                             </div>
                                         )}
                                     </div>
