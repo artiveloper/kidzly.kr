@@ -163,8 +163,11 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
             const anchor = new naver.maps.Point(selected ? 18 : 14, selected ? 50 : 41);
 
             if (existing.has(daycare.id)) {
-                existing.get(daycare.id)!.setIcon({ content: html, anchor });
-                existing.get(daycare.id)!.setZIndex(selected ? 10 : 1);
+                const marker = existing.get(daycare.id);
+                if (marker) {
+                    marker.setIcon({ content: html, anchor });
+                    marker.setZIndex(selected ? 10 : 1);
+                }
             } else {
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(daycare.latitude, daycare.longitude),
