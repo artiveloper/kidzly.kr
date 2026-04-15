@@ -26,7 +26,7 @@ const DEFAULT_CENTER = {
     lng: (DEFAULT_BOUNDS.east + DEFAULT_BOUNDS.west) / 2,
 };
 
-const NAME_MIN_ZOOM = 17;
+const NAME_MIN_ZOOM = 16;
 
 function markerHtml(name: string, selected: boolean, showName: boolean): string {
   if (selected) {
