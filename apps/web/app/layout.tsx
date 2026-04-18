@@ -8,6 +8,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { cn } from "@workspace/ui/lib/utils"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 const notoSans = Noto_Sans_KR({
   subsets: ["latin"],
@@ -113,6 +114,7 @@ export default function RootLayout({
       <body>
         <Analytics />
         <SpeedInsights />
+        <GoogleAnalytics gaId="G-9CKKGKLVLC" />
         <NuqsAdapter>
           <ReactQueryProvider>
             <ThemeProvider>
