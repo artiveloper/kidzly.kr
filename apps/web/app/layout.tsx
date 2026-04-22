@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Noto_Sans_KR } from "next/font/google"
 
 import "@workspace/ui/globals.css"
@@ -18,6 +18,12 @@ const notoSans = Noto_Sans_KR({
 })
 
 const BASE_URL = "https://kidzly.kr"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-visual",
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
