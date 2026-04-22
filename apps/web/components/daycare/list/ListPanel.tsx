@@ -50,7 +50,7 @@ export function ListPanel({
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="어린이집 이름, 주소로 검색"
-                        className="w-full h-10 pl-9 pr-9 text-sm bg-gray-100 rounded-lg border border-transparent focus:border-emerald-400 focus:bg-white focus:outline-none transition-all"
+                        className="w-full h-10 pl-9 pr-9 text-base md:text-sm bg-gray-100 rounded-lg border border-transparent focus:border-emerald-400 focus:bg-white focus:outline-none transition-all"
                     />
                     {searchQuery && (
                         <button
