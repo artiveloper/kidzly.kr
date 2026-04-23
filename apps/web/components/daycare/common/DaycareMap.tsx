@@ -13,6 +13,7 @@ import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/dra
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 import { DaycareDetailView } from '../detail/DaycareDetailView';
 import { DaycareDetailLoading } from '../detail/DaycareDetailLoading';
+import { DaycareFilters } from '../list/filters/DaycareFilters';
 
 export function DaycareMap() {
     const router = useRouter();
@@ -126,6 +127,11 @@ export function DaycareMap() {
                 </aside>
 
                 <main className="flex-1 relative">
+                    <div className="md:hidden absolute top-0 left-0 right-0 z-10 pointer-events-none">
+                        <div className="pointer-events-auto">
+                            <DaycareFilters />
+                        </div>
+                    </div>
                     <NaverMap
                         ref={mapViewRef}
                         daycares={filteredDaycares}
