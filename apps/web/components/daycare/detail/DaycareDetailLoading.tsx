@@ -25,7 +25,7 @@ export function DaycareDetailLoading({ onBack }: DaycareDetailLoadingProps) {
     return (
         <>
             <div className="sticky top-0 z-10 border-b border-gray-200 bg-gray-50">
-                <div className="max-w-2xl mx-auto flex items-center px-2 py-2">
+                <div className="flex items-center px-2 py-2">
                     <Button variant="ghost" size="icon" onClick={handleBack} aria-label="뒤로가기" className="shrink-0">
                         <ArrowLeft size={18} />
                     </Button>
@@ -41,9 +41,7 @@ export function DaycareDetailLoading({ onBack }: DaycareDetailLoadingProps) {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto">
-                <DetailSkeleton />
-            </div>
+            <DetailSkeleton />
         </>
     );
 }
