@@ -17,6 +17,7 @@ interface ListPanelProps {
     daycares: DaycareListItem[];
     isLoading?: boolean;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
+    onClose?: () => void;
 }
 
 export function ListPanel({
@@ -29,18 +30,19 @@ export function ListPanel({
     daycares,
     isLoading = false,
     scrollRef,
+    onClose,
 }: ListPanelProps) {
     return (
         <div className="flex flex-col h-full">
             {/* Search bar */}
             <form
-                className="px-4 py-3 border-b border-gray-100"
+                className="px-4 py-3 border-b border-gray-100 flex items-center gap-2"
                 onSubmit={(e) => {
                     e.preventDefault();
                     onSearch(searchQuery);
                 }}
             >
-                <div className="relative">
+                <div className="relative flex-1">
                     <Search
                         size={15}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -62,6 +64,16 @@ export function ListPanel({
                         </button>
                     )}
                 </div>
+                {onClose && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="shrink-0 p-1 text-gray-400 hover:text-gray-600"
+                        aria-label="닫기"
+                    >
+                        <X size={20} />
+                    </button>
+                )}
             </form>
 
             {/* Recent searches — only when not searching */}

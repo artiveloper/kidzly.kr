@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryState } from 'nuqs';
-import { X } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import React from 'react';
 import type { DaycareAgeFilter } from '@/domain/daycare';
 import {
@@ -78,6 +78,16 @@ export function DaycareFilters() {
 
     return (
         <div className="scrollbar-none flex gap-2 overflow-x-auto px-4 py-2.5">
+            {isAnyActive && (
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 px-2"
+                    onClick={resetAll}
+                >
+                    <RotateCcw size={14} />
+                </Button>
+            )}
             <TypeFilter
                 typeNames={typeNames}
                 activeType={activeType}
@@ -103,16 +113,6 @@ export function DaycareFilters() {
                 label={servicesLabel}
             />
 
-            {isAnyActive && (
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    className="shrink-0 px-2 text-muted-foreground"
-                    onClick={resetAll}
-                >
-                    <X size={14} />
-                </Button>
-            )}
         </div>
     )
 }

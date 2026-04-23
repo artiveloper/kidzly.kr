@@ -9,7 +9,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { Header } from './Header';
 import { ListPanel } from '../list/ListPanel';
 import { NaverMap, type NaverMapHandle } from './NaverMap';
-import { Drawer, DrawerContent, DrawerTitle } from '@workspace/ui/components/drawer';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 import { DaycareDetailView } from '../detail/DaycareDetailView';
 import { DaycareDetailLoading } from '../detail/DaycareDetailLoading';
@@ -115,7 +114,8 @@ export function DaycareMap() {
         scrollRef: listScrollRef,
     };
 
-    const drawerContentClass = 'md:hidden !mt-14 !max-h-[calc(100dvh-56px)] h-[calc(100dvh-56px)]';
+    const overlayClass = (open: boolean) =>
+        `md:hidden fixed inset-0 z-50 bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
 
     return (
         <div className="flex flex-col h-screen overflow-hidden">
@@ -143,47 +143,29 @@ export function DaycareMap() {
                 </main>
             </div>
 
-            {/* 목록 Drawer: 리스트 ↔ 상세 교체 */}
-            <Drawer
-                open={isMobile && (isListOpen || !!listDaycareId)}
-                onOpenChange={(open) => {
-                    if (!open && !listDaycareId) setIsListOpen(false);
-                }}
-            >
-                <DrawerContent className={drawerContentClass}>
-                    <DrawerTitle className="sr-only">
-                        {listDaycareId ? '어린이집 상세' : '어린이집 목록'}
-                    </DrawerTitle>
-                    <div className={`flex-1 ${listDaycareId ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-                        {listDaycareId ? (
-                            <Suspense fallback={<DaycareDetailLoading />}>
-                                <DaycareDetailView id={listDaycareId} onBack={() => router.back()} />
-                            </Suspense>
-                        ) : (
-                            <ListPanel {...panelProps} />
-                        )}
-                    </div>
-                </DrawerContent>
-            </Drawer>
-
-            {/* 마커 상세 Drawer: 목록이 열려있지 않을 때, 마커/지도에서 선택 시 */}
-            <Drawer
-                open={isMobile && !isListOpen && !!pathnameId}
-                onOpenChange={(open) => {
-                    if (!open) router.back();
-                }}
-            >
-                <DrawerContent className={drawerContentClass}>
-                    <DrawerTitle className="sr-only">어린이집 상세</DrawerTitle>
+            {/* 모바일 목록 오버레이 */}
+            <div className={overlayClass(isMobile && (isListOpen || !!listDaycareId))}>
+                {listDaycareId ? (
                     <div className="flex-1 overflow-y-auto">
-                        {pathnameId && !isListOpen && (
-                            <Suspense fallback={<DaycareDetailLoading onBack={() => router.back()} />}>
-                                <DaycareDetailView id={pathnameId} onBack={() => router.back()} />
-                            </Suspense>
-                        )}
+                        <Suspense fallback={<DaycareDetailLoading onBack={() => router.back()} />}>
+                            <DaycareDetailView id={listDaycareId} onBack={() => router.back()} />
+                        </Suspense>
                     </div>
-                </DrawerContent>
-            </Drawer>
+                ) : (
+                    <ListPanel {...panelProps} onClose={() => setIsListOpen(false)} />
+                )}
+            </div>
+
+            {/* 모바일 마커 상세 오버레이 */}
+            <div className={overlayClass(isMobile && !isListOpen && !!pathnameId)}>
+                <div className="flex-1 overflow-y-auto">
+                    {pathnameId && !isListOpen && (
+                        <Suspense fallback={<DaycareDetailLoading onBack={() => router.back()} />}>
+                            <DaycareDetailView id={pathnameId} onBack={() => router.back()} />
+                        </Suspense>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
