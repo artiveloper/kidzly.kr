@@ -62,6 +62,15 @@ export function DaycareMap() {
         }
     }, [listDaycareId]);
 
+    // 모바일 키보드 오픈 시 브라우저가 body를 스크롤해 Drawer가 Header 뒤로 밀리는 현상 방지
+    useEffect(() => {
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const resetScroll = () => window.scrollTo(0, 0);
+        vv.addEventListener('scroll', resetScroll);
+        return () => vv.removeEventListener('scroll', resetScroll);
+    }, []);
+
     const handleBoundsChange = (newBounds: MapBounds) => {
         setRawBounds(newBounds);
     };
