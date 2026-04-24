@@ -123,7 +123,7 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
             mapTypeControl: false,
             scaleControl: false,
             logoControl: true,
-            logoControlOptions: { position: naver.maps.Position.BOTTOM_LEFT },
+            logoControlOptions: { position: naver.maps.Position.BOTTOM_RIGHT },
         });
 
         mapRef.current = map;
