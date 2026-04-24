@@ -2,30 +2,34 @@ import type { MetadataRoute } from "next"
 import { fetchDaycareCount, fetchDaycareIdsPaginated } from "@/domain/daycare/server"
 
 const BASE_URL = "https://kidzly.kr"
-const BATCH_SIZE = 1000
+const PAGE_SIZE = 50_000
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export async function generateSitemaps() {
     const count = await fetchDaycareCount()
+    const pages = Math.ceil(count / PAGE_SIZE) || 1
+    return Array.from({ length: pages }, (_, i) => ({ id: i }))
+}
 
-    const batches = Math.ceil(count / BATCH_SIZE)
-    const idBatches = await Promise.all(
-        Array.from({ length: batches }, (_, i) =>
-            fetchDaycareIdsPaginated({ offset: i * BATCH_SIZE, limit: BATCH_SIZE })
-        )
-    )
-    const ids = idBatches.flat()
+export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+    const ids = await fetchDaycareIdsPaginated({ offset: id * PAGE_SIZE, limit: PAGE_SIZE })
 
-    return [
-        {
-            url: BASE_URL,
-            lastModified: new Date(),
-            changeFrequency: "daily",
-            priority: 1,
-        },
-        ...ids.map((id) => ({
-            url: `${BASE_URL}/daycare/${id}`,
-            changeFrequency: "weekly" as const,
-            priority: 0.7,
-        })),
-    ]
+    const daycareEntries: MetadataRoute.Sitemap = ids.map((daycareId) => ({
+        url: `${BASE_URL}/daycare/${daycareId}`,
+        changeFrequency: "weekly",
+        priority: 0.7,
+    }))
+
+    if (id === 0) {
+        return [
+            {
+                url: BASE_URL,
+                lastModified: new Date(),
+                changeFrequency: "daily",
+                priority: 1,
+            },
+            ...daycareEntries,
+        ]
+    }
+
+    return daycareEntries
 }
