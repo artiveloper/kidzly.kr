@@ -94,9 +94,11 @@ export default async function Page({ params }: Props) {
                 />
                 <HydrationBoundary state={state}>
                     <div className="min-h-screen bg-gray-50">
-                        <Suspense fallback={<DaycareDetailLoading />}>
-                            <DaycareDetailView id={id} />
-                        </Suspense>
+                        <div className="mx-auto max-w-2xl bg-white shadow-sm">
+                            <Suspense fallback={<DaycareDetailLoading />}>
+                                <DaycareDetailView id={id} />
+                            </Suspense>
+                        </div>
                     </div>
                 </HydrationBoundary>
             </>
