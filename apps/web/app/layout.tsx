@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | 어린이집 검색 - 키즐리",
   },
   description:
-    "서울 및 전국 어린이집을 지도 기반으로 쉽게 찾아보세요. 국공립, 민간, 가정 어린이집 비교부터 운영시간, 위치, 서비스 정보까지 한눈에 확인할 수 있습니다.",
+    "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교부터 운영시간·대기 현황·서비스 정보까지 한눈에 확인할 수 있습니다.",
   keywords: [
     "어린이집 찾기",
     "어린이집 검색",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     siteName: "키즐리",
     title: "어린이집 찾기 | 국공립·민간 어린이집 비교 - 키즐리",
     description:
-      "우리 아이에게 맞는 어린이집을 쉽게 찾아보세요. 위치, 운영시간, 유형별 비교까지 한 번에.",
+      "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교부터 운영시간·대기 현황·서비스 정보까지 한눈에 확인할 수 있습니다.",
     images: [
       {
         url: "/og-image.png",
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "어린이집 찾기 | 키즐리",
-    description: "국공립·민간 어린이집 비교부터 위치 검색까지 한 번에.",
+    description: "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교부터 운영시간·대기 현황·서비스 정보까지 한눈에 확인할 수 있습니다.",
     images: ["/og-image.png"],
   },
   alternates: {
@@ -101,6 +101,28 @@ export const metadata: Metadata = {
     other: {
       "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51",
     },
+  },
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "키즐리",
+  url: BASE_URL,
+  description:
+    "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교부터 운영시간·대기 현황·서비스 정보까지 한눈에 확인할 수 있습니다.",
+  publisher: {
+    "@type": "Organization",
+    name: "키즐리",
+    url: BASE_URL,
+  },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${BASE_URL}/?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
   },
 }
 
@@ -118,6 +140,10 @@ export default function RootLayout({
       className={cn("font-sans antialiased", notoSans.variable)}
     >
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Analytics />
         <SpeedInsights />
         <GoogleAnalytics gaId="G-9CKKGKLVLC" />
