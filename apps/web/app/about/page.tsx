@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight } from "lucide-react"
+import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 
 const DESCRIPTION =
@@ -203,18 +203,13 @@ export default function AboutPage() {
                             직접 겪은 불편함을 바탕으로, 꼭 필요한 기능만 담았습니다.
                         </p>
                         <div className="space-y-7">
-                            {FEATURES.map(({ icon: Icon, title, description }, index) => (
+                            {FEATURES.map(({ icon: Icon, title, description }) => (
                                 <div key={title} className="flex gap-4">
                                     <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 mt-0.5">
                                         <Icon size={19} />
                                     </div>
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1.5">
-                                            <span className="text-[11px] font-bold text-emerald-500 tabular-nums">
-                                                {String(index + 1).padStart(2, "0")}
-                                            </span>
-                                            <h3 className="text-sm font-bold text-gray-900">{title}</h3>
-                                        </div>
+                                        <h3 className="text-sm font-bold text-gray-900 mb-1.5">{title}</h3>
                                         <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
                                     </div>
                                 </div>
@@ -243,6 +238,70 @@ export default function AboutPage() {
                                 </li>
                             ))}
                         </ul>
+                    </section>
+
+                    {/* 데이터 출처 및 동기화 */}
+                    <section className="py-10 border-b border-gray-100">
+                        <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                            데이터 출처 및 동기화
+                        </p>
+                        <h2 className="text-lg font-bold text-gray-900 mb-2">
+                            공공 데이터를 기반으로 합니다
+                        </h2>
+                        <p className="text-sm text-gray-500 leading-relaxed mb-7">
+                            키즐리의 모든 어린이집 정보는 정부 공공 데이터를 출처로 하며,
+                            최신 상태를 유지하기 위해 자동으로 동기화됩니다.
+                        </p>
+
+                        <div className="space-y-4">
+                            {/* 출처 */}
+                            <div className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50">
+                                <div className="shrink-0 w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500">
+                                    <Database size={16} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-gray-900 mb-0.5">데이터 출처</p>
+                                    <p className="text-sm text-gray-500 mb-2">어린이집 정보공개포털</p>
+                                    <Button asChild variant="link" className="text-emerald-600 hover:text-emerald-700 px-0 h-auto text-xs">
+                                        <a href="https://info.childcare.go.kr" target="_blank" rel="noopener noreferrer">
+                                            info.childcare.go.kr
+                                            <ExternalLink size={11} />
+                                        </a>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* 동기화 일정 */}
+                            <div className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50">
+                                <div className="shrink-0 w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500">
+                                    <RefreshCw size={16} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-semibold text-gray-900 mb-3">동기화 일정</p>
+                                    <div className="space-y-2.5">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm text-gray-700 font-medium">변경 데이터 동기화</p>
+                                                <p className="text-xs text-gray-400 mt-0.5">당월 변경 사항만 반영</p>
+                                            </div>
+                                            <span className="shrink-0 text-xs font-medium text-gray-500 bg-white border border-gray-200 px-2.5 py-1 rounded-full">
+                                                매일 02:00 KST
+                                            </span>
+                                        </div>
+                                        <div className="h-px bg-gray-100" />
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-sm text-gray-700 font-medium">전체 데이터 동기화</p>
+                                                <p className="text-xs text-gray-400 mt-0.5">전체 데이터 재동기화</p>
+                                            </div>
+                                            <span className="shrink-0 text-xs font-medium text-gray-500 bg-white border border-gray-200 px-2.5 py-1 rounded-full">
+                                                매주 일 03:00 KST
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     {/* 앞으로의 방향 */}
