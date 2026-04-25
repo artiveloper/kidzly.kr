@@ -14,6 +14,7 @@ export default async function Page() {
 
     return (
         <HydrationBoundary state={state}>
+            <h1 className="sr-only">어린이집 찾기</h1>
             <Suspense>
                 <DaycareMap />
             </Suspense>

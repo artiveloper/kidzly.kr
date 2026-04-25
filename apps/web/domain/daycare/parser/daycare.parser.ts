@@ -56,6 +56,8 @@ export function toDaycareDetail(row: DaycareRow): DaycareDetail {
         phone: row.phone ?? '',
         fax: row.fax ?? null,
         typeName: row.type_name ?? '',
+        sidoName: row.sido_name ?? null,
+        sigunguName: row.sigungu_name ?? null,
         status: row.status ?? '',
         representativeName: row.representative_name ?? null,
         capacity: row.capacity,

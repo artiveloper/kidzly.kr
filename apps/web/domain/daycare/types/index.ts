@@ -21,6 +21,8 @@ export type DaycareDetail = {
     phone: string;
     fax: string | null;
     typeName: string;
+    sidoName: string | null;
+    sigunguName: string | null;
     status: string;
     representativeName: string | null;
     capacity: number | null;

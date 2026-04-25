@@ -20,33 +20,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
         const daycare = await getCachedDaycareDetail(id);
 
-        const description = [
-            daycare.address,
-            daycare.typeName,
+        const year = new Date().getFullYear();
+        const locationParts = [daycare.sidoName, daycare.sigunguName].filter(Boolean).join(' ');
+        const title = locationParts
+            ? `${daycare.name} (${year}) - ${daycare.typeName} - ${locationParts} | 키즐리`
+            : `${daycare.name} (${year}) - ${daycare.typeName} | 키즐리`;
+
+        const detailParts = [
             daycare.capacity ? `정원 ${daycare.capacity}명` : null,
-            daycare.ageRange
-                ? `만 ${daycare.ageRange.min}세 ~ 만 ${daycare.ageRange.max}세`
-                : null,
-        ]
-            .filter(Boolean)
-            .join(' · ');
+            daycare.ageRange ? `만 ${daycare.ageRange.min}~${daycare.ageRange.max}세 대상` : null,
+        ].filter(Boolean).join(', ');
+
+        const description = [
+            locationParts ? `${locationParts} ${daycare.typeName}` : daycare.typeName,
+            detailParts.length > 0 ? detailParts : null,
+            '운영시간·대기 현황은 키즐리에서 확인하세요.',
+        ].filter(Boolean).join('. ');
 
         const url = `https://kidzly.kr/daycare/${id}`;
 
         return {
-            title: daycare.name,
+            title,
             description,
             alternates: { canonical: url },
             openGraph: {
                 type: 'website',
                 url,
-                title: `${daycare.name} | 키즐리`,
+                title,
                 description,
                 images: [{ url: '/og-image.png', width: 1200, height: 630 }],
             },
             twitter: {
                 card: 'summary',
-                title: `${daycare.name} | 키즐리`,
+                title,
                 description,
             },
         };
