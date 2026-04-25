@@ -27,6 +27,11 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
                 changeFrequency: "daily",
                 priority: 1,
             },
+            {
+                url: `${BASE_URL}/about`,
+                changeFrequency: "monthly",
+                priority: 0.5,
+            },
             ...daycareEntries,
         ]
     }
