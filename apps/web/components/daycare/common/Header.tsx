@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { Button } from '@workspace/ui/components/button';
 
 export function Header() {
     return (
@@ -9,9 +10,9 @@ export function Header() {
             <Link href="/">
                 <Image src="/logo.png" alt="키즐리" width={60} height={28} priority />
             </Link>
-            <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors">
-                서비스 소개
-            </Link>
+            <Button asChild className="rounded" variant="secondary" size="sm">
+                <Link href="/about">서비스 소개</Link>
+            </Button>
         </header>
     );
 }

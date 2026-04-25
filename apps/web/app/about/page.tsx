@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
 
 const DESCRIPTION =
     "아이를 낳고 어린이집을 찾다가 너무 불편해서 직접 만들었습니다. 지도 기반으로 내 주변 어린이집을 빠르게 찾고, 유형·운영시간·대기 현황까지 한눈에 비교하세요."
@@ -119,13 +120,16 @@ export default function AboutPage() {
                             어린이집 유형, 운영 시간, 대기 현황 등<br className="sm:hidden" />
                             꼭 필요한 정보를 한 화면에서 확인할 수 있습니다.
                         </p>
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 bg-emerald-600 text-white text-sm font-semibold px-5 py-3 rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+                        <Button
+                            asChild
+                            size="lg"
+                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white"
                         >
-                            어린이집 찾아보기
-                            <ArrowRight size={15} />
-                        </Link>
+                            <Link href="/">
+                                어린이집 찾아보기
+                                <ArrowRight size={15} />
+                            </Link>
+                        </Button>
                     </div>
                 </section>
 
@@ -277,13 +281,12 @@ export default function AboutPage() {
                             사용하다가 불편한 점, 추가됐으면 하는 기능, 잘못된 정보 등
                             어떤 내용이든 환영합니다. 더 나은 서비스를 만드는 데 큰 도움이 됩니다.
                         </p>
-                        <a
-                            href="mailto:artiveloper@gmail.com"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
-                        >
-                            artiveloper@gmail.com
-                            <ArrowRight size={14} />
-                        </a>
+                        <Button asChild variant="link" className="text-emerald-600 hover:text-emerald-700 px-0">
+                            <a href="mailto:artiveloper@gmail.com">
+                                artiveloper@gmail.com
+                                <ArrowRight size={14} />
+                            </a>
+                        </Button>
                     </section>
 
                     {/* CTA */}
@@ -296,13 +299,16 @@ export default function AboutPage() {
                                 우리 아이에게 꼭 맞는 어린이집을<br />
                                 키즐리에서 찾아보세요.
                             </p>
-                            <Link
-                                href="/"
-                                className="inline-flex items-center gap-2 bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+                            <Button
+                                asChild
+                                size="lg"
+                                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white"
                             >
-                                어린이집 찾아보기
-                                <ArrowRight size={15} />
-                            </Link>
+                                <Link href="/">
+                                    어린이집 찾아보기
+                                    <ArrowRight size={15} />
+                                </Link>
+                            </Button>
                         </div>
                     </section>
                 </div>
