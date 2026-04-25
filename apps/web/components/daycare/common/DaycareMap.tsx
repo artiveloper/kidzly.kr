@@ -22,6 +22,18 @@ export function DaycareMap() {
     const bounds = useDebounce(rawBounds, 600);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
+    const [initialCenter] = useState<{ lat: number; lng: number } | null>(() => {
+        if (typeof window === 'undefined') return null;
+        const raw = sessionStorage.getItem('map_initial_center');
+        if (!raw) return null;
+        try {
+            sessionStorage.removeItem('map_initial_center');
+            return JSON.parse(raw) as { lat: number; lng: number };
+        } catch {
+            return null;
+        }
+    });
+
     // 목록 Drawer 상태
     const [isListOpen, setIsListOpen] = useState(false);
 
@@ -42,9 +54,19 @@ export function DaycareMap() {
     const mapViewRef = useRef<NaverMapHandle>(null);
     const listScrollRef = useRef<HTMLDivElement>(null);
     const savedScrollTop = useRef(0);
+    const daycaresRef = useRef(daycares);
+    daycaresRef.current = daycares;
 
     // pathname 기반 선택된 어린이집 ID (마커 강조 + Drawer 제어 공통)
     const pathnameId = pathname.startsWith('/daycare/') ? pathname.slice('/daycare/'.length) : null;
+
+    useEffect(() => {
+        if (!pathnameId) return;
+        const daycare = daycaresRef.current.find(d => d.id === pathnameId);
+        if (daycare?.latitude && daycare?.longitude) {
+            mapViewRef.current?.panTo(daycare.latitude, daycare.longitude);
+        }
+    }, [pathnameId]);
 
     // 목록 Drawer에서 상세로 진입 시 ID
     const listDaycareId = isMobile && isListOpen && pathnameId ? pathnameId : null;
@@ -136,6 +158,7 @@ export function DaycareMap() {
                         ref={mapViewRef}
                         daycares={filteredDaycares}
                         selectedId={pathnameId}
+                        initialCenter={initialCenter}
                         onSelectDaycare={handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}
                         onOpenBottomSheet={handleOpenList}

@@ -37,6 +37,12 @@ export function DaycareDetailView({ id, onBack }: DaycareDetailInnerProps) {
         if (onBack) {
             onBack();
         } else {
+            if (detail.latitude && detail.longitude) {
+                sessionStorage.setItem(
+                    'map_initial_center',
+                    JSON.stringify({ lat: detail.latitude, lng: detail.longitude })
+                );
+            }
             router.push('/');
         }
     };

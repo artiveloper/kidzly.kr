@@ -14,6 +14,7 @@ export type NaverMapHandle = {
 interface NaverMapProps {
     daycares: DaycareListItem[];
     selectedId?: string | null;
+    initialCenter?: { lat: number; lng: number } | null;
     onSelectDaycare: (id: string) => void;
     onBoundsChange: (bounds: MapBounds) => void;
     onOpenBottomSheet: () => void;
@@ -82,6 +83,7 @@ function getBounds(map: naver.maps.Map): MapBounds {
 export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     daycares,
     selectedId,
+    initialCenter,
     onSelectDaycare,
     onBoundsChange,
     onOpenBottomSheet,
@@ -117,8 +119,9 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
     useEffect(() => {
         if (!scriptLoaded || !containerRef.current || mapRef.current) return;
 
+        const center = initialCenter ?? DEFAULT_CENTER;
         const map = new naver.maps.Map(containerRef.current, {
-            center: new naver.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng),
+            center: new naver.maps.LatLng(center.lat, center.lng),
             zoom: 16,
             mapTypeControl: false,
             scaleControl: false,
@@ -137,7 +140,7 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
             onBoundsChangeRef.current(getBounds(map));
         });
 
-        onBoundsChangeRef.current(DEFAULT_BOUNDS);
+        onBoundsChangeRef.current(getBounds(map));
     }, [scriptLoaded]);
 
     // 마커 동기화
