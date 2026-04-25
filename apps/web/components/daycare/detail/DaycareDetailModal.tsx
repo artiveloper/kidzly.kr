@@ -24,7 +24,7 @@ export function DaycareDetailModal({ id }: DaycareDetailModalProps) {
     return (
         <div className="fixed inset-x-0 bottom-0 top-14 z-50 flex flex-col overflow-y-auto bg-white md:left-0 md:right-auto md:w-[360px] md:border-r md:border-gray-200 md:shadow-sm">
             <Suspense fallback={<DaycareDetailLoading />}>
-                <DaycareDetailView id={id} onBack={() => router.back()} />
+                <DaycareDetailView id={id} onBack={() => router.replace('/')} />
             </Suspense>
         </div>
     );

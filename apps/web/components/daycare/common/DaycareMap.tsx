@@ -112,7 +112,7 @@ export function DaycareMap() {
     };
 
     const handleSelectDaycare = (id: string) => {
-        router.push(`/daycare/${id}`);
+        router.replace(`/daycare/${id}`);
     };
 
     const handleOpenList = () => {

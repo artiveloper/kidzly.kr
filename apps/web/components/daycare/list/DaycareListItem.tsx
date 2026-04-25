@@ -26,6 +26,7 @@ export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
     return (
         <Link
             href={`/daycare/${daycare.id}`}
+            replace
             className="block border-b border-gray-100 px-4 py-3.5 transition-all hover:bg-gray-50"
         >
             <div className="flex items-start justify-between gap-2">
