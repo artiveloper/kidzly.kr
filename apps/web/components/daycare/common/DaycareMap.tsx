@@ -170,8 +170,8 @@ export function DaycareMap() {
             <div className={overlayClass(isMobile && (isListOpen || !!listDaycareId))}>
                 {listDaycareId ? (
                     <div className="flex-1 overflow-y-auto">
-                        <Suspense fallback={<DaycareDetailLoading onBack={() => router.back()} />}>
-                            <DaycareDetailView id={listDaycareId} onBack={() => router.back()} />
+                        <Suspense fallback={<DaycareDetailLoading />}>
+                            <DaycareDetailView id={listDaycareId} />
                         </Suspense>
                     </div>
                 ) : (
@@ -183,8 +183,8 @@ export function DaycareMap() {
             <div className={overlayClass(isMobile && !isListOpen && !!pathnameId)}>
                 <div className="flex-1 overflow-y-auto">
                     {pathnameId && !isListOpen && (
-                        <Suspense fallback={<DaycareDetailLoading onBack={() => router.back()} />}>
-                            <DaycareDetailView id={pathnameId} onBack={() => router.back()} />
+                        <Suspense fallback={<DaycareDetailLoading />}>
+                            <DaycareDetailView id={pathnameId} />
                         </Suspense>
                     )}
                 </div>
