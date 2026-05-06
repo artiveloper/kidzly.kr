@@ -9,10 +9,9 @@ import { DetailContent, formatDate } from './DaycareDetailContent';
 
 interface DaycareDetailInnerProps {
     id: string;
-    onBack?: () => void;
 }
 
-export function DaycareDetailView({ id, onBack }: DaycareDetailInnerProps) {
+export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
     const router = useRouter();
     const { data: detail } = useDaycareDetail(id);
     const [copied, setCopied] = useState(false);
@@ -34,17 +33,13 @@ export function DaycareDetailView({ id, onBack }: DaycareDetailInnerProps) {
     };
 
     const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else {
-            if (detail.latitude && detail.longitude) {
-                sessionStorage.setItem(
-                    'map_initial_center',
-                    JSON.stringify({ lat: detail.latitude, lng: detail.longitude })
-                );
-            }
-            router.push('/');
+        if (detail.latitude && detail.longitude) {
+            sessionStorage.setItem(
+                'map_initial_center',
+                JSON.stringify({ lat: detail.latitude, lng: detail.longitude })
+            );
         }
+        router.replace('/');
     };
 
     return (

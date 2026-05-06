@@ -5,21 +5,11 @@ import { Share2, ArrowLeft } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { DetailSkeleton } from './DaycareDetailContent';
 
-interface DaycareDetailLoadingProps {
-    onBack?: () => void;
-}
-
-export function DaycareDetailLoading({ onBack }: DaycareDetailLoadingProps) {
+export function DaycareDetailLoading() {
     const router = useRouter();
 
     const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else if (window.history.length <= 1) {
-            router.push('/');
-        } else {
-            router.back();
-        }
+        router.replace('/');
     };
 
     return (
