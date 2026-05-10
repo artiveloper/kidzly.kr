@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, Share2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDaycareDetail } from '@/domain/daycare';
-import { DetailContent, formatDate } from './DaycareDetailContent';
+import { DetailContent } from './DaycareDetailContent';
+import { formatDate } from '@/lib/format';
 
 interface DaycareDetailInnerProps {
     id: string;
