@@ -137,7 +137,7 @@ export function DaycareMap() {
     };
 
     const overlayClass = (open: boolean) =>
-        `md:hidden fixed inset-0 z-[200] bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
+        `md:hidden fixed inset-x-0 top-14 bottom-0 z-[48] bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
 
     return (
         <div className="flex flex-col h-screen overflow-hidden">
