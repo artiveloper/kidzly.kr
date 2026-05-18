@@ -169,7 +169,7 @@ export function DaycareMap() {
             {/* 모바일 목록 오버레이 */}
             <div className={overlayClass(isMobile && (isListOpen || !!listDaycareId))}>
                 {listDaycareId ? (
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto pb-4">
                         <Suspense fallback={<DaycareDetailLoading />}>
                             <DaycareDetailView id={listDaycareId} />
                         </Suspense>
@@ -181,7 +181,7 @@ export function DaycareMap() {
 
             {/* 모바일 마커 상세 오버레이 */}
             <div className={overlayClass(isMobile && !isListOpen && !!pathnameId)}>
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto pb-4">
                     {pathnameId && !isListOpen && (
                         <Suspense fallback={<DaycareDetailLoading />}>
                             <DaycareDetailView id={pathnameId} />
@@ -189,6 +189,11 @@ export function DaycareMap() {
                     )}
                 </div>
             </div>
+
+            {/* 네이버 지도 로고(z-100) 가림 — 모바일 오버레이 오픈 시에만 표시 */}
+            {isMobile && (isListOpen || !!pathnameId) && (
+                <div className="fixed bottom-0 inset-x-0 h-4 bg-white z-101" />
+            )}
         </div>
     );
 }
