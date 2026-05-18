@@ -144,6 +144,7 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
                                 const count = daycare.childCountByAge[age]
                                 const waiting = daycare.waitingChildByAge[age]
                                 if (classCount === null && count === null && waiting === null) return null
+                                if (classCount === 0 && (count === null || count === 0) && (waiting === null || waiting === 0)) return null
                                 return (
                                     <TableRow key={age}>
                                         <TableCell className="text-gray-600">만{age}세</TableCell>
@@ -169,7 +170,10 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
                                 { label: '영아혼합', classCount: daycare.classCountInfantMixed, count: daycare.childCountInfantMixed },
                                 { label: '유아혼합', classCount: daycare.classCountChildMixed, count: daycare.childCountChildMixed },
                                 { label: '특수장애', classCount: daycare.classCountSpecial, count: daycare.childCountSpecial },
-                            ] as const).map(({ label, classCount, count }) => (
+                            ] as const).map(({ label, classCount, count }) => {
+                                if (classCount === null && count === null) return null
+                                if (classCount === 0 && (count === null || count === 0)) return null
+                                return (
                                 <TableRow key={label}>
                                     <TableCell className="text-gray-600">{label}</TableCell>
                                     <TableCell className="text-center text-gray-800">
@@ -180,7 +184,8 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
                                     </TableCell>
                                     <TableCell className="text-center"><span className="text-gray-300">미제공</span></TableCell>
                                 </TableRow>
-                            ))}
+                            )
+                            })}
                         </TableBody>
                     </Table>
                 )}
@@ -226,7 +231,25 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
 
             {(daycare.staffDirectorCount !== null || daycare.staffTeacherCount !== null || daycare.staffTenure) && (
                 <div className="px-3 py-5">
-                    <SectionTitle>교직원</SectionTitle>
+                    {(() => {
+                        const total = [
+                            daycare.staffDirectorCount,
+                            daycare.staffTeacherCount,
+                            daycare.staffSpecialTeacherCount,
+                            daycare.staffTherapistCount,
+                            daycare.staffNutritionistCount,
+                            daycare.staffNurseCount,
+                            daycare.staffNursingAssistantCount,
+                            daycare.staffCookCount,
+                            daycare.staffOfficeCount,
+                        ].reduce<number | null>((acc, v) => v !== null ? (acc ?? 0) + v : acc, null);
+                        return (
+                            <div className="flex items-baseline gap-2 mb-3">
+                                <p className="text-sm font-semibold uppercase tracking-wide">교직원</p>
+                                {total !== null && <span className="text-sm text-gray-400">총 {total}명</span>}
+                            </div>
+                        );
+                    })()}
                     {([
                         { label: '원장', value: daycare.staffDirectorCount },
                         { label: '보육교사', value: daycare.staffTeacherCount },
