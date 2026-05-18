@@ -140,7 +140,8 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
             onBoundsChangeRef.current(getBounds(map));
         });
 
-        onBoundsChangeRef.current(getBounds(map));
+        // 초기 bounds는 DEFAULT_BOUNDS로 고정 → prefetch cache key와 일치
+        onBoundsChangeRef.current(DEFAULT_BOUNDS);
     }, [scriptLoaded]);
 
     // 마커 동기화
