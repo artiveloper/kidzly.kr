@@ -5,6 +5,7 @@ import { Clock, MapPin, Phone, Users } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import type { DaycareListItem, DaycareAgeFilter } from '@/domain/daycare';
 import { DAYCARE_AGE_LABELS } from '@/domain/daycare';
+import { saveDaycareReturnUrl } from '@/lib/navigation';
 
 interface DaycareListItemProps {
     daycare: DaycareListItem;
@@ -27,6 +28,7 @@ export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
         <Link
             href={`/daycare/${daycare.id}`}
             replace
+            onClick={saveDaycareReturnUrl}
             className="block border-b border-gray-100 px-4 py-3.5 transition-all hover:bg-gray-50"
         >
             <div className="flex items-start justify-between gap-2">

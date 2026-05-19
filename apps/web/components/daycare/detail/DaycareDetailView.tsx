@@ -7,6 +7,7 @@ import { Button } from '@workspace/ui/components/button';
 import { useDaycareDetail } from '@/domain/daycare';
 import { DetailContent } from './DaycareDetailContent';
 import { formatDate } from '@/lib/format';
+import { popDaycareReturnUrl } from '@/lib/navigation';
 
 interface DaycareDetailInnerProps {
     id: string;
@@ -40,7 +41,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                 JSON.stringify({ lat: detail.latitude, lng: detail.longitude })
             );
         }
-        router.replace('/');
+        router.replace(popDaycareReturnUrl());
     };
 
     return (

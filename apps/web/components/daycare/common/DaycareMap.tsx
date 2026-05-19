@@ -13,6 +13,7 @@ import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 import { DaycareDetailView } from '../detail/DaycareDetailView';
 import { DaycareDetailLoading } from '../detail/DaycareDetailLoading';
 import { DaycareFilters } from '../list/filters/DaycareFilters';
+import { saveDaycareReturnUrl } from '@/lib/navigation';
 
 export function DaycareMap() {
     const router = useRouter();
@@ -112,7 +113,8 @@ export function DaycareMap() {
     };
 
     const handleSelectDaycare = (id: string) => {
-        router.replace(`/daycare/${id}`);
+        saveDaycareReturnUrl();
+        router.replace(`/daycare/${id}${window.location.search}`);
     };
 
     const handleOpenList = () => {
