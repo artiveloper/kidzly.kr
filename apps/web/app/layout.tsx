@@ -99,8 +99,7 @@ export const metadata: Metadata = {
   },
   verification: {
     other: {
-      "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51",
-      "google-adsense-account": "ca-pub-6240197797349980",
+      "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51"
     },
   },
 }
