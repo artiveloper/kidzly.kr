@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Noto_Sans_KR } from "next/font/google"
+import Script from "next/script"
 
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -143,6 +144,12 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6240197797349980"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
         />
         <Analytics />
         <SpeedInsights />

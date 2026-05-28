@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, Share2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDaycareDetail } from '@/domain/daycare';
 import { DetailContent } from './DaycareDetailContent';
+import { NaverBlogSection, NaverBlogSectionSkeleton } from './NaverBlogSection';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
+
+function buildBlogQuery(sigunguName: string | null, name: string): string {
+    return sigunguName ? `${sigunguName} ${name}` : name;
+}
 
 interface DaycareDetailInnerProps {
     id: string;
@@ -76,6 +81,10 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
             </div>
 
             <DetailContent daycare={detail} />
+
+            <Suspense fallback={<NaverBlogSectionSkeleton />}>
+                <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
+            </Suspense>
         </>
     );
 }
