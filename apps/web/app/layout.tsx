@@ -24,6 +24,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   interactiveWidget: "resizes-visual",
+  viewportFit: "cover",
 }
 
 export const metadata: Metadata = {

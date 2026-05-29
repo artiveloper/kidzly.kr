@@ -211,7 +211,7 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
             <div ref={containerRef} className="w-full h-full" />
             <button
                 onClick={onOpenBottomSheet}
-                className="md:hidden absolute bottom-6 right-4 flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 z-10"
+                className="md:hidden absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-4 flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-lg border border-gray-200 text-sm font-medium text-gray-700 z-10"
             >
                 <List size={16} />
                 목록 보기
