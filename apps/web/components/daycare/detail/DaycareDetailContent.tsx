@@ -99,6 +99,15 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
     return (
         <div className="divide-y-6 divide-gray-100">
 
+            {daycare.aiAnalysisSummary && (
+                <div className="px-3 pt-5 pb-3">
+                    <div className="mb-2.5">
+                        <SectionTitle>🤖 AI 요약</SectionTitle>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">{daycare.aiAnalysisSummary}</p>
+                </div>
+            )}
+
             {basicInfoRows.length > 0 && (
                 <div className="px-3 py-5">
                     <SectionTitle>기본 정보</SectionTitle>
@@ -344,6 +353,16 @@ function SkeletonInfoGrid({ rows }: { rows: [string, string][] }) {
 export function DetailSkeleton() {
     return (
         <div className="divide-y-6 divide-gray-100 animate-pulse">
+            {/* AI 요약 */}
+            <div className="px-3 py-5">
+                <div className="h-4 w-16 rounded bg-gray-200 mb-3" />
+                <div className="space-y-2">
+                    <div className="h-3.5 w-full rounded bg-gray-100" />
+                    <div className="h-3.5 w-full rounded bg-gray-100" />
+                    <div className="h-3.5 w-4/5 rounded bg-gray-100" />
+                </div>
+            </div>
+
             {/* 기본 정보 */}
             <div className="px-3 py-5">
                 <SkeletonSectionTitle />
