@@ -4,9 +4,11 @@ import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, Share2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
+import { sendGAEvent } from '@next/third-parties/google';
 import { useDaycareDetail } from '@/domain/daycare';
 import { DetailContent } from './DaycareDetailContent';
-import { NaverBlogSection, NaverBlogSectionSkeleton } from './NaverBlogSection';
+import { NaverBlogSection, NaverBlogSectionError, NaverBlogSectionSkeleton } from './NaverBlogSection';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
 
@@ -29,6 +31,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
         if (navigator.share && navigator.canShare?.(shareData)) {
             try {
                 await navigator.share(shareData);
+                sendGAEvent('event', 'share', { method: 'native', content_type: 'daycare', item_id: id });
             } catch {
                 // 사용자가 취소한 경우 무시
             }
@@ -36,6 +39,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
             await navigator.clipboard.writeText(url);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+            sendGAEvent('event', 'share', { method: 'clipboard', content_type: 'daycare', item_id: id });
         }
     };
 
@@ -63,7 +67,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                         </h1>
                         {detail.dataStandardDate && (
                             <p className="mt-0.5 text-xs text-gray-400">
-                                {formatDate(detail.dataStandardDate)} 기준
+                                최종 수정일 {formatDate(detail.dataStandardDate)}
                             </p>
                         )}
                     </div>
@@ -82,9 +86,11 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
 
             <DetailContent daycare={detail} />
 
-            <Suspense fallback={<NaverBlogSectionSkeleton />}>
-                <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
-            </Suspense>
+            <ErrorBoundary fallback={<NaverBlogSectionError />}>
+                <Suspense fallback={<NaverBlogSectionSkeleton />}>
+                    <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
+                </Suspense>
+            </ErrorBoundary>
         </>
     );
 }

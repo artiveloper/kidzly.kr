@@ -64,6 +64,7 @@ export type DaycareDetail = {
         y4to6: number | null;
         over6y: number | null;
     } | null;
+    aiAnalysisSummary: string | null;
 };
 
 export type MapBounds = {

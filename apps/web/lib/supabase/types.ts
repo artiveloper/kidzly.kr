@@ -75,6 +75,12 @@ export type Database = {
           pause_end_date: string | null;
           data_standard_date: string | null;
           services: string | null;
+          ai_analysis: {
+            tags: string[];
+            summary: string;
+            strengths: string[];
+            considerations: string[];
+          } | null;
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
