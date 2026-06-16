@@ -6,7 +6,8 @@ import { ArrowLeft, Check, Share2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { useDaycareDetail } from '@/domain/daycare';
 import { DetailContent } from './DaycareDetailContent';
-import { NaverBlogSection, NaverBlogSectionSkeleton } from './NaverBlogSection';
+import { NaverBlogSection, NaverBlogSectionError, NaverBlogSectionSkeleton } from './NaverBlogSection';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
 
@@ -63,7 +64,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                         </h1>
                         {detail.dataStandardDate && (
                             <p className="mt-0.5 text-xs text-gray-400">
-                                {formatDate(detail.dataStandardDate)} 기준
+                                최종 수정일 {formatDate(detail.dataStandardDate)}
                             </p>
                         )}
                     </div>
@@ -82,9 +83,11 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
 
             <DetailContent daycare={detail} />
 
-            <Suspense fallback={<NaverBlogSectionSkeleton />}>
-                <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
-            </Suspense>
+            <ErrorBoundary fallback={<NaverBlogSectionError />}>
+                <Suspense fallback={<NaverBlogSectionSkeleton />}>
+                    <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
+                </Suspense>
+            </ErrorBoundary>
         </>
     );
 }
