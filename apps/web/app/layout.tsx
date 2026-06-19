@@ -118,14 +118,6 @@ const jsonLd = {
     name: "키즐리",
     url: BASE_URL,
   },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${BASE_URL}/?q={search_term_string}`,
-    },
-    "query-input": "required name=search_term_string",
-  },
 }
 
 export default function RootLayout({
