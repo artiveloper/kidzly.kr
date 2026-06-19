@@ -12,8 +12,14 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
 
-function buildBlogQuery(sigunguName: string | null, name: string): string {
-    return sigunguName ? `${sigunguName} ${name}` : name;
+function extractDong(address: string): string | null {
+    return address.split(' ').find((part) => /[동읍면]$/.test(part)) ?? null;
+}
+
+function buildBlogQuery(sigunguName: string | null, name: string, address: string): string {
+    const dong = extractDong(address);
+    const location = [sigunguName, dong].filter(Boolean).join(' ');
+    return location ? `${location} "${name}"` : `"${name}"`;
 }
 
 interface DaycareDetailInnerProps {
@@ -88,7 +94,7 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
 
             <ErrorBoundary fallback={<NaverBlogSectionError />}>
                 <Suspense fallback={<NaverBlogSectionSkeleton />}>
-                    <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name)} />
+                    <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name, detail.address)} />
                 </Suspense>
             </ErrorBoundary>
         </>
