@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
 
+export const revalidate = 86400 // 24시간 캐시
+
 const BASE_URL = "https://kidzly.kr"
 const BATCH_SIZE = 1_000
 
