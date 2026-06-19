@@ -435,46 +435,52 @@ export function DetailContent({ daycare }: { daycare: DaycareDetail }) {
               </div>
             )}
             {daycare.staffTenure && (
-              <div className="space-y-2.5">
-                <p className="mb-2 text-sm text-gray-600">보육교사 근속년수</p>
-                {(
-                  [
-                    { label: "1년 미만", value: daycare.staffTenure.under1y },
-                    { label: "1~2년", value: daycare.staffTenure.y1to2 },
-                    { label: "2~4년", value: daycare.staffTenure.y2to4 },
-                    { label: "4~6년", value: daycare.staffTenure.y4to6 },
-                    { label: "6년 이상", value: daycare.staffTenure.over6y },
-                  ] as const
-                ).map(({ label, value }) => {
-                  const count =
-                    value !== null && daycare.staffTeacherCount !== null
-                      ? Math.round((value / 100) * daycare.staffTeacherCount)
-                      : null
-                  return (
-                    <div key={label} className="flex items-center gap-2">
-                      <span className="w-14 shrink-0 text-sm text-gray-600">
-                        {label}
-                      </span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                        <div
-                          className="h-full rounded-full bg-emerald-400 transition-all"
-                          style={{ width: `${value ?? 0}%` }}
-                        />
-                      </div>
-                      <span className="w-8 shrink-0 text-right text-sm text-gray-800">
-                        {count !== null ? (
-                          <>
-                            {count}
-                            <span className="ml-0.5 text-gray-400">명</span>
-                          </>
-                        ) : (
-                          <span className="text-gray-300">미제공</span>
+                <div>
+                    <p className="mb-3 text-sm text-gray-600">보육교사 근속년수</p>
+                    <div className="flex h-5 overflow-hidden rounded-full bg-gray-100">
+                        {[
+                            { label: '1년 미만', value: daycare.staffTenure.under1y, color: 'bg-emerald-200' },
+                            { label: '1~2년', value: daycare.staffTenure.y1to2, color: 'bg-emerald-300' },
+                            { label: '2~4년', value: daycare.staffTenure.y2to4, color: 'bg-emerald-400' },
+                            { label: '4~6년', value: daycare.staffTenure.y4to6, color: 'bg-emerald-500' },
+                            { label: '6년 이상', value: daycare.staffTenure.over6y, color: 'bg-emerald-600' },
+                        ].map(({ label, value, color }) =>
+                            value ? (
+                                <div
+                                    key={label}
+                                    className={`h-full ${color}`}
+                                    style={{ width: `${value}%` }}
+                                />
+                            ) : null
                         )}
-                      </span>
                     </div>
-                  )
-                })}
-              </div>
+                    <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
+                        {[
+                            { label: '1년 미만', value: daycare.staffTenure.under1y, color: 'bg-emerald-200' },
+                            { label: '1~2년', value: daycare.staffTenure.y1to2, color: 'bg-emerald-300' },
+                            { label: '2~4년', value: daycare.staffTenure.y2to4, color: 'bg-emerald-400' },
+                            { label: '4~6년', value: daycare.staffTenure.y4to6, color: 'bg-emerald-500' },
+                            { label: '6년 이상', value: daycare.staffTenure.over6y, color: 'bg-emerald-600' },
+                        ].map(({ label, value, color }) => {
+                            const count =
+                                value !== null && daycare.staffTeacherCount !== null
+                                    ? Math.round((value / 100) * daycare.staffTeacherCount)
+                                    : null;
+                            return (
+                                <div key={label} className="flex items-center gap-1.5">
+                                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${color}`} />
+                                    <span className="text-xs text-gray-600">{label}</span>
+                                    <span className="text-xs font-medium text-gray-800">
+                                        {value !== null ? `${value}%` : '-'}
+                                    </span>
+                                    {count !== null && (
+                                        <span className="text-xs text-gray-400">({count}명)</span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             )}
           </div>
         )}
