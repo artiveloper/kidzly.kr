@@ -4,25 +4,26 @@ import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
 const BASE_URL = "https://kidzly.kr"
 const BATCH_SIZE = 1_000
 
-async function fetchAllDaycareIds(): Promise<string[]> {
-    const ids: string[] = []
+async function fetchAllDaycareEntries(): Promise<{ id: string; lastModified: string | null }[]> {
+    const entries: { id: string; lastModified: string | null }[] = []
     let offset = 0
 
     while (true) {
         const batch = await fetchDaycareIdsPaginated({ offset, limit: BATCH_SIZE })
-        ids.push(...batch)
+        entries.push(...batch)
         if (batch.length < BATCH_SIZE) break
         offset += BATCH_SIZE
     }
 
-    return ids
+    return entries
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const ids = await fetchAllDaycareIds()
+    const entries = await fetchAllDaycareEntries()
 
-    const daycareEntries: MetadataRoute.Sitemap = ids.map((daycareId) => ({
-        url: `${BASE_URL}/daycare/${daycareId}`,
+    const daycareEntries: MetadataRoute.Sitemap = entries.map(({ id, lastModified }) => ({
+        url: `${BASE_URL}/daycare/${id}`,
+        lastModified: lastModified ? new Date(lastModified) : undefined,
         changeFrequency: "weekly",
         priority: 0.7,
     }))

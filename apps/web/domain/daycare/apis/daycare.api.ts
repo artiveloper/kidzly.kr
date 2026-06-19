@@ -145,13 +145,13 @@ export async function fetchDaycareCount(): Promise<number> {
     return count ?? 0;
 }
 
-export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<string[]> {
+export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<{ id: string; lastModified: string | null }[]> {
     const { offset, limit } = options;
     const supabase = createServerClient();
 
     const { data, error } = await supabase
         .from('daycares')
-        .select('daycare_code')
+        .select('daycare_code, data_standard_date')
         .eq('status', '정상')
         .range(offset, offset + limit - 1);
 
@@ -160,7 +160,10 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         return [];
     }
 
-    return ((data ?? []) as Pick<DaycareRow, 'daycare_code'>[]).map((r) => r.daycare_code);
+    return ((data ?? []) as Pick<DaycareRow, 'daycare_code' | 'data_standard_date'>[]).map((r) => ({
+        id: r.daycare_code,
+        lastModified: r.data_standard_date ?? null,
+    }));
 }
 
 export async function fetchSigungus(): Promise<SigunguRow[]> {

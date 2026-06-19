@@ -25,14 +25,20 @@ function buildDaycareMetaStrings(daycare: DaycareDetail) {
         : `${daycare.name} (${year}) | ${daycare.typeName} - 키즐리`;
 
     const detailParts = [
-        daycare.capacity ? `정원 ${daycare.capacity}명` : null,
+        daycare.capacity !== null
+            ? daycare.currentChildCount !== null
+                ? `정원 ${daycare.capacity}명 (현원 ${daycare.currentChildCount}명)`
+                : `정원 ${daycare.capacity}명`
+            : null,
         daycare.ageRange ? `만 ${daycare.ageRange.min}~${daycare.ageRange.max}세 대상` : null,
+        daycare.staffTeacherCount ? `보육교사 ${daycare.staffTeacherCount}명 재직` : null,
     ].filter(Boolean).join(', ');
 
     const description = [
-        location ? `${location} ${daycare.typeName}` : daycare.typeName,
+        daycare.address ? `${daycare.address} 소재` : location ? `${location} 소재` : null,
+        `${daycare.typeName}`,
         detailParts.length > 0 ? detailParts : null,
-        '운영시간·대기 현황은 키즐리에서 확인하세요.',
+        '키즐리에서 대기현황을 확인하세요.',
     ].filter(Boolean).join('. ');
 
     return { title, description };
@@ -86,12 +92,17 @@ export default async function Page({ params }: Props) {
         '@context': 'https://schema.org',
         '@type': 'ChildCare',
         name: daycare.name,
+        description,
         address: {
             '@type': 'PostalAddress',
             streetAddress: daycare.address,
             addressCountry: 'KR',
         },
         ...(daycare.phone ? { telephone: daycare.phone } : {}),
+        ...(daycare.capacity !== null ? { maximumAttendeeCapacity: daycare.capacity } : {}),
+        ...(daycare.staffTeacherCount !== null
+            ? { numberOfEmployees: { '@type': 'QuantitativeValue', value: daycare.staffTeacherCount } }
+            : {}),
         ...(daycare.latitude && daycare.longitude
             ? {
                 geo: {
