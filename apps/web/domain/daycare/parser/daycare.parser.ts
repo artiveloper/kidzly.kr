@@ -1,5 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
-import type { DaycareListItem, DaycareDetail } from '../types';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem } from '../types';
 
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
     const counts = [
@@ -45,6 +45,51 @@ export function toDaycareListItem(row: DaycareRow): DaycareListItem {
             row.waiting_child_age_4 ?? null,
             row.waiting_child_age_5 ?? null,
         ],
+    };
+}
+
+export function toDaycareRankingItem(row: DaycareRow, rank: number): DaycareRankingItem {
+    return {
+        id: row.daycare_code,
+        rank,
+        name: row.name,
+        sidoName: row.sido_name ?? null,
+        sigunguName: row.sigungu_name ?? null,
+        typeName: row.type_name ?? '',
+        address: row.address ?? '',
+        waitingChildTotal: row.waiting_child_total ?? 0,
+        capacity: row.capacity,
+        currentChildCount: row.current_child_count,
+    };
+}
+
+export function toDaycareRecentItem(row: DaycareRow, rank: number): DaycareRecentItem {
+    return {
+        id: row.daycare_code,
+        rank,
+        name: row.name,
+        sidoName: row.sido_name ?? null,
+        sigunguName: row.sigungu_name ?? null,
+        typeName: row.type_name ?? '',
+        address: row.address ?? '',
+        certifiedDate: row.certified_date ?? '',
+        capacity: row.capacity,
+        currentChildCount: row.current_child_count,
+    };
+}
+
+export function toDaycareCapacityItem(row: DaycareRow, rank: number): DaycareCapacityItem {
+    return {
+        id: row.daycare_code,
+        rank,
+        name: row.name,
+        sidoName: row.sido_name ?? null,
+        sigunguName: row.sigungu_name ?? null,
+        typeName: row.type_name ?? '',
+        address: row.address ?? '',
+        capacity: row.capacity ?? 0,
+        currentChildCount: row.current_child_count,
+        waitingChildTotal: row.waiting_child_total,
     };
 }
 

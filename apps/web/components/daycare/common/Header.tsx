@@ -10,9 +10,14 @@ export function Header() {
             <Link href="/">
                 <Image src="/logo.png" alt="키즐리" width={60} height={28} priority />
             </Link>
-            <Button asChild className="rounded" variant="secondary" size="sm">
-                <Link href="/about">서비스 소개</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button asChild variant="ghost" size="sm" className="text-gray-600">
+                    <Link href="/rankings">랭킹</Link>
+                </Button>
+                <Button asChild className="rounded" variant="secondary" size="sm">
+                    <Link href="/about">서비스 소개</Link>
+                </Button>
+            </div>
         </header>
     );
 }

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
+import { SIDO_LIST } from "@/domain/daycare"
 
 export const revalidate = 86400 // 24시간 캐시
 
@@ -37,6 +38,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "daily",
             priority: 1,
         },
+        {
+            url: `${BASE_URL}/rankings`,
+            changeFrequency: "daily",
+            priority: 0.8,
+        },
+        ...SIDO_LIST.map((sido) => ({
+            url: `${BASE_URL}/rankings?sido=${encodeURIComponent(sido)}`,
+            changeFrequency: "daily" as const,
+            priority: 0.7,
+        })),
         {
             url: `${BASE_URL}/about`,
             changeFrequency: "monthly",

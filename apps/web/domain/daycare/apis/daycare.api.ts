@@ -1,8 +1,8 @@
 import { isServer } from '@tanstack/react-query';
 import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { toDaycareListItem, toDaycareDetail } from '../parser/daycare.parser';
-import type { DaycareListItem, DaycareDetail, MapBounds } from '../types';
+import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem } from '../parser/daycare.parser';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, MapBounds } from '../types';
 import type { DaycareRow, SigunguRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
@@ -164,6 +164,99 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
     }));
+}
+
+const RANKING_COLUMNS =
+    'daycare_code, name, sido_name, sigungu_name, type_name, address, waiting_child_total, capacity, current_child_count, certified_date';
+
+export async function fetchDaycareRankingWaiting(limit = 10, sido?: string): Promise<DaycareRankingItem[]> {
+    const supabase = createServerClient();
+
+    let req = supabase
+        .from('daycares')
+        .select(RANKING_COLUMNS)
+        .eq('status', '정상')
+        .not('waiting_child_total', 'is', null)
+        .gt('waiting_child_total', 0)
+        .order('waiting_child_total', { ascending: false });
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareRankingWaiting]', error.message);
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((row, i) => toDaycareRankingItem(row as DaycareRow, i + 1));
+}
+
+export async function fetchDaycareRankingRecent(limit = 10, sido?: string): Promise<DaycareRecentItem[]> {
+    const supabase = createServerClient();
+
+    let req = supabase
+        .from('daycares')
+        .select(RANKING_COLUMNS)
+        .eq('status', '정상')
+        .not('certified_date', 'is', null)
+        .order('certified_date', { ascending: false });
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareRankingRecent]', error.message);
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1));
+}
+
+export async function fetchDaycareRankingOldest(limit = 10, sido?: string): Promise<DaycareRecentItem[]> {
+    const supabase = createServerClient();
+
+    let req = supabase
+        .from('daycares')
+        .select(RANKING_COLUMNS)
+        .eq('status', '정상')
+        .not('certified_date', 'is', null)
+        .order('certified_date', { ascending: true });
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareRankingOldest]', error.message);
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1));
+}
+
+export async function fetchDaycareRankingCapacity(limit = 10, sido?: string): Promise<DaycareCapacityItem[]> {
+    const supabase = createServerClient();
+
+    let req = supabase
+        .from('daycares')
+        .select(RANKING_COLUMNS)
+        .eq('status', '정상')
+        .not('capacity', 'is', null)
+        .gt('capacity', 0)
+        .order('capacity', { ascending: false });
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareRankingCapacity]', error.message);
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((row, i) => toDaycareCapacityItem(row as DaycareRow, i + 1));
 }
 
 export async function fetchSigungus(): Promise<SigunguRow[]> {
