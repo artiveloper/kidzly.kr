@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Flame, Clock, Users } from 'lucide-react';
 import { fetchDaycareRankingWaiting, fetchDaycareRankingCapacity, fetchDaycareRankingOldest } from '@/domain/daycare/server';
-import { SIDO_LIST } from '@/domain/daycare';
+import { SIDO_LIST, isValidSido } from '@/domain/region';
 import { WaitingRankingList } from '@/components/rankings/WaitingRankingList';
 import { RecentRankingList } from '@/components/rankings/RecentRankingList';
 import { CapacityRankingList } from '@/components/rankings/CapacityRankingList';
@@ -22,7 +22,7 @@ type Props = {
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
     const { sido } = await searchParams;
-    const validSido = (SIDO_LIST as readonly string[]).includes(sido ?? '') ? sido : undefined;
+    const validSido = sido && isValidSido(sido) ? sido : undefined;
 
     const regionLabel = validSido ?? '전국';
     const title = `${regionLabel} 어린이집 랭킹 | 대기·정원·역사 순위 - 키즐리`;
@@ -79,7 +79,7 @@ const SECTION_CARDS = [
 
 export default async function RankingsPage({ searchParams }: Props) {
     const { sido } = await searchParams;
-    const validSido = (SIDO_LIST as readonly string[]).includes(sido ?? '') ? sido : undefined;
+    const validSido = sido && isValidSido(sido) ? sido : undefined;
 
     const regionLabel = validSido ?? '전국';
 

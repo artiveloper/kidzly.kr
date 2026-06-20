@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
-import { SIDO_LIST } from "@/domain/daycare"
+import { SIDO_LIST } from "@/domain/region"
 
 export const revalidate = 86400 // 24시간 캐시
 

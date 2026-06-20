@@ -1,5 +1,4 @@
 export type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareAgeFilter, MapBounds } from './types'
-export { SIDO_LIST } from './types'
 export {
     DAYCARE_AGE_FILTERS,
     DAYCARE_AGE_LABELS,
