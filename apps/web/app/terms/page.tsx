@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Footer } from "@/components/common/Footer"
 
-const LAST_UPDATED = "2026년 5월 23일"
+const LAST_UPDATED = "2026년 6월 20일"
 
 export const metadata: Metadata = {
     title: "이용약관",
@@ -64,6 +64,7 @@ export default function TermsPage() {
                                     "지도 기반 어린이집 검색 및 조회",
                                     "어린이집 유형·운영시간·대기 현황 등 상세 정보 제공",
                                     "조건별 필터 검색",
+                                    "네이버 블로그 검색 API를 통한 어린이집 관련 블로그 글 제공",
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2">
                                         <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-300 shrink-0" />
@@ -143,6 +144,11 @@ export default function TermsPage() {
                             <p>
                                 서비스는 공공 데이터를 기반으로 정보를 제공하며,
                                 정보의 정확성·완전성에 대해 보증하지 않습니다.
+                            </p>
+                            <p>
+                                서비스에서 제공하는 네이버 블로그 관련글은 제3자가 작성한 외부 콘텐츠입니다.
+                                검색 특성상 해당 어린이집과 직접 관련이 없거나 부정확한 내용이 포함될 수 있으며,
+                                서비스는 해당 콘텐츠의 정확성·신뢰성에 대해 책임을 지지 않습니다.
                             </p>
                             <p>
                                 서비스 이용으로 발생한 손해에 대해 서비스는 고의 또는 중과실이

@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Footer } from "@/components/common/Footer"
 
-const LAST_UPDATED = "2026년 5월 23일"
+const LAST_UPDATED = "2026년 6월 20일"
 
 export const metadata: Metadata = {
     title: "개인정보처리방침",
@@ -133,6 +133,7 @@ export default function PrivacyPolicyPage() {
                                     { name: "Google LLC", purpose: "서비스 이용 통계 (Google Analytics)", retention: "서비스 이용 종료 시" },
                                     { name: "Google LLC", purpose: "광고 게재 (Google AdSense)", retention: "서비스 이용 종료 시" },
                                     { name: "Vercel Inc.", purpose: "서비스 호스팅", retention: "서비스 이용 종료 시" },
+                                    { name: "Naver Corp.", purpose: "블로그 검색 API 제공 (검색어만 전달, 이용자 개인정보 미포함)", retention: "API 호출 즉시" },
                                 ].map((item) => (
                                     <div key={item.purpose} className="bg-gray-50 rounded-lg p-3">
                                         <p className="text-xs font-medium text-gray-800 mb-1">{item.name}</p>
@@ -140,6 +141,9 @@ export default function PrivacyPolicyPage() {
                                     </div>
                                 ))}
                             </div>
+                            <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
+                                네이버 블로그 관련글을 클릭하면 네이버(naver.com)로 이동하며, 이후의 정보 처리는 네이버의 개인정보처리방침을 따릅니다.
+                            </p>
                         </div>
                     </Section>
 
@@ -165,6 +169,10 @@ export default function PrivacyPolicyPage() {
                                     Google 개인정보처리방침 보기
                                 </a>
                             </div>
+                            <p className="text-xs text-gray-500 leading-relaxed">
+                                네이버 블로그 관련글 링크를 클릭하면 네이버(naver.com)로 이동하며,
+                                해당 페이지에서의 쿠키 사용은 네이버의 개인정보처리방침을 따릅니다.
+                            </p>
                             <div>
                                 <p className="font-medium text-gray-800 mb-2">쿠키 거부 방법</p>
                                 <ul className="space-y-1.5 text-gray-500">
