@@ -1,8 +1,9 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Share2 } from 'lucide-react';
+import { ArrowLeft, Check, Share2, ChevronRight } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { sendGAEvent } from '@next/third-parties/google';
 import { useDaycareDetail } from '@/domain/daycare';
@@ -97,6 +98,25 @@ export function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                     <NaverBlogSection query={buildBlogQuery(detail.sigunguName, detail.name, detail.address)} />
                 </Suspense>
             </ErrorBoundary>
+
+            <div className="px-3 py-4 border-t border-gray-100">
+                <Link
+                    href={detail.sidoName
+                        ? `/rankings?sido=${encodeURIComponent(detail.sidoName)}`
+                        : '/rankings'
+                    }
+                    className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                >
+                    <span className="text-2xl">🏆</span>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">
+                            {detail.sidoName ? `${detail.sidoName} 어린이집 랭킹` : '어린이집 랭킹'}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">대기·정원·역사 순위를 한눈에</p>
+                    </div>
+                    <ChevronRight size={16} className="shrink-0 text-gray-400" />
+                </Link>
+            </div>
         </>
     );
 }

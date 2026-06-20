@@ -12,7 +12,7 @@ export function Header() {
             </Link>
             <div className="flex items-center gap-2">
                 <Button asChild variant="ghost" size="sm" className="text-gray-600">
-                    <Link href="/rankings">랭킹</Link>
+                    <Link href="/rankings">🏆 랭킹</Link>
                 </Button>
                 <Button asChild className="rounded" variant="secondary" size="sm">
                     <Link href="/about">서비스 소개</Link>
