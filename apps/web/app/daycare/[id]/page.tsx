@@ -86,7 +86,7 @@ export default async function Page({ params }: Props) {
 
     const { title, description } = buildDaycareMetaStrings(daycare);
 
-    const daumDatetime = formatDate(daycare.dataStandardDate);
+    const daumDatetime = formatDate(daycare.syncedAt);
 
     const jsonLd = {
         '@context': 'https://schema.org',
