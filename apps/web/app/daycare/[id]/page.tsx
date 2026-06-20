@@ -20,25 +20,21 @@ type DaycareDetail = Awaited<ReturnType<typeof fetchDaycareDetail>>;
 function buildDaycareMetaStrings(daycare: DaycareDetail) {
     const year = new Date().getFullYear();
     const location = [daycare.sidoName, daycare.sigunguName].filter(Boolean).join(' ');
+    const typeLabel = `${daycare.typeName}어린이집`;
     const title = location
-        ? `${daycare.name} (${year}) | ${location} ${daycare.typeName} - 키즐리`
-        : `${daycare.name} (${year}) | ${daycare.typeName} - 키즐리`;
+        ? `${daycare.name} (${year}) | ${location} ${typeLabel} - 키즐리`
+        : `${daycare.name} (${year}) | ${typeLabel} - 키즐리`;
 
-    const detailParts = [
-        daycare.capacity !== null
-            ? daycare.currentChildCount !== null
-                ? `정원 ${daycare.capacity}명 (현원 ${daycare.currentChildCount}명)`
-                : `정원 ${daycare.capacity}명`
-            : null,
-        daycare.ageRange ? `만 ${daycare.ageRange.min}~${daycare.ageRange.max}세 대상` : null,
-        daycare.staffTeacherCount ? `보육교사 ${daycare.staffTeacherCount}명 재직` : null,
-    ].filter(Boolean).join(', ');
+    const addressLine = daycare.address
+        ? `${daycare.address} 소재 ${typeLabel}`
+        : location
+            ? `${location} 소재 ${typeLabel}`
+            : typeLabel;
 
     const description = [
-        daycare.address ? `${daycare.address} 소재` : location ? `${location} 소재` : null,
-        `${daycare.typeName}`,
-        detailParts.length > 0 ? detailParts : null,
-        '키즐리에서 대기현황을 확인하세요.',
+        addressLine,
+        daycare.phone ? `전화 ${daycare.phone}` : null,
+        '운영시간·대기현황은 키즐리에서 확인하세요.',
     ].filter(Boolean).join('. ');
 
     return { title, description };
