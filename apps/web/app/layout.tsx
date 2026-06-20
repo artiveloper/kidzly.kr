@@ -133,11 +133,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("font-sans antialiased", notoSans.variable)}
     >
-      <body>
+      <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+      </head>
+      <body>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6240197797349980"

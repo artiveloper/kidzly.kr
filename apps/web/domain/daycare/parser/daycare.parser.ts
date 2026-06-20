@@ -74,6 +74,7 @@ export function toDaycareDetail(row: DaycareRow): DaycareDetail {
         vehicleOperation: row.vehicle_operation ?? null,
         certifiedDate: row.certified_date ?? null,
         dataStandardDate: row.data_standard_date ?? null,
+        syncedAt: row.synced_at ?? null,
         classCountByAge: [
             row.class_count_age_0 ?? null,
             row.class_count_age_1 ?? null,

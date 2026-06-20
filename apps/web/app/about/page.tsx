@@ -99,6 +99,8 @@ export default function AboutPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+            <div className="daum-wm-title hidden">서비스 소개 | 키즐리</div>
+            <div className="daum-wm-content hidden">{DESCRIPTION}</div>
             <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center px-4">
                 <Link href="/">
                     <Image src="/logo.png" alt="키즐리" width={60} height={28} priority />

@@ -39,6 +39,7 @@ export type DaycareDetail = {
     vehicleOperation: string | null;
     certifiedDate: string | null;
     dataStandardDate: string | null;
+    syncedAt: string | null;
     classCountByAge: (number | null)[];
     classCountInfantMixed: number | null;
     classCountChildMixed: number | null;

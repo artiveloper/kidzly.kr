@@ -59,14 +59,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description,
             alternates: { canonical: url },
             openGraph: {
-                type: 'website',
+                type: 'article',
                 url,
                 title,
                 description,
                 images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+                ...(daycare.syncedAt ? {
+                    modifiedTime: daycare.syncedAt,
+                    publishedTime: daycare.syncedAt,
+                } : {}),
             },
             twitter: {
-                card: 'summary',
+                card: 'summary_large_image',
                 title,
                 description,
             },
@@ -90,12 +94,19 @@ export default async function Page({ params }: Props) {
 
     const jsonLd = {
         '@context': 'https://schema.org',
-        '@type': 'ChildCare',
+        '@type': ['ChildCare', 'LocalBusiness'],
         name: daycare.name,
         description,
+        image: 'https://kidzly.kr/og-image.png',
+        ...(daycare.syncedAt ? {
+            dateModified: daycare.syncedAt,
+            datePublished: daycare.syncedAt,
+        } : {}),
         address: {
             '@type': 'PostalAddress',
             streetAddress: daycare.address,
+            ...(daycare.sigunguName ? { addressLocality: daycare.sigunguName } : {}),
+            ...(daycare.sidoName ? { addressRegion: daycare.sidoName } : {}),
             addressCountry: 'KR',
         },
         ...(daycare.phone ? { telephone: daycare.phone } : {}),
@@ -115,11 +126,34 @@ export default async function Page({ params }: Props) {
         url: `https://kidzly.kr/daycare/${id}`,
     };
 
+    const breadcrumbLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: '키즐리',
+                item: 'https://kidzly.kr',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: daycare.name,
+                item: `https://kidzly.kr/daycare/${id}`,
+            },
+        ],
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
             <div className="daum-wm-title hidden">{title}</div>
             {daumDatetime !== '-' && <div className="daum-wm-datetime hidden">{daumDatetime}</div>}
