@@ -33,7 +33,7 @@ export function ShareButton({ title, url }: Props) {
         <button
             onClick={handleShare}
             aria-label="공유"
-            className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 rounded-lg px-3 py-1.5 transition-colors bg-white"
+            className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 rounded-lg px-3 py-2.5 transition-colors bg-white"
         >
             {copied
                 ? <><Check size={13} className="text-emerald-500" /><span className="text-emerald-500">복사됨</span></>

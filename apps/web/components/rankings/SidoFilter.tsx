@@ -13,7 +13,7 @@ export function SidoFilter({ currentSido }: Props) {
         <div className="flex gap-2 flex-nowrap overflow-x-auto scrollbar-none sm:flex-wrap sm:overflow-visible py-2 -mx-4 px-4 sm:mx-0 sm:px-0">
             <Link
                 href="/rankings"
-                className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${!currentSido ? activeClass : inactiveClass}`}
+                className={`shrink-0 text-xs font-semibold px-3 py-2.5 rounded-full border transition-colors ${!currentSido ? activeClass : inactiveClass}`}
             >
                 전국
             </Link>
@@ -21,7 +21,7 @@ export function SidoFilter({ currentSido }: Props) {
                 <Link
                     key={sido}
                     href={`/rankings?sido=${encodeURIComponent(sido)}`}
-                    className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${currentSido === sido ? activeClass : inactiveClass}`}
+                    className={`shrink-0 text-xs font-semibold px-3 py-2.5 rounded-full border transition-colors ${currentSido === sido ? activeClass : inactiveClass}`}
                 >
                     {getSidoShort(sido)}
                 </Link>

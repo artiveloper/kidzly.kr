@@ -32,7 +32,9 @@ export function getSidoShort(sido: string): string {
 }
 
 export function formatLocation(sidoName: string | null, sigunguName: string | null): string {
-    return [sidoName, sigunguName].filter(Boolean).join(' ');
+    const deduped = sigunguName === sidoName ? null : sigunguName;
+    const short = sidoName ? getSidoShort(sidoName) : null;
+    return [short, deduped].filter(Boolean).join(' ');
 }
 
 export function isValidSido(value: string): value is Sido {

@@ -135,7 +135,7 @@ export default async function RankingsPage({ searchParams }: Props) {
                 </Link>
                 <Link
                     href="/"
-                    className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+                    className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors py-3 pl-2 -mr-1"
                 >
                     <ArrowLeft size={14} />
                     지도로 보기
