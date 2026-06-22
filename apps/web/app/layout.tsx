@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Noto_Sans_KR } from "next/font/google"
+import localFont from "next/font/local"
 import Script from "next/script"
 
 import "@workspace/ui/globals.css"
@@ -11,11 +11,11 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
-const notoSans = Noto_Sans_KR({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-sans",
-  display: "swap",
+const pretendard = localFont({
+    src: "../public/fonts/PretendardVariable.woff2",
+    variable: "--font-sans",
+    display: "swap",
+    weight: "45 920",
 })
 
 const BASE_URL = "https://kidzly.kr"
@@ -131,7 +131,7 @@ export default function RootLayout({
     <html
       lang="ko"
       suppressHydrationWarning
-      className={cn("font-sans antialiased", notoSans.variable)}
+      className={cn("font-sans antialiased", pretendard.variable)}
     >
       <head>
         <script
