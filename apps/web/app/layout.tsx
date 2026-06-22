@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
 import Script from "next/script"
-
 import "@workspace/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
