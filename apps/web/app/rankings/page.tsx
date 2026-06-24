@@ -4,13 +4,13 @@ import Image from 'next/image';
 import { ArrowLeft, Flame, Clock, Users } from 'lucide-react';
 import { fetchDaycareRankingWaiting, fetchDaycareRankingCapacity, fetchDaycareRankingOldest } from '@/domain/daycare/server';
 import { SIDO_LIST, isValidSido } from '@/domain/region';
-import { WaitingRankingList } from '@/components/rankings/WaitingRankingList';
-import { RecentRankingList } from '@/components/rankings/RecentRankingList';
-import { CapacityRankingList } from '@/components/rankings/CapacityRankingList';
+import WaitingRankingList from '@/components/rankings/WaitingRankingList';
+import RecentRankingList from '@/components/rankings/RecentRankingList';
+import CapacityRankingList from '@/components/rankings/CapacityRankingList';
 
-import { SidoFilter } from '@/components/rankings/SidoFilter';
-import { ShareButton } from '@/components/rankings/ShareButton';
-import { Footer } from '@/components/common/Footer';
+import SidoFilter from '@/components/rankings/SidoFilter';
+import ShareButton from '@/components/rankings/ShareButton';
+import Footer from '@/components/common/Footer';
 
 export const revalidate = 3600;
 

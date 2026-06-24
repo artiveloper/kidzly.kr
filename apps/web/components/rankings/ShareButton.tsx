@@ -9,7 +9,7 @@ type Props = {
     url: string;
 };
 
-export function ShareButton({ title, url }: Props) {
+export default function ShareButton({ title, url }: Props) {
     const [copied, setCopied] = useState(false);
 
     const handleShare = async () => {

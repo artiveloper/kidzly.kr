@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import type { DaycareCapacityItem } from '@/domain/daycare';
 import { formatLocation } from '@/domain/region';
-import { TypeBadge, RankBadge } from './RankingItemShared';
+import TypeBadge from './TypeBadge';
+import RankBadge from './RankBadge';
 
 type Props = {
     items: DaycareCapacityItem[];
 };
 
-export function CapacityRankingList({ items }: Props) {
+export default function CapacityRankingList({ items }: Props) {
     if (items.length === 0) {
         return (
             <p className="text-sm text-gray-400 text-center py-10">데이터를 불러올 수 없습니다.</p>

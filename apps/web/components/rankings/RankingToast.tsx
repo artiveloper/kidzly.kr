@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 
 const STORAGE_KEY = 'ranking_toast_dismissed';
 
-export function RankingToast() {
+export default function RankingToast() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {

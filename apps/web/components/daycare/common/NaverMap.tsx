@@ -80,7 +80,7 @@ function getBounds(map: naver.maps.Map): MapBounds {
     return { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() };
 }
 
-export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
+const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     daycares,
     selectedId,
     initialCenter,
@@ -219,3 +219,5 @@ export const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function Naver
         </div>
     );
 });
+
+export default NaverMap;

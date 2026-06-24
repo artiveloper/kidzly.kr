@@ -5,7 +5,7 @@ type Props = {
     currentSido?: string;
 };
 
-export function SidoFilter({ currentSido }: Props) {
+export default function SidoFilter({ currentSido }: Props) {
     const activeClass = 'bg-emerald-600 text-white border-emerald-600';
     const inactiveClass = 'bg-white text-gray-600 border-gray-200 hover:border-gray-400';
 

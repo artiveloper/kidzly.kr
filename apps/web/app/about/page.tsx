@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { Footer } from "@/components/common/Footer"
+import Footer from "@/components/common/Footer"
 import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 

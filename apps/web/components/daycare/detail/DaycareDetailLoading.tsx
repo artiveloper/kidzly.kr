@@ -3,9 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { Share2, ArrowLeft } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { DetailSkeleton } from './DaycareDetailContent';
+import DetailSkeleton from './DetailSkeleton';
 
-export function DaycareDetailLoading() {
+export default function DaycareDetailLoading() {
     const router = useRouter();
 
     const handleBack = () => {

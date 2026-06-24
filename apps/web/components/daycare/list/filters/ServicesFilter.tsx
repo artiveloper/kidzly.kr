@@ -1,6 +1,6 @@
 import { DropdownMenuCheckboxItem } from "@workspace/ui/components/dropdown-menu"
 import { Button } from "@workspace/ui/components/button"
-import { FilterBase } from "./FilterBase"
+import FilterBase from "./FilterBase"
 import { DAYCARE_SERVICE_EMOJI } from "./filterEmojis"
 
 export default function ServicesFilter({

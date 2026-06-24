@@ -6,16 +6,16 @@ import { parseAsString, useQueryState } from 'nuqs';
 import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/domain/daycare';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Header } from './Header';
-import { ListPanel } from '../list/ListPanel';
-import { NaverMap, type NaverMapHandle } from './NaverMap';
+import Header from './Header';
+import ListPanel from '../list/ListPanel';
+import NaverMap, { type NaverMapHandle } from './NaverMap';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
-import { DaycareDetailView } from '../detail/DaycareDetailView';
-import { DaycareDetailLoading } from '../detail/DaycareDetailLoading';
-import { DaycareFilters } from '../list/filters/DaycareFilters';
+import DaycareDetailView from '../detail/DaycareDetailView';
+import DaycareDetailLoading from '../detail/DaycareDetailLoading';
+import DaycareFilters from '../list/filters/DaycareFilters';
 import { saveDaycareReturnUrl } from '@/lib/navigation';
 
-export function DaycareMap() {
+export default function DaycareMap() {
     const router = useRouter();
     const pathname = usePathname();
     const isMobile = useIsMobile();

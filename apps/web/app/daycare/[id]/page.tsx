@@ -5,7 +5,7 @@ import {
     buildDaycareMetaStrings,
     DaycareDetailSSR,
 } from '@/components/daycare/detail/DaycareDetailSSR';
-import { DaycareDetailLoading } from '@/components/daycare/detail/DaycareDetailLoading';
+import DaycareDetailLoading from '@/components/daycare/detail/DaycareDetailLoading';
 
 type Props = {
     params: Promise<{ id: string }>;

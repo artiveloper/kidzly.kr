@@ -2,7 +2,7 @@ import { DropdownMenuCheckboxItem } from "@workspace/ui/components/dropdown-menu
 import { Button } from "@workspace/ui/components/button"
 import type { DaycareAgeFilter } from "@/domain/daycare"
 import { DAYCARE_AGE_FILTERS, DAYCARE_AGE_LABELS } from "@/domain/daycare"
-import { FilterBase } from "./FilterBase"
+import FilterBase from "./FilterBase"
 import { DAYCARE_AGE_EMOJI } from "./filterEmojis"
 
 export default function AgeFilter({

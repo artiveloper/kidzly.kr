@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch, fetchDaycareDetail } from '@/domain/daycare/server';
 import { formatDate } from '@/lib/format';
-import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
-import { DaycareDetailView } from './DaycareDetailView';
+import { HydrationBoundary } from '@tanstack/react-query';
+import DaycareDetailView from './DaycareDetailView';
 
 type DaycareDetail = Awaited<ReturnType<typeof fetchDaycareDetail>>;
 
@@ -110,7 +110,7 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
             {daumDatetime !== '-' && <div className="daum-wm-datetime hidden">{daumDatetime}</div>}
             <div className="daum-wm-content hidden">{description}</div>
             <HydrationBoundary state={state}>
-                <DaycareDetdataailView id={id} />
+                <DaycareDetailView id={id} />
             </HydrationBoundary>
         </>
     );

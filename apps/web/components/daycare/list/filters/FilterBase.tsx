@@ -11,29 +11,9 @@ import {
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
-import React from "react"
-import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
-import { ChevronDown } from "lucide-react"
+import FilterTrigger from "./FilterTrigger"
 
-export function FilterTrigger({
-    label,
-    active,
-    className,
-    ...props
-}: React.ComponentProps<"button"> & { label: string; active: boolean }) {
-    return (
-        <Button
-            size="sm"
-            variant={active ? "default" : "outline"}
-            className={cn("shrink-0 whitespace-nowrap", className)}
-            {...props}
-        >
-            {label}
-            <ChevronDown size={11} className="shrink-0" />
-        </Button>
-    )
-}
+import React from "react"
 
 type FilterBaseProps = {
     label: string
@@ -43,7 +23,7 @@ type FilterBaseProps = {
     dropdownContent: React.ReactNode
 }
 
-export function FilterBase({ label, isActive, title, drawerContent, dropdownContent }: FilterBaseProps) {
+export default function FilterBase({ label, isActive, title, drawerContent, dropdownContent }: FilterBaseProps) {
     const isMobile = useIsMobile()
 
     if (isMobile === null) return null

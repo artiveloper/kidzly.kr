@@ -8,7 +8,7 @@ interface NaverBlogSectionProps {
     query: string;
 }
 
-export function NaverBlogSection({ query }: NaverBlogSectionProps) {
+export default function NaverBlogSection({ query }: NaverBlogSectionProps) {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(query);
     const posts = data.pages.flatMap((p) => p.items);
 
@@ -62,33 +62,6 @@ export function NaverBlogSection({ query }: NaverBlogSectionProps) {
                     {isFetchingNextPage ? '불러오는 중...' : '더보기'}
                 </button>
             )}
-        </section>
-    );
-}
-
-export function NaverBlogSectionError() {
-    return (
-        <section className="px-3 py-5 border-t-8 border-gray-100">
-            <p className="text-sm font-semibold uppercase tracking-wide mb-3">네이버 블로그 관련글</p>
-            <p className="text-sm text-gray-400">블로그 글을 불러올 수 없습니다.</p>
-        </section>
-    );
-}
-
-export function NaverBlogSectionSkeleton() {
-    return (
-        <section className="px-3 py-5 border-t-8 border-gray-100">
-            <div className="h-4 w-20 rounded bg-gray-200 animate-pulse mb-3" />
-            <ul className="space-y-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <li key={i} className="space-y-1.5">
-                        <div className="h-4 w-3/4 rounded bg-gray-100 animate-pulse" />
-                        <div className="h-3 w-full rounded bg-gray-100 animate-pulse" />
-                        <div className="h-3 w-2/3 rounded bg-gray-100 animate-pulse" />
-                        <div className="h-3 w-1/4 rounded bg-gray-100 animate-pulse" />
-                    </li>
-                ))}
-            </ul>
         </section>
     );
 }

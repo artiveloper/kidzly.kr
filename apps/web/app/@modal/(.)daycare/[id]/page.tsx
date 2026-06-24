@@ -1,4 +1,4 @@
-import { DaycareDetailModal } from '@/components/daycare/detail/DaycareDetailModal';
+import DaycareDetailModal from '@/components/daycare/detail/DaycareDetailModal';
 
 type Props = {
     params: Promise<{ id: string }>;

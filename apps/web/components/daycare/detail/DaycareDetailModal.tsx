@@ -3,14 +3,14 @@
 import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
-import { DaycareDetailView } from './DaycareDetailView';
-import { DaycareDetailLoading } from './DaycareDetailLoading';
+import DaycareDetailView from './DaycareDetailView';
+import DaycareDetailLoading from './DaycareDetailLoading';
 
 interface DaycareDetailModalProps {
     id: string;
 }
 
-export function DaycareDetailModal({ id }: DaycareDetailModalProps) {
+export default function DaycareDetailModal({ id }: DaycareDetailModalProps) {
     const isMobile = useIsMobile();
     const pathname = usePathname();
 

@@ -3,7 +3,7 @@
 import { useQueryState } from 'nuqs';
 import type { DaycareListItem as DaycareListItemType, DaycareAgeFilter } from '@/domain/daycare';
 import { daycareFilterParsers } from '@/domain/daycare';
-import { DaycareListItem } from './DaycareListItem';
+import DaycareListItem from './DaycareListItem';
 
 interface DaycareListProps {
     daycares: DaycareListItemType[];
@@ -11,7 +11,7 @@ interface DaycareListProps {
     scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function DaycareList({ daycares, isLoading = false, scrollRef }: DaycareListProps) {
+export default function DaycareList({ daycares, isLoading = false, scrollRef }: DaycareListProps) {
     const [activeAgeStr] = useQueryState('age', daycareFilterParsers.age);
     const activeAge = (activeAgeStr ? Number(activeAgeStr) : null) as DaycareAgeFilter | null;
 

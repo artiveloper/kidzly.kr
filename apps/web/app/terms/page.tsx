@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { Footer } from "@/components/common/Footer"
+import Footer from "@/components/common/Footer"
 
 const LAST_UPDATED = "2026년 6월 20일"
 

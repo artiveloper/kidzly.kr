@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
 
-export function Header() {
+export default function Header() {
     return (
         <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4">
             <Link href="/">

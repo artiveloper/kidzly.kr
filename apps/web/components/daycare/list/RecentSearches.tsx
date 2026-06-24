@@ -8,7 +8,7 @@ interface RecentSearchesProps {
     onRemove: (s: string) => void;
 }
 
-export function RecentSearches({ searches, onSelect, onRemove }: RecentSearchesProps) {
+export default function RecentSearches({ searches, onSelect, onRemove }: RecentSearchesProps) {
     if (searches.length === 0) return null;
 
     return (

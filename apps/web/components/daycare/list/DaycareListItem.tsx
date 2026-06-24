@@ -13,7 +13,7 @@ interface DaycareListItemProps {
 }
 
 
-export function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
+export default function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
     // 정원 대비 현원 비율 (정원 또는 현원이 없으면 null)
     const occupancyRate =
         daycare.capacity && daycare.currentChildCount

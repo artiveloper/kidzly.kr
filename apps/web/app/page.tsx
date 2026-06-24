@@ -3,8 +3,8 @@ import { runPrefetch } from '@/lib/react-query/prefetch'
 import { daycarePrefetch } from '@/domain/daycare/server'
 import { DEFAULT_BOUNDS } from '@/domain/daycare'
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
-import { DaycareMap } from '@/components/daycare/common/DaycareMap'
-import { RankingToast } from '@/components/rankings/RankingToast'
+import DaycareMap from '@/components/daycare/common/DaycareMap'
+import RankingToast from '@/components/rankings/RankingToast'
 
 export default async function Page() {
     const state = await runPrefetch(

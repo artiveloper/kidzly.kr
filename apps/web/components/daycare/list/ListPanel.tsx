@@ -3,9 +3,9 @@
 import React from 'react';
 import { Search, X } from 'lucide-react';
 import type { DaycareListItem } from '@/domain/daycare';
-import { RecentSearches } from './RecentSearches';
-import { DaycareList } from './DaycareList';
-import { DaycareFilters } from './filters/DaycareFilters';
+import RecentSearches from './RecentSearches';
+import DaycareList from './DaycareList';
+import DaycareFilters from './filters/DaycareFilters';
 
 interface ListPanelProps {
     searchQuery: string;
@@ -20,7 +20,7 @@ interface ListPanelProps {
     onClose?: () => void;
 }
 
-export function ListPanel({
+export default function ListPanel({
     searchQuery,
     onSearchChange,
     onClearSearch,

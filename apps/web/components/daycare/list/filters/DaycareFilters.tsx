@@ -15,7 +15,7 @@ import TypeFilter from "@/components/daycare/list/filters/TypeFilter"
 import AgeFilter from "@/components/daycare/list/filters/AgeFilter"
 import ServicesFilter from "@/components/daycare/list/filters/ServicesFilter"
 
-export function DaycareFilters() {
+export default function DaycareFilters() {
     const { data: typeNames = [] } = useDaycareTypeNames();
     const { data: serviceTypes = [] } = useDaycareServiceTypes();
 
