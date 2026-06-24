@@ -185,7 +185,7 @@ export function DaycareMap() {
             <div className={overlayClass(isMobile && !isListOpen && !!pathnameId)}>
                 <div className="flex-1 overflow-y-auto pb-4">
                     {pathnameId && !isListOpen && (
-                        <Suspense fallback={<DaycareDetailLoading />}>
+                        <Suspense key={pathnameId} fallback={<DaycareDetailLoading />}>
                             <DaycareDetailView id={pathnameId} />
                         </Suspense>
                     )}
