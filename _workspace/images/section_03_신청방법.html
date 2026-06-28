@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, height=1080">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1080px; height: 1080px; overflow: hidden;
+    font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #FFFFFF;
+  }
+  .canvas { width: 1080px; height: 1080px; padding: 80px; display: flex; flex-direction: column; position: relative; }
+
+  .label { font-size: 24px; font-weight: 700; color: #2563EB; letter-spacing: 0.5px; margin-bottom: 16px; }
+  h2 { font-size: 54px; font-weight: 900; color: #0F172A; letter-spacing: -2px; line-height: 1.2; margin-bottom: 52px; }
+
+  .steps { display: flex; flex-direction: column; gap: 24px; }
+  .step { display: flex; align-items: flex-start; gap: 28px; }
+  .step-num {
+    width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: #fff;
+  }
+  .step-1 .step-num { background: #2563EB; }
+  .step-2 .step-num { background: #7C3AED; }
+  .step-3 .step-num { background: #0891B2; }
+
+  .step-content { flex: 1; padding-top: 4px; }
+  .step-title { font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .step-desc { font-size: 24px; font-weight: 400; color: #475569; line-height: 1.6; }
+  .step-desc strong { color: #1E293B; font-weight: 700; }
+
+  .deadline-box {
+    margin-top: 40px; padding: 32px 40px;
+    background: #FEF2F2; border: 2px solid #FECACA;
+    border-radius: 20px; display: flex; align-items: center; gap: 24px;
+  }
+  .deadline-icon { font-size: 48px; }
+  .deadline-text { flex: 1; }
+  .deadline-title { font-size: 28px; font-weight: 800; color: #DC2626; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .deadline-desc { font-size: 22px; color: #7F1D1D; line-height: 1.5; }
+
+  .brand { position: absolute; bottom: 56px; right: 80px; font-size: 24px; font-weight: 700; color: #CBD5E1; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="label">부모급여 신청 방법</div>
+  <h2>3가지 방법으로<br>신청할 수 있습니다</h2>
+
+  <div class="steps">
+    <div class="step step-1">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">출생신고 시 원스톱 신청 ⭐ 추천</div>
+        <div class="step-desc">읍·면·동 <strong>행정복지센터</strong>에서 출생신고와 동시 신청<br>가장 간편하고 누락 없이 처리됩니다</div>
+      </div>
+    </div>
+    <div class="step step-2">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">온라인 신청</div>
+        <div class="step-desc"><strong>복지로(bokjiro.go.kr)</strong> 또는 <strong>정부24(gov.kr)</strong><br>→ 부모급여 검색 → 신청</div>
+      </div>
+    </div>
+    <div class="step step-3">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">행정복지센터 방문</div>
+        <div class="step-desc">가까운 <strong>읍·면·동 행정복지센터</strong> 직접 방문하여 신청</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="deadline-box">
+    <div class="deadline-icon">⏰</div>
+    <div class="deadline-text">
+      <div class="deadline-title">출생 후 60일 이내 신청 필수</div>
+      <div class="deadline-desc">60일 초과 시 신청한 달부터만 지원 — 소급 적용 불가<br>출처: 정부24(gov.kr)</div>
+    </div>
+  </div>
+  <div class="brand">kidzly</div>
+</div>
+</body>
+</html>

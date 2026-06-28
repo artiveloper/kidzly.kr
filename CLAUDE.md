@@ -615,3 +615,21 @@ When generating code:
 
 When unsure:
 - Ask ONE precise question only
+
+---
+
+## 하네스: 어린이집 부모 대상 콘텐츠 크리에이터
+
+**목표:** 어린이집·유치원 부모를 대상으로 한 SEO 최적화 블로그 아티클 + 이미지 기획을 에이전트 팀이 자동 생성
+
+**트리거:** 부모 대상 콘텐츠 작성, SEO 글쓰기, 이미지 기획 요청 시 `content-creator` 스킬을 사용하라. 단순 질문은 직접 응답 가능.
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-06-28 | 초기 구성 | 전체 | - |
+| 2026-06-28 | 이미지 생성 방식 변경 (AI 프롬프트 → HTML/CSS + Playwright PNG 캡처, 1080×1080px) | agents/image-director.md, skills/content-creator/scripts/capture.py, skills/content-creator/references/image-html-template.md | 사용자 가이드 반영 |
+| 2026-06-28 | 자체 검수 루프 추가 (PNG 캡처 후 Read로 시각 확인 → HTML 수정 → 재캡처, 최대 3회) | agents/image-director.md | 사용자 요청 |
+| 2026-06-28 | 예상 읽기 시간·카테고리·태그 메타, 3초 룰, 한 문단 3~4줄, 핵심 포인트 callout, 관련 포스트 추천, 이미지 alt 텍스트 추가 | agents/seo-writer.md | blog-writer 에이전트 참고 |
+| 2026-06-28 | 출처 검증 체계 전면 도입 — fact-checker 에이전트 추가, researcher 출처 수집 의무화, seo-writer 인라인 출처 표기, integrator 검증 출처 목록 패키지 포함, 오케스트레이터 Phase 4(팩트체크) 추가 | 전체 | 어린이집 부모 대상 글의 사실 관계·출처 신뢰성 강화 |
+| 2026-06-28 | 서브 에이전트·팀원 모델 opus → sonnet (Sonnet 4.6) 변경, 오케스트레이터는 유지 | skills/content-creator/SKILL.md | 비용 최적화 |
