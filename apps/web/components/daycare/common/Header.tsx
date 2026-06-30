@@ -14,6 +14,9 @@ export default function Header() {
                 <Button asChild variant="ghost" size="sm" className="text-gray-600">
                     <Link href="/rankings">🏆 랭킹</Link>
                 </Button>
+                {/*<Button asChild variant="ghost" size="sm" className="text-gray-600">
+                    <Link href="/contents">📖 콘텐츠</Link>
+                </Button>*/}
                 <Button asChild className="rounded" variant="secondary" size="sm">
                     <Link href="/about">서비스 소개</Link>
                 </Button>
