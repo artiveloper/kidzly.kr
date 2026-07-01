@@ -1,620 +1,206 @@
 # CLAUDE.md
-> Next.js + React Query project instructions for Claude Code
-> Target: Lighthouse score ≥ 90
+> Next.js 16 · React 19 · React Query v5 | Lighthouse ≥ 90
 
 ---
 
-## 1. Stack & Goals
+## 1. Stack
 
-### Tech Stack
-- Next.js (App Router)
-- React (Function Components only)
-- TypeScript (strict mode)
-- TanStack React Query
-- nuqs (query string management)
-- Tailwind CSS
-
-### Core Goals
-- Lighthouse score ≥ 90
-- Minimize client-side JavaScript
-- Predictable data flow
-- Domain-driven architecture
+- Next.js 16 (App Router) · React 19 · TypeScript strict
+- TanStack React Query v5 · nuqs v2 · Tailwind CSS v4
+- Supabase JS v2 (`@supabase/supabase-js`) — public read-only, no auth
+- `server-only` 패키지
 
 ---
 
-## 2. Architecture Principles
+## 2. Architecture
 
-- Domain-based directory structure (MANDATORY)
-- Server Components by default
-- Client Components are minimized and explicit
-- Server data state is managed ONLY by React Query
-- UI components contain no data-fetching logic
-- No database access — data comes from external API only
+- Domain-based directory structure — **MANDATORY**
+- Server Components 기본; Client Components 최소화·명시적
+- 서버 데이터 상태 → React Query만 (`useState`+fetch 금지)
+- UI 컴포넌트에 데이터 패칭 로직 작성 금지 → domain hooks 사용
 
 ---
 
-## 3. Domain-based Directory Structure
-
-All logic must be grouped by **domain**.
-
-### 3.1 Directory Structure
+## 3. Domain Structure
 
 ```
-domain/
-  article/
-    ├── index.ts                     # Client-safe public API
-    ├── server.ts                    # Server-only public API (import "server-only")
-    ├── types/
-    │   └── index.ts                 # Domain types (entities, request/response shapes)
-    ├── apis/
-    │   └── {domain}.api.ts          # fetch calls to external API
-    ├── parser/
-    │   └── {domain}.parser.ts       # API response → domain type transformations
-    ├── query-keys/
-    │   └── {domain}.query-keys.ts   # Query key factories
-    ├── query-options/
-    │   └── {domain}.query-options.ts # queryOptions factories (reused by hooks & prefetch)
-    ├── hooks/
-    │   └── {domain}.hooks.ts        # Client-side React Query hooks
-    └── prefetch/
-        └── {domain}.prefetch.ts     # Server-only prefetch (import "server-only")
+apps/web/domain/{name}/
+├── index.ts          — client-safe public API
+├── server.ts         — server-only (import "server-only" 필수)
+├── types/index.ts
+├── apis/{name}.api.ts
+├── parser/{name}.parser.ts   ← 단수형 강제 (parsers/ 금지)
+├── query-keys/{name}.query-keys.ts
+├── query-options/{name}.query-options.ts
+├── hooks/{name}.hooks.ts
+└── prefetch/{name}.prefetch.ts  (import "server-only" 필수)
 ```
 
-### 3.2 Layer Responsibilities
-
-| Layer | 역할 | 의존성 |
-|-------|------|--------|
-| **types** | 타입 정의 | 없음 |
-| **apis** | 외부 API 호출 (fetch) | types |
-| **parser** | API 응답 → 도메인 타입 변환 | types |
-| **query-keys** | Query Key 팩토리 | types |
-| **query-options** | queryOptions 팩토리 | query-keys, apis, parser |
-| **hooks** | Client-side React Query hooks | query-options, query-keys |
-| **prefetch** | SSR prefetch (server-only) | query-options |
-
-### 3.3 Entry Point Rules
-
-도메인 루트에는 **두 개의 entry point**를 둔다.
-
-| 파일 | 용도 | 포함 대상 |
-|------|------|-----------|
-| `index.ts` | 클라이언트 안전 public API | types, hooks, queryKeys, queryOptions |
-| `server.ts` | 서버 전용 public API | prefetch |
-
-`server.ts` 와 `prefetch` 는 반드시 `import "server-only"` 를 최상단에 선언한다.
-
-| 디렉토리 | index.ts | 이유 |
-|----------|----------|------|
-| **루트** | ✅ 필수 | 클라이언트 public API |
-| **types** | ✅ 필수 | 외부에서 타입 import |
-| **hooks** | ❌ 불필요 | 루트에서 직접 export |
-| **apis** | ❌ 불필요 | 내부에서만 사용 |
-| **parser** | ❌ 불필요 | 내부에서만 사용 |
-| **query-keys** | ❌ 불필요 | 루트에서 직접 export |
-| **query-options** | ❌ 불필요 | 루트에서 직접 export |
-| **prefetch** | ❌ 불필요 | server.ts에서 export |
-
-### 3.4 Import Rules
-
-- One domain = one responsibility
+**Import 규칙:**
 - deep import 금지, `export *` 금지
-- 클라이언트 컴포넌트는 `index.ts` entry point만 사용
-- 서버 컴포넌트(page.tsx)는 서버 전용 데이터가 필요할 때 `server.ts` entry point 사용
+- Client Component → `index.ts` entry만
+- Server page → `server.ts` entry 사용
 
-```ts
-// ❌ deep import
-import { articlePrefetch } from "@/domain/article/prefetch/article.prefetch"
-
-// ✅ client component
-import { useArticles, articleQueryOptions } from "@/domain/article"
-
-// ✅ server component (page.tsx)
-import { articlePrefetch } from "@/domain/article/server"
-```
+**Entry point:**
+- `index.ts`: types, hooks, queryKeys, queryOptions export
+- `server.ts`: prefetch만 re-export
 
 ---
 
 ## 4. APIs Layer
 
-### 4.1 Rules
-
-- `apis` 레이어는 외부 API 호출만 담당한다
-- 비즈니스 로직 없음 — 단순 fetch + parser 호출
-- 인증 헤더 등 공통 처리는 공유 fetch 유틸리티 사용
-
-### 4.2 Example
-
-```ts
-// article.api.ts
-import { parseArticleList, parseArticleDetail } from '../parser/article.parser'
-import type { ArticleListParams, ArticleList, ArticleDetail } from '../types'
-
-export async function fetchArticleList(params: ArticleListParams): Promise<ArticleList> {
-    const res = await apiClient.get('/articles', { params })
-    return parseArticleList(res.data)
-}
-
-export async function fetchArticleDetail(articleId: number): Promise<ArticleDetail> {
-    const res = await apiClient.get(`/articles/${articleId}`)
-    return parseArticleDetail(res.data)
-}
-```
+- `lib/supabase/client.ts` / `lib/supabase/server.ts` 사용
+- non-null assertion(`!`) 금지 — 명시적 null 체크 후 에러 throw
+- 에러 → throw (React Query가 error state 처리)
+- Supabase 쿼리는 `apis/` 레이어에서만
 
 ---
 
-## 5. React Query Strategy
+## 5. React Query
 
-### 5.1 Query Keys (STRICT)
+- queryKey: 팩토리 함수만 — inline 직접 작성 금지
+- queryFn: queryOptions 팩토리만 — inline useQuery 금지
+- `useSuspenseQuery` 기본; `useQuery`는 Suspense 불가 시만
+- `useEffect` 내 fetch 금지
+- `router.refresh()` 데이터 갱신 금지 → `invalidateQueries`
+- `useInfiniteQuery`: hooks 파일에 직접 정의 (queryKey는 팩토리 사용)
+- staleTime override: 실시간·정적 데이터만; 일반 리스트는 global 사용
 
-#### Rules
-- Query keys must be arrays
-- Stable & serializable only
-- NEVER inline query keys
-- Params must be a single object
-
-#### Naming Convention
-```
-['domain', 'scope', params?]
-```
-
-#### Stability Rules
-- Params must be serialization-safe
-- Remove undefined fields
-- Sort keys when derived from URL
-- Never pass uncontrolled objects directly
-
-Never:
-```ts
-useQuery(['articles', filters]) // filters from uncontrolled object
-```
-
-Always:
-```ts
-useQuery(articleQueryOptions.list(normalizedFilters))
-```
-
-#### Example
-```ts
-// article.query-keys.ts
-export const articleQueryKeys = {
-    all: ['article'] as const,
-
-    list: (params: { page: number; category?: string }) =>
-        [...articleQueryKeys.all, 'list', params] as const,
-
-    detail: (articleId: number) =>
-        [...articleQueryKeys.all, 'detail', articleId] as const,
-}
-```
+> 구현 패턴 상세: `.claude/skills/kidzly-refactor/references/react-query-patterns.md`
 
 ---
 
-### 5.2 Query Options (MANDATORY)
+## 6. Prefetch
 
-- All queries MUST use shared query option factories
-- No inline `useQuery({ ... })` or `useSuspenseQuery({ ... })`
-- Query options must define:
-  - queryKey
-  - queryFn
-  - staleTime (optional - uses global default if omitted)
-  - gcTime (optional - uses global default if omitted)
-
-#### useQuery vs useSuspenseQuery
-
-**`useSuspenseQuery`를 기본으로 사용한다.** `useQuery`는 아래 예외 상황에서만 사용한다.
-
-| 훅 | 사용 기준 |
-|----|-----------|
-| **`useSuspenseQuery`** (기본) | 대부분의 데이터 조회. `isLoading` 분기 불필요, `data`가 항상 정의됨 |
-| **`useQuery`** (예외) | Suspense 경계를 둘 수 없는 구조이거나, `isLoading`을 직접 제어해야 할 때 |
-
-`useSuspenseQuery`를 사용하는 컴포넌트는 반드시 `<Suspense fallback={...}>` 경계 안에 위치해야 한다.
-
-```ts
-// hooks
-export function useDaycareDetail(id: string) {
-    return useSuspenseQuery(daycareQueryOptions.detail(id)) // data is always defined
-}
-
-// component
-export function DaycareDetail({ id }: { id: string }) {
-    const { data } = useDaycareDetail(id) // no isLoading check needed
-    return <div>{data.name}</div>
-}
-
-// parent — must wrap with Suspense
-<Suspense fallback={<DaycareDetailLoading />}>
-    <DaycareDetail id={id} />
-</Suspense>
-```
-
-#### useInfiniteQuery 예외
-
-`useInfiniteQuery`는 `getNextPageParam` 등 클라이언트 전용 옵션이 필요하므로 `queryOptions` 팩토리로 공유하지 않고 **hooks 파일에 직접 정의**한다.
-queryKey는 반드시 `queryKeys` 팩토리를 사용한다.
-
-```ts
-// ✅ useInfiniteQuery는 hooks에 직접 정의
-export function useArticlesInfinite(filters: ArticleListFilters = {}) {
-    return useInfiniteQuery({
-        queryKey: articleQueryKeys.list(filters),
-        queryFn: ({ pageParam }) => fetchArticleList({ ...filters, page: pageParam }),
-        initialPageParam: 1,
-        getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
-    })
-}
-```
-
-#### When to Override Cache Settings
-- ✅ Override: 실시간 데이터 (짧은 staleTime 필요)
-- ✅ Override: 정적 데이터 (긴 staleTime으로 캐시 효율화)
-- ❌ Skip: 일반적인 리스트/상세 (global 설정 사용)
-
-#### Example
-```ts
-// article.query-options.ts
-import { articleQueryKeys } from '../query-keys/article.query-keys'
-import { fetchArticleList, fetchArticleDetail } from '../apis/article.api'
-
-export const articleQueryOptions = {
-    // 기본 케이스: global 설정 사용 (staleTime/gcTime 생략)
-    list: (params: ArticleListParams) => ({
-        queryKey: articleQueryKeys.list(params),
-        queryFn: () => fetchArticleList(params),
-    }),
-
-    // 특수 케이스: global과 다른 캐시 전략이 필요할 때만 override
-    detail: (articleId: number) => ({
-        queryKey: articleQueryKeys.detail(articleId),
-        queryFn: () => fetchArticleDetail(articleId),
-        staleTime: 5 * 60_000,
-        gcTime: 30 * 60_000,
-    }),
-}
-```
+- 리스트·상세 페이지: **필수**
+- 무한 스크롤 첫 페이지: `prefetchInfiniteQuery` 필수
+- 이후 페이지·모달 전용 데이터: 금지
+- `prefetch.ts` + `server.ts` 모두 `import "server-only"` 필수
+- queryOptions 재사용으로 prefetch↔hook queryKey 일치 보장
+- Page에서 직접 QueryClient 다루지 않음 → `runPrefetch` 사용
 
 ---
 
-## 6. Prefetch Strategy (IMPORTANT)
+## 7. 상태 소유권
 
-### Prefetch Philosophy
-- Prefetch strategy is defined per **domain**
-- Pages/layouts must NOT define prefetch logic directly
-- Pages only call domain prefetch functions
+| 상태 유형 | 도구 |
+|----------|------|
+| 서버 데이터 | React Query |
+| URL 상태 (필터·정렬·페이지·탭) | nuqs |
+| 로컬 UI (모달 open, 입력값) | useState |
 
----
-
-### 6.1 When to Prefetch
-
-#### ✅ MUST Prefetch
-- List pages (SEO, LCP critical) — infinite query 리스트도 **첫 페이지는 prefetch**
-- Detail pages reached via internal navigation
-- Primary route data
-
-#### ⚠️ OPTIONAL Prefetch
-- Secondary tabs
-- Non-critical related data
-
-#### ❌ DO NOT Prefetch
-- Infinite scroll **이후 페이지** (2페이지~)
-- Highly volatile or user-specific data
-- Modal-only data
+판단 흐름: 서버 데이터? → React Query / URL 복원 필요? → nuqs / 컴포넌트 내부? → useState
 
 ---
 
-### 6.2 runPrefetch Utility
+## 8. nuqs 규칙
 
-`runPrefetch`는 QueryClient 생성 + dehydrate를 캡슐화하는 유틸리티입니다.
-페이지에서 직접 QueryClient를 다루지 않습니다.
-
-```ts
-// lib/react-query/prefetch.ts
-import { dehydrate } from '@tanstack/react-query'
-import { getQueryClient } from './query-client'
-
-export async function runPrefetch(
-    ...prefetchers: Array<(qc: QueryClient) => Promise<void>>
-) {
-    const qc = getQueryClient()
-    await Promise.all(prefetchers.map(fn => fn(qc)))
-    return dehydrate(qc)
-}
-```
+- 목록 필터·검색·정렬·페이지·탭은 `useQueryState`/`useQueryStates` 사용
+- nuqs 값을 queryOptions 파라미터로 전달 → queryKey에 포함
+- Server Component: `searchParams`로 초기값 읽어 prefetch에 반영
+- 검색 입력: 300ms 디바운스 후 URL 반영 (매 키 입력마다 리패치 금지)
+- `null`이면 query param 제거
 
 ---
 
-### 6.3 Domain Prefetch Pattern
+## 9. Mutation
 
-Prefetch 함수는 **curried 형태**로 작성합니다.
-`(params?) => (queryClient) => Promise<void>` — `runPrefetch`와 자연스럽게 조합됩니다.
-
-`{domain}.prefetch.ts` 는 반드시 `import "server-only"` 를 선언합니다.
-외부에서는 `domain/server.ts` entry point를 통해서만 접근합니다.
-
-#### queryOptions를 재사용하는 이유
-
-Prefetch의 `queryKey`와 클라이언트 `useQuery`의 `queryKey`가 동일해야 dehydration이 올바르게 매칭됩니다.
-`queryOptions`를 그대로 전달하면 `queryKey`와 `queryFn`이 항상 동일하게 유지되어 divergence가 없습니다.
-
-```ts
-// article.prefetch.ts
-import "server-only"
-import type { QueryClient } from '@tanstack/react-query'
-import { articleQueryOptions } from '../query-options/article.query-options'
-
-export const articlePrefetch = {
-    list(params: ArticleListParams) {
-        return async (queryClient: QueryClient) => {
-            await queryClient.prefetchQuery(articleQueryOptions.list(params))
-        }
-    },
-
-    detail(articleId: number) {
-        return async (queryClient: QueryClient) => {
-            await queryClient.prefetchQuery(articleQueryOptions.detail(articleId))
-        }
-    },
-}
-```
-
-```ts
-// domain/article/server.ts
-import "server-only"
-export { articlePrefetch } from "./prefetch/article.prefetch"
-```
+- `invalidateQueries`로 갱신 — UI 상태 직접 수정 금지
+- `router.refresh()` 금지 (인증 세션 갱신 예외)
+- 낙관적 업데이트: `onMutate` + `onError` + `onSettled` 패턴
 
 ---
 
-### 6.4 Page Usage
+## 10. Server/Client 경계
 
-서버 컴포넌트(page.tsx)에서 `server.ts` entry point를 통해 import합니다.
-
-```ts
-// app/(main)/article/page.tsx
-import { runPrefetch } from "@/lib/react-query/prefetch"
-import { articlePrefetch } from "@/domain/article/server"   // ← server entry point
-
-// 단일 prefetch
-const state = await runPrefetch(
-    articlePrefetch.list({ page: 1 })
-)
-
-// 복수 prefetch (병렬 실행)
-const state = await runPrefetch(
-    articlePrefetch.list({ page: 1 }),
-    anotherPrefetch.something(),
-)
-```
+- `server.ts`, `prefetch`: `import "server-only"` 필수
+- `apis`: server-only 불필요 (양쪽 모두 사용)
+- hooks: server-only 불필요 (클라이언트 전용)
 
 ---
 
-## 7. Cache Layer Rules
+## 11. Suspense & Error 경계 (3계층)
 
-This project uses a multi-layer cache strategy.
+| 계층 | 파일 | 대상 |
+|------|------|------|
+| 전역 | `global-error.tsx` | 루트 레이아웃 실패 |
+| 라우트 | `error.tsx` + `loading.tsx` | 페이지 단위 |
+| 컴포넌트 | `<ErrorBoundary>` + `<Suspense>` | 독립 데이터 영역 |
 
-### L0 – Next fetch cache
-- Used for cross-request persistence (ISR, revalidateTag)
-- Must NOT be relied on for client freshness
-
-### L1 – React cache() memoization
-- Dedupes identical fetches within a single RSC render
-- Never used for persistence
-
-### L2 – React Query cache
-- Single source of truth for UI state
-- All UI must read from React Query only
-
-Rule:
-Server data is considered fresh only after React Query hydration.
+- `useSuspenseQuery` → 반드시 `<Suspense>` 안에
+- `loading.tsx` → 세그먼트 자동 Suspense (streaming skeleton)
+- `QueryErrorResetBoundary` + `ErrorBoundary` 연결 필수
+- 예상된 실패(폼·mutation): `isError`/`ActionResult` 인라인 처리 (바운더리 throw 금지)
+- 404 → `notFound()`, 인증 만료 → redirect
 
 ---
 
-## 8. Mutation & Invalidation Rules
+## 12. 로딩 · 에러 · 빈 상태
 
-Mutations call the external API directly via `useMutation`.
-
-- Never mutate UI state directly after mutation
-- Always invalidate using query keys
-- Use domain query key factories only
-
-Flow:
-`useMutation` → external API call → `invalidateQueries` → UI refetch
-
-Forbidden:
-- Manually updating UI state after mutation
-- Calling router.refresh() as primary update mechanism
-
-#### Example
-```ts
-// article.hooks.ts
-export function useCreateArticle() {
-    const queryClient = useQueryClient()
-
-    return useMutation({
-        mutationFn: (data: CreateArticleBody) => createArticle(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: articleQueryKeys.all })
-        },
-    })
-}
-```
+- 로딩 텍스트(`"불러오는 중..."`) 금지 → Skeleton 컴포넌트 사용
+- Skeleton은 최종 레이아웃 크기와 일치 (CLS 방지)
+- 에러: 사용자 친화 메시지 — 원본 Error 객체 UI 노출 금지
+- 빈 상태: 에러 아님 — 왜 비었는지 설명하는 UI 제공
 
 ---
 
-## 9. Pagination & Infinite Queries
+## 13. 날짜 · 시간
 
-- Infinite query **첫 페이지는 prefetch** (SEO, LCP 목적) — `prefetchInfiniteQuery` 사용
-- Infinite query **이후 페이지는 prefetch 금지** — 스크롤 트리거로만 로드
-- Page index must be part of query key
-- Changing filters resets page to 1
-
-Cache rule:
-filter change = new cache
-page change = same cache group
+- **모든** 날짜·시간 표시: `lib/format.ts`의 `formatDate` / `formatDateTime` 사용 (KST)
+- `new Date(x).toLocaleDateString('ko-KR')` timeZone 누락 형태 금지
 
 ---
 
-## 10. Server / Client Boundary
+## 14. TypeScript
 
-### Server Side
-- Responsible for prefetching and SEO-critical data
-- No React Query hooks
-- Import from `@/domain/{name}/server` for server-only exports
-
-### Client Side
-- `useQuery` only with shared `queryOptions`
-- No data-fetching logic in UI components
-- Import from `@/domain/{name}` (client-safe entry point only)
-
-### server-only 규칙
-
-| 레이어 | server-only |
-|--------|-------------|
-| `prefetch` | ✅ 필수 |
-| `server.ts` | ✅ 필수 (prefetch re-export) |
-| `apis` | ❌ 불필요 (클라이언트/서버 모두 사용) |
-| `hooks` | ❌ 불필요 (클라이언트 전용) |
+- `any` 금지
+- non-null assertion (`!`) 금지
+- `type` 사용 (`interface` 아님)
+- 타입 조기 좁히기 (narrow early)
 
 ---
 
-## 11. Suspense & Streaming Policy
+## 15. 코드 포맷 (MANDATORY)
 
-`useSuspenseQuery`를 사용하는 컴포넌트는 반드시 `<Suspense>` 경계 안에 위치해야 한다.
-
-Use Suspense:
-- `useSuspenseQuery`를 사용하는 컴포넌트의 부모
-- 메인 콘텐츠 블록
-- 라우트 수준 데이터 섹션
-
-Do NOT use Suspense:
-- `useQuery`를 사용하는 컴포넌트 (직접 `isLoading` 처리)
-- 사용자 트리거 refetch
-- 페이지네이션 로딩
-
-Skeleton rules:
-- Must match final layout size
-- Prevent layout shift (CLS)
+- 들여쓰기: **4공백** (탭·2공백 금지)
+- TypeScript · JavaScript · JSON · JSX/TSX 전체 적용
 
 ---
 
-## 12. Loading / Error / Empty States
+## 16. Mobile-First (MANDATORY)
 
-### Loading
-- Initial load handled by Server Components
-- `useSuspenseQuery` — `<Suspense fallback={...}>` 로 로딩 처리, `isLoading` 분기 없음
-- `useQuery` — `isLoading` / `isPending` 분기로 직접 처리
-- Client loading only for pagination or manual refetch
-
-### Error
-- Errors must be explicit and domain-aware
-- No silent failures
-
-### Empty
-- Empty state is NOT an error
-- Must explain why data is empty
+- 모바일 기준 시작 → `sm:` `md:` `lg:` 순 확장
+- 터치 타겟 최소 44×44px
+- hover-only 인터랙션 금지 — tap 대안 필수
+- 넘치는 테이블: `overflow-x-auto`
 
 ---
 
-## 13. URL & Query Strings
+## 17. 컴포넌트 규칙
 
-- Use `nuqs` only
-- Shared parsers are mandatory
-- `null` removes the query param
-- Enum defaults must be explicit
-- Query params must map 1:1 to query keys
+- 파일당 컴포넌트 1개, default export
+- 200줄 초과 또는 props 과다 시 분리
+- 데이터(domain hooks)와 표현(render) 분리 — 컴포넌트는 렌더링만
 
 ---
 
-## 14. Error Handling Strategy
+## 18. 접근성 (WCAG AA)
 
-### API Calls
-
-- 조회(Query): 에러를 throw → React Query가 error state로 처리
-- 변경(Mutation): `useMutation`의 `onError` 또는 `mutateAsync` try/catch로 처리
-
-#### Rules
-- 인증 에러: 401 응답 시 공통 인터셉터에서 처리
-- 비즈니스 에러: 사용자 친화 메시지로 변환 후 표시
-- 원본 Error 객체를 UI에 직접 노출하지 않음
-
-### Client Side
-
-- Query 에러: React Query의 error state + ErrorBoundary
-- Mutation 에러: `isError` / `error` 분기로 처리
+- 시맨틱 HTML, 폼 `label`/`aria-*` 필수
+- 명암비: 본문 4.5:1, 큰 텍스트·UI 컴포넌트 3:1
+- 인터랙티브 요소 `focus-visible` 제거 금지
+- 이미지 `alt` 필수 (장식 이미지는 `alt=""`)
+- `<img>` 태그 금지 → `next/image` 사용
 
 ---
 
-## 15. TypeScript Rules
+## 19. Performance
 
-- ❌ any
-- ❌ non-null assertion (!)
-- Prefer type over interface
-- Narrow types early
-
----
-
-## 16. Code Formatting Rules (MANDATORY)
-
-- All code MUST use **4 spaces for indentation**
-- Tabs (`\t`) are NOT allowed
-- 2-space indentation is NOT allowed
-- Applies to:
-    - TypeScript
-    - JavaScript
-    - JSON
-    - Tailwind class formatting
-    - React / JSX / TSX
-
-Example:
-```ts
-function example() {
-    if (true) {
-        console.log('4 spaces only')
-    }
-}
-```
-
----
-
-## 17. Mobile-First Design (MANDATORY)
-
-- All UI must be designed **mobile-first**
-- Use responsive Tailwind classes (`sm:`, `md:`, `lg:`) starting from the smallest screen
-- Touch targets must be at least 44×44px
-- Avoid hover-only interactions — ensure tap-friendly alternatives
-- Prefer vertical stacking on mobile; use grid/flex row layouts only from `sm:` breakpoint up
-- Tables that don't fit on mobile must use `overflow-x-auto` or be redesigned as card lists
-
----
-
-## 18. Performance Guardrails
-
-To maintain Lighthouse ≥ 90:
-
-Forbidden:
-- Client-side data fetching in useEffect
-- Dynamic imports inside frequently rendered components
-- Passing large objects through props across boundaries
-- Non-memoized array/object props to client components
-
-Required:
-- Prefer Server Components
-- Serialize minimal data only
-- Keep hydration payload small
-- Avoid unnecessary client providers
-
----
-
-## 19. What Claude Must Do
-
-When generating code:
-1. Follow domain-based structure strictly
-2. Reuse query keys, options, and prefetch
-3. Optimize for Lighthouse ≥ 90
-4. Explain performance decisions briefly
-
-When unsure:
-- Ask ONE precise question only
+- `useEffect` fetch 금지 (React Query 사용)
+- 자주 렌더링되는 컴포넌트 내 dynamic import 금지
+- Server Components 우선
+- 하이드레이션 페이로드 최소화
+- Supabase: 필요한 컬럼만 `select()`, 목록 조회 `limit()` 강제, N+1 쿼리 금지
 
 ---
 
@@ -633,3 +219,18 @@ When unsure:
 | 2026-06-28 | 예상 읽기 시간·카테고리·태그 메타, 3초 룰, 한 문단 3~4줄, 핵심 포인트 callout, 관련 포스트 추천, 이미지 alt 텍스트 추가 | agents/seo-writer.md | blog-writer 에이전트 참고 |
 | 2026-06-28 | 출처 검증 체계 전면 도입 — fact-checker 에이전트 추가, researcher 출처 수집 의무화, seo-writer 인라인 출처 표기, integrator 검증 출처 목록 패키지 포함, 오케스트레이터 Phase 4(팩트체크) 추가 | 전체 | 어린이집 부모 대상 글의 사실 관계·출처 신뢰성 강화 |
 | 2026-06-28 | 서브 에이전트·팀원 모델 opus → sonnet (Sonnet 4.6) 변경, 오케스트레이터는 유지 | skills/content-creator/SKILL.md | 비용 최적화 |
+
+---
+
+## 하네스: kidzly-web 개발
+
+**목표:** CLAUDE.md 스펙 기반 코드베이스 리팩토링 및 신규 도메인/UI 구현 자동화
+
+**트리거:** 리팩토링, 도메인 구현, 코드 리뷰, UI 구현 요청 시 `kidzly-refactor` 스킬을 사용하라. 단순 질문은 직접 응답 가능.
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-07-01 | 초기 구성 | 전체 | temp/ 에이전트/스킬 기반 kidzly-web 개발 하네스 구성 |
+| 2026-07-01 | CLAUDE.md 슬림화 — 규칙만 유지, 코드 예시 제거 | CLAUDE.md | 컨텍스트 효율화 + temp/ 패턴 반영 |
+| 2026-07-01 | temp/ 컨벤션 전면 반영 — WCAG AA, N+1, 날짜 KST, nuqs, 에러경계, Skeleton 규칙 추가 | CLAUDE.md, agents/*, skills/supabase-guide | temp/ 기준 가이드 통합 |
