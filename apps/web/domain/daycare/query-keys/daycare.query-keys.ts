@@ -8,6 +8,11 @@ export type DaycareQueryParams = {
     ages?: number[]
 }
 
+export type DaycareRankingParams = {
+    limit?: number
+    sido?: string
+}
+
 export const daycareQueryKeys = {
     all: ['daycare'] as const,
 
@@ -20,4 +25,16 @@ export const daycareQueryKeys = {
     typeNames: ['daycare', 'typeNames'] as const,
 
     serviceTypes: ['daycare', 'serviceTypes'] as const,
+
+    rankingWaiting: (params: DaycareRankingParams = {}) =>
+        [...daycareQueryKeys.all, 'ranking', 'waiting', params] as const,
+
+    rankingCapacity: (params: DaycareRankingParams = {}) =>
+        [...daycareQueryKeys.all, 'ranking', 'capacity', params] as const,
+
+    rankingOldest: (params: DaycareRankingParams = {}) =>
+        [...daycareQueryKeys.all, 'ranking', 'oldest', params] as const,
+
+    rankingRecent: (params: DaycareRankingParams = {}) =>
+        [...daycareQueryKeys.all, 'ranking', 'recent', params] as const,
 }

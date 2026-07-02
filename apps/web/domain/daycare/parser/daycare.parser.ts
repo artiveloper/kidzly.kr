@@ -1,6 +1,19 @@
 import type { DaycareRow } from '@/lib/supabase/types';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem } from '../types';
 
+export type DaycareRankingRow = Pick<DaycareRow,
+    | 'daycare_code'
+    | 'name'
+    | 'sido_name'
+    | 'sigungu_name'
+    | 'type_name'
+    | 'address'
+    | 'waiting_child_total'
+    | 'capacity'
+    | 'current_child_count'
+    | 'certified_date'
+>;
+
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
     const counts = [
         row.class_count_age_0,
@@ -48,7 +61,7 @@ export function toDaycareListItem(row: DaycareRow): DaycareListItem {
     };
 }
 
-export function toDaycareRankingItem(row: DaycareRow, rank: number): DaycareRankingItem {
+export function toDaycareRankingItem(row: DaycareRankingRow, rank: number): DaycareRankingItem {
     return {
         id: row.daycare_code,
         rank,
@@ -63,7 +76,7 @@ export function toDaycareRankingItem(row: DaycareRow, rank: number): DaycareRank
     };
 }
 
-export function toDaycareRecentItem(row: DaycareRow, rank: number): DaycareRecentItem {
+export function toDaycareRecentItem(row: DaycareRankingRow, rank: number): DaycareRecentItem {
     return {
         id: row.daycare_code,
         rank,
@@ -78,7 +91,7 @@ export function toDaycareRecentItem(row: DaycareRow, rank: number): DaycareRecen
     };
 }
 
-export function toDaycareCapacityItem(row: DaycareRow, rank: number): DaycareCapacityItem {
+export function toDaycareCapacityItem(row: DaycareRankingRow, rank: number): DaycareCapacityItem {
     return {
         id: row.daycare_code,
         rank,

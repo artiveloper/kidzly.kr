@@ -2,6 +2,7 @@ import { isServer } from '@tanstack/react-query';
 import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem } from '../parser/daycare.parser';
+import type { DaycareRankingRow } from '../parser/daycare.parser';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, MapBounds } from '../types';
 import type { DaycareRow, SigunguRow } from '@/lib/supabase/types';
 
@@ -106,27 +107,27 @@ export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
 export async function fetchDaycareTypeNames(): Promise<string[]> {
     const supabase = createSupabaseClient();
 
-    const result = await supabase.from('daycare_type_names' as never).select('type_name');
+    const result = await supabase.from('daycare_type_names').select('type_name');
 
     if (result.error) {
         console.error('[fetchDaycareTypeNames]', result.error.message);
         return [];
     }
 
-    return (result.data as Array<{ type_name: string }> ?? []).map((r) => r.type_name);
+    return (result.data ?? []).map((r) => r.type_name);
 }
 
 export async function fetchDaycareServiceTypes(): Promise<string[]> {
     const supabase = createSupabaseClient();
 
-    const result = await supabase.from('daycare_service_types' as never).select('service_name');
+    const result = await supabase.from('daycare_service_types').select('service_name');
 
     if (result.error) {
         console.error('[fetchDaycareServiceTypes]', result.error.message);
         return [];
     }
 
-    return (result.data as Array<{ service_name: string }> ?? []).map((r) => r.service_name);
+    return (result.data ?? []).map((r) => r.service_name);
 }
 
 export async function fetchDaycareCount(): Promise<number> {
@@ -160,7 +161,7 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         return [];
     }
 
-    return ((data ?? []) as Pick<DaycareRow, 'daycare_code' | 'data_standard_date'>[]).map((r) => ({
+    return (data ?? []).map((r) => ({
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
     }));
@@ -170,7 +171,7 @@ const RANKING_COLUMNS =
     'daycare_code, name, sido_name, sigungu_name, type_name, address, waiting_child_total, capacity, current_child_count, certified_date';
 
 export async function fetchDaycareRankingWaiting(limit = 10, sido?: string): Promise<DaycareRankingItem[]> {
-    const supabase = createServerClient();
+    const supabase = createSupabaseClient();
 
     let req = supabase
         .from('daycares')
@@ -189,11 +190,12 @@ export async function fetchDaycareRankingWaiting(limit = 10, sido?: string): Pro
         throw new Error(error.message);
     }
 
-    return (data ?? []).map((row, i) => toDaycareRankingItem(row as DaycareRow, i + 1));
+    // Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언
+    return (data ?? []).map((row, i) => toDaycareRankingItem(row as DaycareRankingRow, i + 1));
 }
 
 export async function fetchDaycareRankingRecent(limit = 10, sido?: string): Promise<DaycareRecentItem[]> {
-    const supabase = createServerClient();
+    const supabase = createSupabaseClient();
 
     let req = supabase
         .from('daycares')
@@ -211,11 +213,12 @@ export async function fetchDaycareRankingRecent(limit = 10, sido?: string): Prom
         throw new Error(error.message);
     }
 
-    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1));
+    // Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언
+    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRankingRow, i + 1));
 }
 
 export async function fetchDaycareRankingOldest(limit = 10, sido?: string): Promise<DaycareRecentItem[]> {
-    const supabase = createServerClient();
+    const supabase = createSupabaseClient();
 
     let req = supabase
         .from('daycares')
@@ -233,11 +236,12 @@ export async function fetchDaycareRankingOldest(limit = 10, sido?: string): Prom
         throw new Error(error.message);
     }
 
-    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1));
+    // Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언
+    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRankingRow, i + 1));
 }
 
 export async function fetchDaycareRankingCapacity(limit = 10, sido?: string): Promise<DaycareCapacityItem[]> {
-    const supabase = createServerClient();
+    const supabase = createSupabaseClient();
 
     let req = supabase
         .from('daycares')
@@ -256,7 +260,8 @@ export async function fetchDaycareRankingCapacity(limit = 10, sido?: string): Pr
         throw new Error(error.message);
     }
 
-    return (data ?? []).map((row, i) => toDaycareCapacityItem(row as DaycareRow, i + 1));
+    // Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언
+    return (data ?? []).map((row, i) => toDaycareCapacityItem(row as DaycareRankingRow, i + 1));
 }
 
 export async function fetchSigungus(): Promise<SigunguRow[]> {

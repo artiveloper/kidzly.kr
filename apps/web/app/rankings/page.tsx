@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Flame, Clock, Users } from 'lucide-react';
-import { fetchDaycareRankingWaiting, fetchDaycareRankingCapacity, fetchDaycareRankingOldest } from '@/domain/daycare/server';
-import { SIDO_LIST, isValidSido } from '@/domain/region';
-import WaitingRankingList from '@/components/rankings/WaitingRankingList';
-import RecentRankingList from '@/components/rankings/RecentRankingList';
-import CapacityRankingList from '@/components/rankings/CapacityRankingList';
-
-import SidoFilter from '@/components/rankings/SidoFilter';
+import { isValidSido } from '@/domain/region';
+import { runPrefetch } from '@/lib/react-query/prefetch';
+import { daycarePrefetch } from '@/domain/daycare/server';
+import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
+import RankingsContent from '@/components/rankings/RankingsContent';
+import RankingsSkeleton from '@/components/rankings/RankingsSkeleton';
 import ShareButton from '@/components/rankings/ShareButton';
 import Footer from '@/components/common/Footer';
 
@@ -83,12 +83,6 @@ export default async function RankingsPage({ searchParams }: Props) {
 
     const regionLabel = validSido ?? '전국';
 
-    const [waiting, capacity, oldest] = await Promise.all([
-        fetchDaycareRankingWaiting(10, validSido),
-        fetchDaycareRankingCapacity(10, validSido),
-        fetchDaycareRankingOldest(10, validSido),
-    ]);
-
     const pageUrl = validSido
         ? `${BASE_URL}/rankings?sido=${encodeURIComponent(validSido)}`
         : `${BASE_URL}/rankings`;
@@ -99,12 +93,6 @@ export default async function RankingsPage({ searchParams }: Props) {
         name: `${regionLabel} 어린이집 랭킹 | 키즐리`,
         description: `${regionLabel} 입소 대기·정원·역사 기준 어린이집 순위`,
         url: pageUrl,
-        itemListElement: waiting.map((item, i) => ({
-            '@type': 'ListItem',
-            position: i + 1,
-            name: item.name,
-            url: `${BASE_URL}/daycare/${item.id}`,
-        })),
     };
 
     const breadcrumbLd = {
@@ -115,6 +103,12 @@ export default async function RankingsPage({ searchParams }: Props) {
             { '@type': 'ListItem', position: 2, name: '어린이집 랭킹', item: pageUrl },
         ],
     };
+
+    const state = await runPrefetch(
+        daycarePrefetch.rankingWaiting({ sido: validSido }),
+        daycarePrefetch.rankingCapacity({ sido: validSido }),
+        daycarePrefetch.rankingOldest({ sido: validSido }),
+    );
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -179,68 +173,11 @@ export default async function RankingsPage({ searchParams }: Props) {
                     </div>
                 </div>
 
-                <div className="max-w-lg mx-auto px-4 pb-12 space-y-10 pt-6">
-
-                    {/* 지역 필터 */}
-                    <SidoFilter currentSido={validSido} />
-
-                    {/* 대기 많은 순 */}
-                    <section id="waiting" className="scroll-mt-16">
-                        <div className="mb-4">
-                            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-full px-3 py-1 mb-3 border border-red-100">
-                                <Flame size={11} />
-                                핫이슈
-                            </div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-1">
-                                {regionLabel} 입소 대기 TOP 10
-                            </h2>
-                            <p className="text-xs text-gray-400">정상 운영 어린이집 중 입소 대기 아동이 가장 많은 곳</p>
-                        </div>
-                        <WaitingRankingList items={waiting} />
-                    </section>
-
-                    {/* 정원 많은 순 */}
-                    <section id="capacity" className="scroll-mt-16">
-                        <div className="mb-4">
-                            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full px-3 py-1 mb-3 border border-blue-100">
-                                <Users size={11} />
-                                정원 순위
-                            </div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-1">
-                                {regionLabel} 정원 많은 어린이집 TOP 10
-                            </h2>
-                            <p className="text-xs text-gray-400">정원 규모가 가장 큰 어린이집</p>
-                        </div>
-                        <CapacityRankingList items={capacity} />
-                    </section>
-
-                    {/* 가장 오래된 */}
-                    <section id="oldest" className="scroll-mt-16">
-                        <div className="mb-4">
-                            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 bg-amber-50 rounded-full px-3 py-1 mb-3 border border-amber-100">
-                                <Clock size={11} />
-                                역사
-                            </div>
-                            <h2 className="text-lg font-bold text-gray-900 mb-1">
-                                {regionLabel} 가장 오래된 어린이집 TOP 10
-                            </h2>
-                            <p className="text-xs text-gray-400">인가일 기준 가장 역사가 긴 어린이집</p>
-                        </div>
-                        <RecentRankingList items={oldest} />
-                    </section>
-
-                    {/* CTA */}
-                    <div className="p-4 bg-white rounded-xl border border-gray-100 text-center">
-                        <p className="text-sm font-semibold text-gray-900 mb-1">내 주변 어린이집이 궁금하신가요?</p>
-                        <p className="text-xs text-gray-400 mb-3">지도에서 위치·대기·정원을 한눈에 확인하세요.</p>
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 px-4 py-2 rounded-lg transition-colors"
-                        >
-                            어린이집 찾아보기
-                        </Link>
-                    </div>
-                </div>
+                <HydrationBoundary state={state}>
+                    <Suspense fallback={<RankingsSkeleton />}>
+                        <RankingsContent />
+                    </Suspense>
+                </HydrationBoundary>
             </main>
 
             <Footer />

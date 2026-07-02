@@ -63,83 +63,83 @@ export default function DaycareDetailView({ id }: DaycareDetailInnerProps) {
     };
 
     return (
-      <>
-        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white">
-          <div className="flex items-center px-2 py-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              aria-label="뒤로가기"
-              className="shrink-0"
-            >
-              <ArrowLeft size={18} />
-            </Button>
+        <>
+            <div className="sticky top-0 z-10 border-b border-gray-200 bg-white">
+                <div className="flex items-center px-2 py-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleBack}
+                        aria-label="뒤로가기"
+                        className="shrink-0"
+                    >
+                        <ArrowLeft size={18} />
+                    </Button>
 
-            <div className="min-w-0 flex-1 px-2 text-center">
-              <h1 className="truncate text-sm leading-snug font-semibold text-gray-900">
-                {detail.name}
-              </h1>
-              {detail.dataStandardDate && (
-                <p className="mt-0.5 text-xs text-gray-400">
-                  최종 수정일 {formatDate(detail.dataStandardDate)}
-                </p>
-              )}
+                    <div className="min-w-0 flex-1 px-2 text-center">
+                        <h1 className="truncate text-sm leading-snug font-semibold text-gray-900">
+                            {detail.name}
+                        </h1>
+                        {detail.dataStandardDate && (
+                            <p className="mt-0.5 text-xs text-gray-400">
+                                최종 수정일 {formatDate(detail.dataStandardDate)}
+                            </p>
+                        )}
+                    </div>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleShare}
+                        aria-label="공유"
+                        className="shrink-0"
+                    >
+                        {copied ? (
+                            <Check size={18} className="text-emerald-500" />
+                        ) : (
+                            <Share2 size={18} />
+                        )}
+                    </Button>
+                </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShare}
-              aria-label="공유"
-              className="shrink-0"
-            >
-              {copied ? (
-                <Check size={18} className="text-emerald-500" />
-              ) : (
-                <Share2 size={18} />
-              )}
-            </Button>
-          </div>
-        </div>
+            <DaycareDetailContent daycare={detail} />
 
-        <DaycareDetailContent daycare={detail} />
+            <ErrorBoundary fallback={<NaverBlogSectionError />}>
+                <Suspense fallback={<NaverBlogSectionSkeleton />}>
+                    <NaverBlogSection
+                        query={buildBlogQuery(
+                            detail.sigunguName,
+                            detail.name,
+                            detail.address
+                        )}
+                    />
+                </Suspense>
+            </ErrorBoundary>
 
-        <ErrorBoundary fallback={<NaverBlogSectionError />}>
-          <Suspense fallback={<NaverBlogSectionSkeleton />}>
-            <NaverBlogSection
-              query={buildBlogQuery(
-                detail.sigunguName,
-                detail.name,
-                detail.address
-              )}
-            />
-          </Suspense>
-        </ErrorBoundary>
-
-        <div className="border-t border-gray-100 px-3 py-4">
-          <Link
-            href={
-              detail.sidoName
-                ? `/rankings?sido=${encodeURIComponent(detail.sidoName)}`
-                : "/rankings"
-            }
-            className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
-          >
-            <span className="text-2xl">🏆</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-gray-900">
-                {detail.sidoName
-                  ? `${detail.sidoName} 어린이집 랭킹`
-                  : "어린이집 랭킹"}
-              </p>
-              <p className="mt-0.5 text-xs text-gray-400">
-                대기·정원·역사 순위를 한눈에
-              </p>
+            <div className="border-t border-gray-100 px-3 py-4">
+                <Link
+                    href={
+                        detail.sidoName
+                            ? `/rankings?sido=${encodeURIComponent(detail.sidoName)}`
+                            : "/rankings"
+                    }
+                    className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
+                >
+                    <span className="text-2xl">🏆</span>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-900">
+                            {detail.sidoName
+                                ? `${detail.sidoName} 어린이집 랭킹`
+                                : "어린이집 랭킹"}
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-400">
+                            대기·정원·역사 순위를 한눈에
+                        </p>
+                    </div>
+                    <ChevronRight size={16} className="shrink-0 text-gray-400" />
+                </Link>
             </div>
-            <ChevronRight size={16} className="shrink-0 text-gray-400" />
-          </Link>
-        </div>
-      </>
+        </>
     )
 }
