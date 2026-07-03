@@ -87,6 +87,13 @@ export default async function BlogPostPage({ params }: Props) {
                             ))}
                         </div>
                     )}
+
+                    <div className="mt-10 border-t border-gray-100 pt-6">
+                        <p className="text-xs leading-relaxed text-gray-400">
+                            이 글의 내용은 작성 시점 기준이며, 실제 정책·제도와 다를 수 있습니다.
+                            중요한 사항은 관할 기관(주민센터, 보건복지부 등)에 직접 확인하세요.
+                        </p>
+                    </div>
                 </article>
             </main>
 
