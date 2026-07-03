@@ -2,11 +2,11 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import Footer from "@/components/common/Footer"
-import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink } from "lucide-react"
+import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink, Trophy, BookOpen } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 
 const DESCRIPTION =
-    "아이를 낳고 어린이집을 찾다가 너무 불편해서 직접 만들었습니다. 지도 기반으로 내 주변 어린이집을 빠르게 찾고, 유형·운영시간·대기 현황까지 한눈에 비교하세요."
+    "아이를 낳고 어린이집을 찾다가 너무 불편해서 직접 만들었습니다. 지도 기반 검색, 조건별 필터, 랭킹, 육아 콘텐츠까지 — 어린이집 찾기에 필요한 모든 것을 한곳에."
 
 export const metadata: Metadata = {
     title: "서비스 소개",
@@ -63,6 +63,18 @@ const FEATURES = [
         description:
             "외출 중에도 손가락 하나로 빠르게 탐색할 수 있도록 설계했습니다. 복잡한 구조 없이 필요한 정보에 바로 접근할 수 있는 가볍고 직관적인 인터페이스입니다.",
     },
+    {
+        icon: Trophy,
+        title: "지역별 어린이집 랭킹",
+        description:
+            "대기가 많은 어린이집, 정원이 큰 어린이집, 역사가 긴 어린이집을 순위별로 한눈에 확인할 수 있습니다. 시·도를 선택하면 지역별 랭킹도 볼 수 있습니다.",
+    },
+    {
+        icon: BookOpen,
+        title: "부모를 위한 육아 콘텐츠",
+        description:
+            "부모급여·보육료 지원금 신청 방법, 어린이집 입소 준비, 보육비 절약 꿀팁 등 어린이집 부모에게 꼭 필요한 정보를 알기 쉽게 제공합니다.",
+    },
 ]
 
 const TARGET_AUDIENCES = [
@@ -73,10 +85,12 @@ const TARGET_AUDIENCES = [
 ]
 
 const ROADMAP = [
-    "더 정확하고 최신화된 정보 제공",
-    "사용자 조건 기반 맞춤 추천 기능",
-    "실제 이용 후기 및 평가 시스템",
-    "데이터 기반 어린이집 비교 기능 강화",
+    { done: true, label: "더 정확하고 최신화된 정보 제공" },
+    { done: true, label: "지역별 어린이집 랭킹 제공" },
+    { done: true, label: "부모를 위한 육아 콘텐츠 제공" },
+    { done: false, label: "사용자 조건 기반 맞춤 추천 기능" },
+    { done: false, label: "실제 이용 후기 및 평가 시스템" },
+    { done: false, label: "데이터 기반 어린이집 비교 기능 강화" },
 ]
 
 const jsonLd = {
@@ -320,12 +334,15 @@ export default function AboutPage() {
                             꾸준히 만들어 나가겠습니다.
                         </p>
                         <ul className="space-y-3">
-                            {ROADMAP.map((item) => (
-                                <li key={item} className="flex items-start gap-3">
-                                    <span className="mt-0.5 shrink-0 w-[18px] h-[18px] rounded-full bg-gray-100 flex items-center justify-center">
-                                        <ArrowRight size={9} className="text-gray-400" />
+                            {ROADMAP.map(({ done, label }) => (
+                                <li key={label} className="flex items-start gap-3">
+                                    <span className={`mt-0.5 shrink-0 w-[18px] h-[18px] rounded-full flex items-center justify-center ${done ? "bg-emerald-100" : "bg-gray-100"}`}>
+                                        {done
+                                            ? <Check size={10} className="text-emerald-600" />
+                                            : <ArrowRight size={9} className="text-gray-400" />
+                                        }
                                     </span>
-                                    <span className="text-sm text-gray-600">{item}</span>
+                                    <span className={`text-sm ${done ? "text-gray-400" : "text-gray-600"}`}>{label}</span>
                                 </li>
                             ))}
                         </ul>

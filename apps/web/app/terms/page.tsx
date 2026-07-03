@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Footer from "@/components/common/Footer"
 
-const LAST_UPDATED = "2026년 6월 20일"
+const LAST_UPDATED = "2026년 7월 3일"
 
 export const metadata: Metadata = {
     title: "이용약관",
@@ -50,8 +50,8 @@ export default function TermsPage() {
 
                     <Section number="1" title="목적">
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            본 약관은 키즐리(이하 "서비스")가 제공하는 어린이집 검색 서비스의
-                            이용 조건 및 절차, 이용자와 서비스 간의 권리·의무 및
+                            본 약관은 키즐리(이하 "서비스")가 제공하는 어린이집 검색·랭킹·육아 콘텐츠 등
+                            제반 서비스의 이용 조건 및 절차, 이용자와 서비스 간의 권리·의무 및
                             기타 필요한 사항을 규정함을 목적으로 합니다.
                         </p>
                     </Section>
@@ -64,6 +64,8 @@ export default function TermsPage() {
                                     "지도 기반 어린이집 검색 및 조회",
                                     "어린이집 유형·운영시간·대기 현황 등 상세 정보 제공",
                                     "조건별 필터 검색",
+                                    "지역별 어린이집 랭킹 제공 (대기 현황·정원·설립 연도 기준)",
+                                    "어린이집 부모를 위한 육아 콘텐츠 제공 (지원금·입소 준비·보육 꿀팁 등)",
                                     "네이버 블로그 검색 API를 통한 어린이집 관련 블로그 글 제공",
                                 ].map((item) => (
                                     <li key={item} className="flex items-start gap-2">
@@ -144,6 +146,11 @@ export default function TermsPage() {
                             <p>
                                 서비스는 공공 데이터를 기반으로 정보를 제공하며,
                                 정보의 정확성·완전성에 대해 보증하지 않습니다.
+                            </p>
+                            <p>
+                                서비스 내 육아 콘텐츠는 정보 제공 목적으로 작성되었으며,
+                                제도 변경 등으로 실제 내용과 다를 수 있습니다.
+                                지원금·정책 등 중요한 사항은 관련 기관에 직접 확인하시기 바랍니다.
                             </p>
                             <p>
                                 서비스에서 제공하는 네이버 블로그 관련글은 제3자가 작성한 외부 콘텐츠입니다.
