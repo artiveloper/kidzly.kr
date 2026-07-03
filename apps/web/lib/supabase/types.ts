@@ -115,3 +115,6 @@ export type Database = {
 
 export type DaycareRow = Database['public']['Tables']['daycares']['Row'];
 export type SigunguRow = Database['public']['Tables']['sigungus']['Row'];
+export type DaycareTypeNameRow = Database['public']['Tables']['daycare_type_names']['Row'];
+export type DaycareServiceTypeRow = Database['public']['Tables']['daycare_service_types']['Row'];
+export type DaycareIdRow = Pick<DaycareRow, 'daycare_code' | 'data_standard_date'>;

@@ -4,7 +4,7 @@ import { createBrowserClient } from '@/lib/supabase/client';
 import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem } from '../parser/daycare.parser';
 import type { DaycareRankingRow } from '../parser/daycare.parser';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, MapBounds } from '../types';
-import type { DaycareRow, SigunguRow } from '@/lib/supabase/types';
+import type { DaycareRow, SigunguRow, DaycareTypeNameRow, DaycareServiceTypeRow, DaycareIdRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
     return isServer ? createServerClient() : createBrowserClient();
@@ -114,7 +114,7 @@ export async function fetchDaycareTypeNames(): Promise<string[]> {
         return [];
     }
 
-    return (result.data ?? []).map((r) => r.type_name);
+    return (result.data as DaycareTypeNameRow[]).map((r) => r.type_name);
 }
 
 export async function fetchDaycareServiceTypes(): Promise<string[]> {
@@ -127,7 +127,7 @@ export async function fetchDaycareServiceTypes(): Promise<string[]> {
         return [];
     }
 
-    return (result.data ?? []).map((r) => r.service_name);
+    return (result.data as DaycareServiceTypeRow[]).map((r) => r.service_name);
 }
 
 export async function fetchDaycareCount(): Promise<number> {
@@ -161,7 +161,7 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         return [];
     }
 
-    return (data ?? []).map((r) => ({
+    return ((data ?? []) as DaycareIdRow[]).map((r) => ({
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
     }));
