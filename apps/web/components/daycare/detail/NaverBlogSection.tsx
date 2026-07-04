@@ -10,7 +10,7 @@ interface NaverBlogSectionProps {
 
 export default function NaverBlogSection({ query }: NaverBlogSectionProps) {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(query);
-    const posts = data.pages.flatMap((p) => p.items);
+    const posts = data?.pages.flatMap((p) => p.items) ?? [];
 
     if (posts.length === 0) return null;
 

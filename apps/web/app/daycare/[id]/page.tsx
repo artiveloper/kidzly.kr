@@ -24,15 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description,
             alternates: { canonical: url },
             openGraph: {
-                type: 'article',
+                type: 'website',
                 url,
                 title,
                 description,
                 images: [{ url: '/og-image.png', width: 1200, height: 630 }],
-                ...(daycare.syncedAt ? {
-                    modifiedTime: daycare.syncedAt,
-                    publishedTime: daycare.syncedAt,
-                } : {}),
             },
             twitter: {
                 card: 'summary_large_image',

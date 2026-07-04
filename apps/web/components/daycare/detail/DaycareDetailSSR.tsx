@@ -25,11 +25,13 @@ export function buildDaycareMetaStrings(daycare: DaycareDetail) {
             ? `${location} 소재 ${typeLabel}`
             : typeLabel;
 
-    const description = [
-        addressLine,
-        daycare.phone ? `전화 ${daycare.phone}` : null,
-        '운영시간·대기현황은 키즐리에서 확인하세요.',
-    ].filter(Boolean).join('. ');
+    const description = daycare.aiAnalysisSummary
+        ? daycare.aiAnalysisSummary.slice(0, 155)
+        : [
+            addressLine,
+            daycare.phone ? `전화 ${daycare.phone}` : null,
+            '운영시간·대기현황은 키즐리에서 확인하세요.',
+          ].filter(Boolean).join('. ');
 
     return { title, description };
 }
@@ -109,6 +111,24 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
             <div className="daum-wm-title hidden">{title}</div>
             {daumDatetime !== '-' && <div className="daum-wm-datetime hidden">{daumDatetime}</div>}
             <div className="daum-wm-content hidden">{description}</div>
+            {/* 서버 렌더링 콘텐츠 블록 — Googlebot 초기 크롤용. 화면에는 표시되지 않고 JS 렌더링 완료 후 DaycareDetailView가 실제 UI를 담당함. */}
+            <div className="sr-only" aria-hidden="true">
+                <h1>{daycare.name}</h1>
+                <p>{description}</p>
+                {daycare.aiAnalysisSummary && <p>{daycare.aiAnalysisSummary}</p>}
+                {daycare.address && <p>주소: {daycare.address}</p>}
+                {daycare.phone && <p>전화: {daycare.phone}</p>}
+                {daycare.typeName && <p>유형: {daycare.typeName}어린이집</p>}
+                {daycare.sidoName && daycare.sigunguName && (
+                    <p>지역: {daycare.sidoName} {daycare.sigunguName}</p>
+                )}
+                {daycare.certifiedDate && (
+                    <p>인허가일: {daycare.certifiedDate}</p>
+                )}
+                {daycare.capacity !== null && (
+                    <p>정원: {daycare.capacity}명</p>
+                )}
+            </div>
             <HydrationBoundary state={state}>
                 <DaycareDetailView id={id} />
             </HydrationBoundary>
