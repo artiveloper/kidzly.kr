@@ -109,6 +109,22 @@ export type Database = {
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;
             };
+            content_stats: {
+                Row: {
+                    uuid: string;
+                    view_count: number;
+                    like_count: number;
+                };
+                Insert: {
+                    uuid: string;
+                    view_count?: number;
+                    like_count?: number;
+                };
+                Update: {
+                    view_count?: number;
+                    like_count?: number;
+                };
+            };
         };
     };
 };
@@ -118,3 +134,4 @@ export type SigunguRow = Database['public']['Tables']['sigungus']['Row'];
 export type DaycareTypeNameRow = Database['public']['Tables']['daycare_type_names']['Row'];
 export type DaycareServiceTypeRow = Database['public']['Tables']['daycare_service_types']['Row'];
 export type DaycareIdRow = Pick<DaycareRow, 'daycare_code' | 'data_standard_date'>;
+export type ContentStatsRow = Database['public']['Tables']['content_stats']['Row'];

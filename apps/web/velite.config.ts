@@ -5,6 +5,7 @@ const blog = defineCollection({
     pattern: 'blog/**/*.mdx',
     schema: s
         .object({
+            uuid: s.string(),
             title: s.string(),
             description: s.string(),
             keywords: s.array(s.string()).default([]),

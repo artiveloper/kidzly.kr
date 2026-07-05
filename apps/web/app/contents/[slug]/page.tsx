@@ -5,6 +5,8 @@ import { getAllPosts, getPost } from '@/lib/blog'
 import MDXContent from '@/components/blog/MDXContent'
 import ContentHeader from '@/components/content/ContentHeader'
 import Footer from '@/components/common/Footer'
+import ViewTracker from '@/components/content/ViewTracker'
+import { ContentStatsBadge, LikeButton } from '@/components/content/ContentClientWidgets'
 
 type Props = {
     params: Promise<{ slug: string }>
@@ -41,6 +43,7 @@ export default async function BlogPostPage({ params }: Props) {
     return (
         <div className="min-h-screen bg-gray-50">
             <ContentHeader backHref="/contents" backLabel="목록으로" />
+            <ViewTracker uuid={post.uuid} />
 
             <main className="pt-14">
                 <article className="mx-auto max-w-2xl bg-white px-4 py-8 sm:px-6 sm:my-6 sm:rounded-2xl sm:border sm:border-gray-100 sm:shadow-sm">
@@ -50,6 +53,8 @@ export default async function BlogPostPage({ params }: Props) {
                         <time>{post.publishedAt}</time>
                         <span>·</span>
                         <span>읽기 {post.readingTime}분</span>
+                        <span>·</span>
+                        <ContentStatsBadge uuid={post.uuid} />
                     </div>
 
                     <h1 className="mb-4 text-2xl font-bold leading-snug text-gray-900 sm:text-3xl">
@@ -88,7 +93,11 @@ export default async function BlogPostPage({ params }: Props) {
                         </div>
                     )}
 
-                    <div className="mt-10 border-t border-gray-100 pt-6">
+                    <div className="mt-8 flex justify-center">
+                        <LikeButton uuid={post.uuid} />
+                    </div>
+
+                    <div className="mt-8 border-t border-gray-100 pt-6">
                         <p className="text-xs leading-relaxed text-gray-400">
                             이 글의 내용은 작성 시점 기준이며, 실제 정책·제도와 다를 수 있습니다.
                             중요한 사항은 관할 기관(주민센터, 보건복지부 등)에 직접 확인하세요.

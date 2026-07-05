@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { getAllPosts } from '@/lib/blog'
 import ContentHeader from '@/components/content/ContentHeader'
 import Footer from '@/components/common/Footer'
+import { ContentStatsBadge } from '@/components/content/ContentClientWidgets'
 
 export const metadata: Metadata = {
     title: '콘텐츠 | 어린이집 부모를 위한 육아 정보 - 키즐리',
@@ -66,6 +67,8 @@ export default function ContentListPage() {
                                                 <time>{post.publishedAt}</time>
                                                 <span>·</span>
                                                 <span>읽기 {post.readingTime}분</span>
+                                                <span>·</span>
+                                                <ContentStatsBadge uuid={post.uuid} />
                                             </div>
                                         </div>
                                     </Link>
