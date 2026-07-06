@@ -33,7 +33,7 @@ export async function fetchDaycares(options: { limit?: number } = {}): Promise<D
         return [];
     }
 
-    return (data ?? []).map(toDaycareListItem);
+    return (data ?? []).map((row) => toDaycareListItem(row as DaycareRow));
 }
 
 export async function fetchDaycaresInBounds(
@@ -84,7 +84,7 @@ export async function fetchDaycaresInBounds(
         throw new Error(error.message);
     }
 
-    return (data ?? []).map(toDaycareListItem);
+    return (data ?? []).map((row) => toDaycareListItem(row as DaycareRow));
 }
 
 export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
@@ -101,7 +101,7 @@ export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
         throw new Error(error.message);
     }
 
-    return toDaycareDetail(data);
+    return toDaycareDetail(data as DaycareRow);
 }
 
 export async function fetchDaycareTypeNames(): Promise<string[]> {
@@ -278,5 +278,5 @@ export async function fetchSigungus(): Promise<SigunguRow[]> {
         return [];
     }
 
-    return data ?? [];
+    return (data ?? []) as SigunguRow[];
 }

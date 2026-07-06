@@ -84,6 +84,7 @@ export type Database = {
                 };
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;
+                Relationships: [];
             };
             sigungus: {
                 Row: {
@@ -94,6 +95,7 @@ export type Database = {
                 };
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;
+                Relationships: [];
             };
             daycare_type_names: {
                 Row: {
@@ -101,6 +103,7 @@ export type Database = {
                 };
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;
+                Relationships: [];
             };
             daycare_service_types: {
                 Row: {
@@ -108,6 +111,7 @@ export type Database = {
                 };
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;
+                Relationships: [];
             };
             content_stats: {
                 Row: {
@@ -124,6 +128,20 @@ export type Database = {
                     view_count?: number;
                     like_count?: number;
                 };
+                Relationships: [];
+            };
+        };
+        Views: {
+            [_ in never]: never;
+        };
+        Functions: {
+            toggle_like: {
+                Args: { p_uuid: string; p_delta: number };
+                Returns: undefined;
+            };
+            increment_view_count: {
+                Args: { p_uuid: string };
+                Returns: undefined;
             };
         };
     };
