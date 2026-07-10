@@ -66,7 +66,7 @@ export default function ContentListPage() {
                                             <div className="flex items-center gap-2 text-xs text-gray-400">
                                                 <time>{post.publishedAt}</time>
                                                 <span>·</span>
-                                                <span>읽기 {post.readingTime}분</span>
+                                                <span>{post.readingTime}분 소요</span>
                                                 <span>·</span>
                                                 <ContentStatsBadge uuid={post.uuid} />
                                             </div>

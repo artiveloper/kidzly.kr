@@ -52,7 +52,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <span>·</span>
                         <time>{post.publishedAt}</time>
                         <span>·</span>
-                        <span>읽기 {post.readingTime}분</span>
+                        <span>{post.readingTime}분 소요</span>
                         <span>·</span>
                         <ContentStatsBadge uuid={post.uuid} />
                     </div>
