@@ -6,8 +6,6 @@ import ThemeProvider from "@/components/theme-provider"
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { cn } from "@workspace/ui/lib/utils"
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 const pretendard = localFont({
@@ -145,8 +143,6 @@ export default function RootLayout({
                     crossOrigin="anonymous"
                     strategy="afterInteractive"
                 />
-                <Analytics />
-                <SpeedInsights />
                 <GoogleAnalytics gaId="G-9CKKGKLVLC" />
                 <NuqsAdapter>
                     <ReactQueryProvider>
