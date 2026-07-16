@@ -219,6 +219,7 @@ apps/web/domain/{name}/
 | 2026-06-28 | 예상 읽기 시간·카테고리·태그 메타, 3초 룰, 한 문단 3~4줄, 핵심 포인트 callout, 관련 포스트 추천, 이미지 alt 텍스트 추가 | agents/seo-writer.md | blog-writer 에이전트 참고 |
 | 2026-06-28 | 출처 검증 체계 전면 도입 — fact-checker 에이전트 추가, researcher 출처 수집 의무화, seo-writer 인라인 출처 표기, integrator 검증 출처 목록 패키지 포함, 오케스트레이터 Phase 4(팩트체크) 추가 | 전체 | 어린이집 부모 대상 글의 사실 관계·출처 신뢰성 강화 |
 | 2026-06-28 | 서브 에이전트·팀원 모델 opus → sonnet (Sonnet 4.6) 변경, 오케스트레이터는 유지 | skills/content-creator/SKILL.md | 비용 최적화 |
+| 2026-07-16 | 썸네일(유형 1) 디자인 변경 — 텍스트 기반 타이틀 카드 → 앱 아이콘 스타일(그라디언트 칩 + 대표 이모지, 텍스트 없음), 포인트 컬러 팔레트 8종 추가. 발행된 4개 아티클 썸네일 재생성 반영 | skills/content-creator/references/image-html-template.md, agents/image-director.md, apps/web/public/blog/*/thumbnail.png | 리스트 노출 크기(96~112px)에서 기존 텍스트 기반 썸네일이 안 읽히고 시선 집중력이 낮다는 사용자 피드백 |
 
 ---
 

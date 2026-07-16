@@ -46,47 +46,42 @@
 
 ## 이미지 유형별 레이아웃 패턴
 
-### 유형 1: 썸네일 (타이틀 카드)
+### 유형 1: 썸네일 (앱 아이콘 스타일)
 
-주제를 한눈에 전달하는 대표 이미지. 텍스트 + 배경색 + 브랜드 요소.
+**실제 노출 위치는 리스트의 96~112px 정사각형이다.** 이 크기에서는 어떤 텍스트도 읽히지 않으므로, 텍스트 없이 **포인트 컬러 + 대표 이모지**의 대비만으로 아티클을 구분시킨다. (1080px 원본에서 예뻐 보이는 디자인이 아니라, 96px로 축소했을 때 구분되는 디자인이 기준이다.)
 
 ```html
-<div class="canvas" style="background: linear-gradient(135deg, #EEF4FF 0%, #D6E8FF 100%);">
-  <!-- 브랜드 로고 영역 (선택) -->
-  <div style="position: absolute; top: 60px; left: 60px;
-              font-size: 28px; font-weight: 700; color: #3B82F6; letter-spacing: -0.5px;">
-    kidzly
-  </div>
-
-  <!-- 메인 콘텐츠 -->
-  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-              width: 900px; text-align: center;">
-    <!-- 카테고리 뱃지 -->
-    <div style="display: inline-block; background: #3B82F6; color: #fff;
-                font-size: 24px; font-weight: 600; padding: 10px 28px;
-                border-radius: 100px; margin-bottom: 40px; letter-spacing: 0.5px;">
-      어린이집 가이드
-    </div>
-
-    <!-- 메인 타이틀 -->
-    <h1 style="font-size: 72px; font-weight: 800; color: #1E293B;
-               line-height: 1.25; letter-spacing: -2px; margin-bottom: 32px;">
-      어린이집 적응 기간,<br>부모가 알아야 할<br>5가지
-    </h1>
-
-    <!-- 서브 텍스트 -->
-    <p style="font-size: 32px; font-weight: 400; color: #64748B; letter-spacing: -0.5px;">
-      우리 아이의 등원을 편하게 만드는 방법
-    </p>
-  </div>
-
-  <!-- 하단 장식 -->
-  <div style="position: absolute; bottom: 60px; left: 60px; right: 60px;
-              height: 4px; background: linear-gradient(90deg, #3B82F6, #60A5FA);
-              border-radius: 2px;">
+<div class="canvas" style="background: #F1F5F9; display: flex;
+            align-items: center; justify-content: center;">
+  <div style="width: 820px; height: 820px; border-radius: 220px;
+              background: linear-gradient(145deg, {포인트컬러-밝음} 0%, {포인트컬러-어두움} 100%);
+              box-shadow: 0 40px 80px -20px {포인트컬러-어두움}66;
+              display: flex; align-items: center; justify-content: center;">
+    <div style="font-size: 420px; line-height: 1;">{대표 이모지}</div>
   </div>
 </div>
 ```
+
+**색상·이모지 선택 규칙**
+- 아티클의 핵심 주제 키워드 하나를 골라 대표 이모지를 정한다 (예: 집=🏠, 이용권/선물=🎁, 아이=👶, 급여/돈=💰, 서류=📋, 일정=📅, 병원=🏥, 책=📚)
+- 같은 카테고리(예: "영유아 지원금") 안에서도 아티클마다 색을 다르게 배정한다 — 목표는 리스트에서 나란히 봤을 때 전부 다른 색으로 보이는 것
+- 이 레이어에는 절대 텍스트를 넣지 않는다 (96px에서 읽히지 않음)
+- 이모지 폰트 크기는 항상 칩(820px) 대비 약 51%(420px)로 고정 — 더 작으면 리스트에서 존재감이 사라짐
+
+**포인트 컬러 팔레트** (그라디언트 밝은색 → 어두운색, 아티클마다 순환 배정)
+
+| 이름 | 밝은색 | 어두운색 |
+|------|--------|----------|
+| 앰버 | `#F59E0B` | `#B45309` |
+| 바이올렛 | `#8B5CF6` | `#6D28D9` |
+| 에메랄드 | `#10B981` | `#047857` |
+| 블루 | `#3B82F6` | `#1D4ED8` |
+| 로즈 | `#F43F5E` | `#BE123C` |
+| 틸 | `#14B8A6` | `#0F766E` |
+| 오렌지 | `#F97316` | `#C2410C` |
+| 인디고 | `#6366F1` | `#4338CA` |
+
+> 유형 2·3(인포그래픽, 강조 카드)은 블로그 본문 안에서 1080px 그대로 크게 노출되므로 텍스트 기반 레이아웃을 그대로 사용한다. 텍스트 축소 문제는 리스트 썸네일(유형 1)에만 해당한다.
 
 ---
 
