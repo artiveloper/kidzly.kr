@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import { getAllPosts, getPost } from '@/lib/blog'
 import MDXContent from '@/components/blog/MDXContent'
 import ContentHeader from '@/components/content/ContentHeader'
@@ -62,19 +61,6 @@ export default async function BlogPostPage({ params }: Props) {
                     </h1>
 
                     <p className="mb-6 text-base text-gray-500">{post.description}</p>
-
-                    {post.thumbnail && (
-                        <div className="mb-8 overflow-hidden rounded-xl">
-                            <Image
-                                src={post.thumbnail}
-                                alt={post.title}
-                                width={1080}
-                                height={1080}
-                                className="w-full"
-                                priority
-                            />
-                        </div>
-                    )}
 
                     <div className="prose-sm prose-gray max-w-none">
                         <MDXContent code={post.code} />
