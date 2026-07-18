@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { parseAsString, useQueryState } from 'nuqs';
 import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/domain/daycare';
+import type { BlogPostMeta } from '@/lib/blog';
 import { useDebounce } from '@/hooks/useDebounce';
 import Header from './Header';
 import ListPanel from '../list/ListPanel';
@@ -15,7 +16,11 @@ import DaycareDetailLoading from '../detail/DaycareDetailLoading';
 import DaycareFilters from '../list/filters/DaycareFilters';
 import { saveDaycareReturnUrl } from '@/lib/navigation';
 
-export default function DaycareMap() {
+interface DaycareMapProps {
+    promoPosts?: BlogPostMeta[];
+}
+
+export default function DaycareMap({ promoPosts = [] }: DaycareMapProps) {
     const router = useRouter();
     const pathname = usePathname();
     const isMobile = useIsMobile();
@@ -136,6 +141,7 @@ export default function DaycareMap() {
         daycares: filteredDaycares,
         isLoading: isFetching,
         scrollRef: listScrollRef,
+        promoPosts,
     };
 
     const overlayClass = (open: boolean) =>

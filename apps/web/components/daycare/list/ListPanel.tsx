@@ -3,6 +3,7 @@
 import React from 'react';
 import { Search, X } from 'lucide-react';
 import type { DaycareListItem } from '@/domain/daycare';
+import type { BlogPostMeta } from '@/lib/blog';
 import RecentSearches from './RecentSearches';
 import DaycareList from './DaycareList';
 import DaycareFilters from './filters/DaycareFilters';
@@ -18,6 +19,7 @@ interface ListPanelProps {
     isLoading?: boolean;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
     onClose?: () => void;
+    promoPosts?: BlogPostMeta[];
 }
 
 export default function ListPanel({
@@ -31,6 +33,7 @@ export default function ListPanel({
     isLoading = false,
     scrollRef,
     onClose,
+    promoPosts,
 }: ListPanelProps) {
     return (
         <div className="flex flex-col h-full">
@@ -96,6 +99,7 @@ export default function ListPanel({
                 daycares={daycares}
                 isLoading={isLoading}
                 scrollRef={scrollRef}
+                promoPosts={promoPosts}
             />
         </div>
     );

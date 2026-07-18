@@ -1,19 +1,35 @@
 'use client';
 
+import { Fragment, useMemo } from 'react';
 import { useQueryState } from 'nuqs';
 import type { DaycareListItem as DaycareListItemType, DaycareAgeFilter } from '@/domain/daycare';
 import { daycareFilterParsers } from '@/domain/daycare';
+import type { BlogPostMeta } from '@/lib/blog';
 import DaycareListItem from './DaycareListItem';
+import ContentPromoCard from './ContentPromoCard';
+
+// 목록이 충분히 길 때만 자연스럽게 끼워넣기 위한 삽입 위치(0-based, 해당 인덱스 항목 뒤에 삽입)
+const CONTENT_SLOT_POSITIONS = [5, 15];
 
 interface DaycareListProps {
     daycares: DaycareListItemType[];
     isLoading?: boolean;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
+    promoPosts?: BlogPostMeta[];
 }
 
-export default function DaycareList({ daycares, isLoading = false, scrollRef }: DaycareListProps) {
+export default function DaycareList({ daycares, isLoading = false, scrollRef, promoPosts = [] }: DaycareListProps) {
     const [activeAgeStr] = useQueryState('age', daycareFilterParsers.age);
     const activeAge = (activeAgeStr ? Number(activeAgeStr) : null) as DaycareAgeFilter | null;
+
+    const contentSlots = useMemo(() => {
+        const slots = new Map<number, BlogPostMeta>();
+        CONTENT_SLOT_POSITIONS.forEach((position, i) => {
+            const post = promoPosts[i];
+            if (post) slots.set(position, post);
+        });
+        return slots;
+    }, [promoPosts]);
 
     return (
         <div ref={scrollRef} className="flex-1 overflow-y-auto relative pb-4">
@@ -41,13 +57,18 @@ export default function DaycareList({ daycares, isLoading = false, scrollRef }: 
                             <span className="text-[10px] text-emerald-500 font-medium">업데이트 중...</span>
                         )}
                     </div>
-                    {daycares.map((daycare) => (
-                        <DaycareListItem
-                            key={daycare.id}
-                            daycare={daycare}
-                            activeAge={activeAge}
-                        />
-                    ))}
+                    {daycares.map((daycare, index) => {
+                        const promoPost = contentSlots.get(index) ?? null;
+                        return (
+                            <Fragment key={daycare.id}>
+                                <DaycareListItem
+                                    daycare={daycare}
+                                    activeAge={activeAge}
+                                />
+                                {promoPost && <ContentPromoCard post={promoPost} />}
+                            </Fragment>
+                        );
+                    })}
                 </>
             )}
         </div>
