@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getAllPosts } from '@/lib/blog'
 import ContentHeader from '@/components/content/ContentHeader'
 import ContentList from '@/components/content/ContentList'
+import ContentListSkeleton from '@/components/content/ContentListSkeleton'
 import Footer from '@/components/common/Footer'
 
 export const metadata: Metadata = {
@@ -28,7 +30,9 @@ export default function ContentListPage() {
                 </div>
 
                 <div className="max-w-2xl mx-auto px-4 pb-12 pt-6">
-                    <ContentList posts={posts} />
+                    <Suspense fallback={<ContentListSkeleton />}>
+                        <ContentList posts={posts} />
+                    </Suspense>
                 </div>
             </main>
 
