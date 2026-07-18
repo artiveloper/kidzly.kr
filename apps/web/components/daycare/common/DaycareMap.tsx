@@ -7,7 +7,7 @@ import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS, useDaycaresInBounds, daycareFilterParsers } from '@/domain/daycare';
 import type { BlogPostMeta } from '@/lib/blog';
 import { useDebounce } from '@/hooks/useDebounce';
-import Header from './Header';
+import Header from '@/components/common/Header';
 import ListPanel from '../list/ListPanel';
 import NaverMap, { type NaverMapHandle } from './NaverMap';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';

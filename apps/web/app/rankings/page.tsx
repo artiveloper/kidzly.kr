@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, Flame, Clock, Users } from 'lucide-react';
+import { Flame, Clock, Users } from 'lucide-react';
 import { isValidSido } from '@/domain/region';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch } from '@/domain/daycare/server';
@@ -10,6 +8,7 @@ import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsContent from '@/components/rankings/RankingsContent';
 import RankingsSkeleton from '@/components/rankings/RankingsSkeleton';
 import ShareButton from '@/components/rankings/ShareButton';
+import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 
 export const revalidate = 3600;
@@ -123,18 +122,7 @@ export default async function RankingsPage({ searchParams }: Props) {
             <div className="daum-wm-title hidden">{`${regionLabel} 어린이집 랭킹 | 대기·정원·역사 순위 - 키즐리`}</div>
             <div className="daum-wm-content hidden">{`${regionLabel} 입소 대기가 많은 어린이집, 정원이 많은 어린이집, 가장 오래된 어린이집 순위를 한눈에 확인하세요.`}</div>
 
-            <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3">
-                <Link href="/" aria-label="홈으로">
-                    <Image src="/logo.png" alt="키즐리" width={60} height={28} priority />
-                </Link>
-                <Link
-                    href="/"
-                    className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors py-3 pl-2 -mr-1"
-                >
-                    <ArrowLeft size={14} />
-                    지도로 보기
-                </Link>
-            </header>
+            <Header />
 
             <main className="pt-14">
                 {/* 페이지 소개 */}

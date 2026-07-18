@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getAllPosts } from '@/lib/blog'
-import ContentHeader from '@/components/content/ContentHeader'
 import ContentList from '@/components/content/ContentList'
 import ContentListSkeleton from '@/components/content/ContentListSkeleton'
+import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function ContentListPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <ContentHeader />
+            <Header />
 
             <main className="pt-14">
                 {/* 페이지 소개 */}

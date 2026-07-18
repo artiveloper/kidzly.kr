@@ -1,10 +1,10 @@
 import RankingsSkeleton from '@/components/rankings/RankingsSkeleton';
+import Header from '@/components/common/Header';
 
 export default function RankingsLoading() {
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* 헤더 플레이스홀더 */}
-            <div className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200" />
+            <Header />
 
             <main className="pt-14">
                 {/* 히어로 섹션 skeleton */}

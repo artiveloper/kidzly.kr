@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Clock } from 'lucide-react'
 import { getAllPosts, getPost } from '@/lib/blog'
 import MDXContent from '@/components/blog/MDXContent'
-import ContentHeader from '@/components/content/ContentHeader'
+import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import ViewTracker from '@/components/content/ViewTracker'
 import { ContentStatsBadge, LikeButton } from '@/components/content/ContentClientWidgets'
@@ -42,7 +42,7 @@ export default async function BlogPostPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <ContentHeader backHref="/contents" backLabel="목록으로" />
+            <Header />
             <ViewTracker uuid={post.uuid} />
 
             <main className="pt-14">

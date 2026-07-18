@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
+import Header from "@/components/common/Header"
 import Footer from "@/components/common/Footer"
 import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink, Trophy, BookOpen } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
@@ -115,11 +115,7 @@ export default function AboutPage() {
             />
             <div className="daum-wm-title hidden">서비스 소개 | 키즐리</div>
             <div className="daum-wm-content hidden">{DESCRIPTION}</div>
-            <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center px-4">
-                <Link href="/">
-                    <Image src="/logo.png" alt="키즐리" width={60} height={28} priority />
-                </Link>
-            </header>
+            <Header />
 
             <main className="pt-14">
                 {/* Hero */}
