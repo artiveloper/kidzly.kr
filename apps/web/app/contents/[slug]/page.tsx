@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { Clock } from 'lucide-react'
 import { getAllPosts, getPost } from '@/lib/blog'
 import MDXContent from '@/components/blog/MDXContent'
 import ContentHeader from '@/components/content/ContentHeader'
@@ -46,13 +47,14 @@ export default async function BlogPostPage({ params }: Props) {
 
             <main className="pt-14">
                 <article className="mx-auto max-w-2xl bg-white px-4 py-8 sm:px-6 sm:my-6 sm:rounded-2xl sm:border sm:border-gray-100 sm:shadow-sm">
-                    <div className="mb-2 flex items-center gap-2 text-sm text-gray-400">
+                    <div className="mb-2 flex flex-wrap items-center gap-3 text-sm text-gray-400">
                         <span className="font-medium text-blue-600">{post.category}</span>
-                        <span>·</span>
                         <time>{post.publishedAt}</time>
-                        <span>·</span>
-                        <span>{post.readingTime}분 소요</span>
-                        <span>·</span>
+                        <span className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                            <span className="sr-only">소요시간</span>
+                            {post.readingTime}분
+                        </span>
                         <ContentStatsBadge uuid={post.uuid} />
                     </div>
 

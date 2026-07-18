@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useQueryState, parseAsString } from 'nuqs'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Clock } from 'lucide-react'
 import type { BlogPostMeta } from '@/lib/blog'
 import { ContentStatsBadge } from '@/components/content/ContentClientWidgets'
 import FilterChip from '@/components/common/FilterChip'
@@ -50,7 +51,7 @@ export default function ContentList({ posts }: Props) {
                                 className="flex gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-xs transition hover:border-gray-200 hover:shadow-sm active:bg-gray-50"
                             >
                                 {post.thumbnail && (
-                                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-28">
+                                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg sm:h-28 sm:w-28">
                                         <Image
                                             src={post.thumbnail}
                                             alt={post.title}
@@ -60,7 +61,7 @@ export default function ContentList({ posts }: Props) {
                                         />
                                     </div>
                                 )}
-                                <div className="flex flex-col justify-between gap-1">
+                                <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5">
                                     <div>
                                         <span className="text-xs font-medium text-blue-600">
                                             {post.category}
@@ -72,11 +73,13 @@ export default function ContentList({ posts }: Props) {
                                             {post.description}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <time>{post.publishedAt}</time>
-                                        <span>·</span>
-                                        <span>{post.readingTime}분 소요</span>
-                                        <span>·</span>
+                                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                                        <time className="whitespace-nowrap">{post.publishedAt}</time>
+                                        <span className="flex items-center gap-1 whitespace-nowrap">
+                                            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                            <span className="sr-only">소요시간</span>
+                                            {post.readingTime}분
+                                        </span>
                                         <ContentStatsBadge uuid={post.uuid} />
                                     </div>
                                 </div>
