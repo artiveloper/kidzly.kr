@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Clock } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowLeft, Clock } from 'lucide-react'
 import { getAllPosts, getPost } from '@/lib/blog'
 import MDXContent from '@/components/blog/MDXContent'
 import Header from '@/components/common/Header'
@@ -90,6 +91,16 @@ export default async function BlogPostPage({ params }: Props) {
                             이 글의 내용은 작성 시점 기준이며, 실제 정책·제도와 다를 수 있습니다.
                             중요한 사항은 관할 기관(주민센터, 보건복지부 등)에 직접 확인하세요.
                         </p>
+                    </div>
+
+                    <div className="mt-6 flex justify-center">
+                        <Link
+                            href="/contents"
+                            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gray-200 px-5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                        >
+                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                            목록으로
+                        </Link>
                     </div>
                 </article>
             </main>
