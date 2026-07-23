@@ -118,7 +118,7 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
             {latestPosts.length > 0 && (
                 <section className="border-t-8 border-gray-100 px-3 py-5">
                     <div className="mb-3 flex items-center justify-between">
-                        <p className="text-sm font-semibold uppercase tracking-wide">♥️ 함께 보면 좋은 글 ♥️</p>
+                        <p className="text-sm font-semibold uppercase tracking-wide">함께 보면 좋은 글</p>
                         <Link
                             href="/contents"
                             className="flex items-center gap-0.5 text-xs text-gray-400 transition-colors hover:text-gray-600"
@@ -146,7 +146,7 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
                                         </div>
                                     )}
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-base font-medium text-gray-800 transition-colors group-hover:text-green-600">
+                                        <p className="line-clamp-2 text-sm font-medium text-gray-800 transition-colors group-hover:text-green-600">
                                             {post.title}
                                         </p>
                                         <span className="mt-1 block text-xs text-gray-400">
