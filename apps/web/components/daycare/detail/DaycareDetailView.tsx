@@ -2,11 +2,13 @@
 
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, Share2, ChevronRight } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { sendGAEvent } from '@next/third-parties/google';
 import { useDaycareDetail } from '@/domain/daycare';
+import type { BlogPostMeta } from '@/lib/blog';
 import DaycareDetailContent from './DaycareDetailContent';
 import NaverBlogSection from './NaverBlogSection';
 import NaverBlogSectionError from './NaverBlogSectionError';
@@ -27,9 +29,10 @@ function buildBlogQuery(sigunguName: string | null, name: string, address: strin
 
 interface DaycareDetailInnerProps {
     id: string;
+    latestPosts?: BlogPostMeta[];
 }
 
-export default function DaycareDetailView({ id }: DaycareDetailInnerProps) {
+export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetailInnerProps) {
     const router = useRouter();
     const { data: detail } = useDaycareDetail(id);
     const [copied, setCopied] = useState(false);
@@ -111,6 +114,55 @@ export default function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                     />
                 </Suspense>
             </ErrorBoundary>
+
+            {latestPosts.length > 0 && (
+                <section className="border-t-8 border-gray-100 px-3 py-5">
+                    <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold uppercase tracking-wide">♥️ 함께 보면 좋은 글 ♥️</p>
+                        <Link
+                            href="/contents"
+                            className="flex items-center gap-0.5 text-xs text-gray-400 transition-colors hover:text-gray-600"
+                        >
+                            더보기
+                            <ChevronRight size={12} />
+                        </Link>
+                    </div>
+                    <ul className="space-y-3">
+                        {latestPosts.map((post) => (
+                            <li key={post.slug}>
+                                <Link
+                                    href={`/contents/${post.slug}`}
+                                    className="group flex items-start gap-2"
+                                >
+                                    {post.thumbnail && (
+                                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md">
+                                            <Image
+                                                src={post.thumbnail}
+                                                alt={post.title}
+                                                fill
+                                                className="object-cover"
+                                                sizes="48px"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-base font-medium text-gray-800 transition-colors group-hover:text-green-600">
+                                            {post.title}
+                                        </p>
+                                        <span className="mt-1 block text-xs text-gray-400">
+                                            {formatDate(post.publishedAt)}
+                                        </span>
+                                    </div>
+                                    <ChevronRight
+                                        size={14}
+                                        className="mt-0.5 shrink-0 text-gray-300 transition-colors group-hover:text-green-500"
+                                    />
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            )}
 
             <div className="border-t border-gray-100 px-3 py-4">
                 <Link

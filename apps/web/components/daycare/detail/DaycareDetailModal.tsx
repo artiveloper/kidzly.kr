@@ -3,14 +3,16 @@
 import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
+import type { BlogPostMeta } from '@/lib/blog';
 import DaycareDetailView from './DaycareDetailView';
 import DaycareDetailLoading from './DaycareDetailLoading';
 
 interface DaycareDetailModalProps {
     id: string;
+    latestPosts?: BlogPostMeta[];
 }
 
-export default function DaycareDetailModal({ id }: DaycareDetailModalProps) {
+export default function DaycareDetailModal({ id, latestPosts }: DaycareDetailModalProps) {
     const isMobile = useIsMobile();
     const pathname = usePathname();
 
@@ -23,7 +25,7 @@ export default function DaycareDetailModal({ id }: DaycareDetailModalProps) {
     return (
         <div className="fixed inset-x-0 bottom-0 top-14 z-50 flex flex-col overflow-y-auto bg-white md:left-0 md:right-auto md:w-[360px] md:border-r md:border-gray-200 md:shadow-sm">
             <Suspense fallback={<DaycareDetailLoading />}>
-                <DaycareDetailView id={id} />
+                <DaycareDetailView id={id} latestPosts={latestPosts} />
             </Suspense>
         </div>
     );

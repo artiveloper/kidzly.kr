@@ -4,6 +4,7 @@ import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch, fetchDaycareDetail } from '@/domain/daycare/server';
 import { formatDate } from '@/lib/format';
 import { HydrationBoundary } from '@tanstack/react-query';
+import { getLatestPosts } from '@/lib/blog';
 import DaycareDetailView from './DaycareDetailView';
 
 type DaycareDetail = Awaited<ReturnType<typeof fetchDaycareDetail>>;
@@ -130,7 +131,7 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
                 )}
             </div>
             <HydrationBoundary state={state}>
-                <DaycareDetailView id={id} />
+                <DaycareDetailView id={id} latestPosts={getLatestPosts(4)} />
             </HydrationBoundary>
         </>
     );

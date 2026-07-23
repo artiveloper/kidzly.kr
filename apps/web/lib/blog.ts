@@ -10,6 +10,10 @@ export function getAllPosts(): BlogPostMeta[] {
     return posts.map(({ code: _code, ...meta }) => meta)
 }
 
+export function getLatestPosts(count: number): BlogPostMeta[] {
+    return getAllPosts().slice(0, count)
+}
+
 export function getPost(slug: string): BlogPost | null {
     // URLs arrive percent-encoded; macOS filenames are NFD — match velite's NFC slug
     const normalizedSlug = decodeURIComponent(slug).normalize('NFC')

@@ -18,9 +18,10 @@ import { saveDaycareReturnUrl } from '@/lib/navigation';
 
 interface DaycareMapProps {
     promoPosts?: BlogPostMeta[];
+    latestPosts?: BlogPostMeta[];
 }
 
-export default function DaycareMap({ promoPosts = [] }: DaycareMapProps) {
+export default function DaycareMap({ promoPosts = [], latestPosts = [] }: DaycareMapProps) {
     const router = useRouter();
     const pathname = usePathname();
     const isMobile = useIsMobile();
@@ -179,7 +180,7 @@ export default function DaycareMap({ promoPosts = [] }: DaycareMapProps) {
                 {listDaycareId ? (
                     <div className="flex-1 overflow-y-auto pb-4">
                         <Suspense fallback={<DaycareDetailLoading />}>
-                            <DaycareDetailView id={listDaycareId} />
+                            <DaycareDetailView id={listDaycareId} latestPosts={latestPosts} />
                         </Suspense>
                     </div>
                 ) : (
@@ -192,7 +193,7 @@ export default function DaycareMap({ promoPosts = [] }: DaycareMapProps) {
                 <div className="flex-1 overflow-y-auto pb-4">
                     {pathnameId && !isListOpen && (
                         <Suspense key={pathnameId} fallback={<DaycareDetailLoading />}>
-                            <DaycareDetailView id={pathnameId} />
+                            <DaycareDetailView id={pathnameId} latestPosts={latestPosts} />
                         </Suspense>
                     )}
                 </div>

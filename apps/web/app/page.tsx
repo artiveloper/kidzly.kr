@@ -13,7 +13,9 @@ export default async function Page() {
         daycarePrefetch.typeNames(),
         daycarePrefetch.serviceTypes()
     )
-    const promoPosts = getAllPosts().slice(0, 2)
+    const allPosts = getAllPosts()
+    const promoPosts = allPosts.slice(0, 2)
+    const latestPosts = allPosts.slice(0, 4)
 
     return (
         <HydrationBoundary state={state}>
@@ -21,7 +23,7 @@ export default async function Page() {
             <div className="daum-wm-content hidden">지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능</div>
             <h1 className="sr-only">어린이집 찾기</h1>
             <Suspense>
-                <DaycareMap promoPosts={promoPosts} />
+                <DaycareMap promoPosts={promoPosts} latestPosts={latestPosts} />
             </Suspense>
             <PromoToast latestPost={promoPosts[0]} />
         </HydrationBoundary>
