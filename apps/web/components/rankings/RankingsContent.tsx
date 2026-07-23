@@ -10,7 +10,7 @@ export default function RankingsContent() {
     const [sido, setSido] = useQueryState('sido', parseAsString);
 
     return (
-        <div className="max-w-lg mx-auto px-4 pb-12 space-y-10 pt-6">
+        <div className="max-w-2xl mx-auto px-4 pb-12 space-y-10 pt-6">
             <SidoFilter sido={sido} onSidoChange={setSido} />
             <Suspense fallback={<RankingsListsSkeleton />}>
                 <RankingsLists key={sido ?? 'all'} sido={sido ?? undefined} />

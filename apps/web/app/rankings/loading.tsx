@@ -9,7 +9,7 @@ export default function RankingsLoading() {
             <main className="pt-14">
                 {/* 히어로 섹션 skeleton */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-lg mx-auto px-4 pt-7 pb-6 animate-pulse">
+                    <div className="max-w-2xl mx-auto px-4 pt-7 pb-6 animate-pulse">
                         <div className="flex items-center justify-between gap-3 mb-1">
                             <div className="w-32 h-7 rounded bg-gray-100" />
                             <div className="w-8 h-8 rounded-full bg-gray-100" />

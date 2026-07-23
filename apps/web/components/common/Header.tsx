@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -21,6 +22,10 @@ const NAV_LINKS = [
 ];
 
 export default function Header() {
+    const pathname = usePathname();
+
+    const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+
     return (
         <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 grid grid-cols-3 items-center px-4">
             <Link href="/" className="justify-self-start">
@@ -28,13 +33,40 @@ export default function Header() {
             </Link>
 
             <div className="hidden items-center gap-2 justify-self-center sm:flex">
-                <Button asChild variant="ghost" size="sm" className="text-gray-600 font-semibold">
+                <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={
+                        isActive('/')
+                            ? 'text-gray-900 font-bold underline underline-offset-4'
+                            : 'text-gray-600 font-semibold'
+                    }
+                >
                     <Link href="/">홈</Link>
                 </Button>
-                <Button asChild variant="ghost" size="sm" className="text-gray-600 font-semibold">
+                <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={
+                        isActive('/rankings')
+                            ? 'text-gray-900 font-bold underline underline-offset-4'
+                            : 'text-gray-600 font-semibold'
+                    }
+                >
                     <Link href="/rankings">랭킹</Link>
                 </Button>
-                <Button asChild variant="ghost" size="sm" className="text-gray-600 font-semibold">
+                <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={
+                        isActive('/contents')
+                            ? 'text-gray-900 font-bold underline underline-offset-4'
+                            : 'text-gray-600 font-semibold'
+                    }
+                >
                     <Link href="/contents">콘텐츠</Link>
                 </Button>
             </div>
@@ -63,7 +95,11 @@ export default function Header() {
                                 <SheetClose key={href} asChild>
                                     <Link
                                         href={href}
-                                        className="rounded-lg px-3 py-3 text-base font-semibold text-gray-700 hover:bg-gray-50"
+                                        className={
+                                            isActive(href)
+                                                ? 'rounded-lg px-3 py-3 text-base font-bold text-gray-900 underline underline-offset-4 hover:bg-gray-50'
+                                                : 'rounded-lg px-3 py-3 text-base font-semibold text-gray-700 hover:bg-gray-50'
+                                        }
                                     >
                                         {label}
                                     </Link>

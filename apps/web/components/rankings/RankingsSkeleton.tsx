@@ -53,7 +53,7 @@ export function RankingsListsSkeleton() {
 
 export default function RankingsSkeleton() {
     return (
-        <div className="max-w-lg mx-auto px-4 pb-12 space-y-10 pt-6 animate-pulse">
+        <div className="max-w-2xl mx-auto px-4 pb-12 space-y-10 pt-6 animate-pulse">
             {/* SidoFilter skeleton */}
             <div className="flex gap-2 overflow-hidden">
                 {Array.from({ length: 5 }).map((_, i) => (

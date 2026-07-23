@@ -127,7 +127,7 @@ export default async function RankingsPage({ searchParams }: Props) {
             <main className="pt-14">
                 {/* 페이지 소개 */}
                 <div className="bg-white border-b border-gray-100">
-                    <div className="max-w-lg mx-auto px-4 pt-7 pb-6">
+                    <div className="max-w-2xl mx-auto px-4 pt-7 pb-6">
                         <div className="flex items-center justify-between gap-3 mb-1">
                             <h1 className="text-xl font-bold text-gray-900">어린이집 랭킹</h1>
                             <ShareButton
