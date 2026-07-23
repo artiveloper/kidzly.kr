@@ -80,11 +80,6 @@ export default function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                         <h1 className="truncate text-sm leading-snug font-semibold text-gray-900">
                             {detail.name}
                         </h1>
-                        {detail.dataStandardDate && (
-                            <p className="mt-0.5 text-xs text-gray-400">
-                                최종 수정일 {formatDate(detail.dataStandardDate)}
-                            </p>
-                        )}
                     </div>
 
                     <Button
@@ -140,6 +135,12 @@ export default function DaycareDetailView({ id }: DaycareDetailInnerProps) {
                     <ChevronRight size={16} className="shrink-0 text-gray-400" />
                 </Link>
             </div>
+
+            {detail.dataStandardDate && (
+                <p className="px-3 py-4 text-center text-xs text-gray-400">
+                    데이터 출처: 어린이집 정보공개포털 · 마지막 수정일 {formatDate(detail.dataStandardDate)}
+                </p>
+            )}
         </>
     )
 }

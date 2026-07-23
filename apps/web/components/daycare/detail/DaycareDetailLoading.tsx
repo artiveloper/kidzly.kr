@@ -22,7 +22,6 @@ export default function DaycareDetailLoading() {
 
                     <div className="flex-1 min-w-0 px-2 text-center animate-pulse">
                         <div className="h-4 w-36 rounded bg-gray-200 mx-auto" />
-                        <div className="h-3 w-24 rounded bg-gray-100 mx-auto mt-1.5" />
                     </div>
 
                     <Button variant="ghost" size="icon" aria-label="공유" className="shrink-0" disabled>
