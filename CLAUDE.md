@@ -220,6 +220,7 @@ apps/web/domain/{name}/
 | 2026-06-28 | 출처 검증 체계 전면 도입 — fact-checker 에이전트 추가, researcher 출처 수집 의무화, seo-writer 인라인 출처 표기, integrator 검증 출처 목록 패키지 포함, 오케스트레이터 Phase 4(팩트체크) 추가 | 전체 | 어린이집 부모 대상 글의 사실 관계·출처 신뢰성 강화 |
 | 2026-06-28 | 서브 에이전트·팀원 모델 opus → sonnet (Sonnet 4.6) 변경, 오케스트레이터는 유지 | skills/content-creator/SKILL.md | 비용 최적화 |
 | 2026-07-16 | 썸네일(유형 1) 디자인 변경 — 텍스트 기반 타이틀 카드 → 앱 아이콘 스타일(그라디언트 칩 + 대표 이모지, 텍스트 없음), 포인트 컬러 팔레트 8종 추가. 발행된 4개 아티클 썸네일 재생성 반영 | skills/content-creator/references/image-html-template.md, agents/image-director.md, apps/web/public/blog/*/thumbnail.png | 리스트 노출 크기(96~112px)에서 기존 텍스트 기반 썸네일이 안 읽히고 시선 집중력이 낮다는 사용자 피드백 |
+| 2026-07-23 | Phase 7(실제 발행) 신설 — `.mdx` 커밋 전 `npx velite build` 실행을 발행의 기계적 게이트로 명문화 | skills/content-creator/SKILL.md, agents/content-integrator.md | "육아기 근로시간 단축 제도" 글이 이스케이프 안 된 `~`(범위 표기)로 인해 velite 컴파일이 실패, 목록에서 조용히 누락된 사고 발생. `~` 이스케이프 규칙이 seo-writer.md·content-integrator.md 체크리스트에 이미 있었음에도 자가 점검만으로는 놓쳐 실제 빌드 검증이 없으면 재발 가능하다고 판단 |
 
 ---
 
