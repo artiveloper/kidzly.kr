@@ -345,7 +345,7 @@ export default function AboutPage() {
                     </section>
 
                     {/* 제안 및 문의 */}
-                    <section className="py-10 border-b border-gray-100">
+                    <section id="contact" className="scroll-mt-16 py-10 border-b border-gray-100">
                         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-4">
                             제안 및 문의
                         </p>

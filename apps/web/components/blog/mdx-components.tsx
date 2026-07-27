@@ -1,5 +1,8 @@
 import type { MDXComponents } from 'mdx/types'
+import Link from 'next/link'
 import BlogImage from './BlogImage'
+
+const LINK_CLASS = 'text-blue-600 underline underline-offset-2 hover:text-blue-800'
 
 export const mdxComponents: MDXComponents = {
     BlogImage,
@@ -40,12 +43,20 @@ export const mdxComponents: MDXComponents = {
     ),
     hr: () => <hr className="my-8 border-gray-200" />,
     strong: (props) => <strong className="font-semibold text-gray-900" {...props} />,
-    a: (props) => (
-        <a
-            className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
-            target="_blank"
-            rel="noopener noreferrer"
-            {...props}
-        />
-    ),
+    a: ({ href = '', ...props }) => {
+        // 내부 링크(/, #)는 같은 탭 클라이언트 내비게이션, 외부 링크는 새 탭
+        const isInternal = href.startsWith('/') || href.startsWith('#')
+        if (isInternal) {
+            return <Link href={href} className={LINK_CLASS} {...props} />
+        }
+        return (
+            <a
+                href={href}
+                className={LINK_CLASS}
+                target="_blank"
+                rel="noopener noreferrer"
+                {...props}
+            />
+        )
+    },
 }
