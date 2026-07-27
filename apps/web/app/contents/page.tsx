@@ -9,6 +9,7 @@ import Footer from '@/components/common/Footer'
 export const metadata: Metadata = {
     title: '콘텐츠 | 어린이집 부모를 위한 육아 정보 - 키즐리',
     description: '어린이집 부모를 위한 육아 정보, 지원금 가이드, 보육 꿀팁을 알려드립니다.',
+    alternates: { canonical: 'https://kidzly.kr/contents' },
 }
 
 export default function ContentListPage() {

@@ -13,6 +13,8 @@ type Props = {
     params: Promise<{ slug: string }>
 }
 
+const BASE_URL = 'https://kidzly.kr'
+
 export async function generateStaticParams() {
     return getAllPosts().map((post) => ({ slug: post.slug }))
 }
@@ -22,14 +24,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = getPost(slug)
     if (!post) return {}
 
+    const url = `${BASE_URL}/contents/${encodeURIComponent(post.slug)}`
+
     return {
         title: `${post.title} | Kidzly`,
         description: post.description,
         keywords: post.keywords,
+        alternates: { canonical: url },
         openGraph: {
             title: post.title,
             description: post.description,
             type: 'article',
+            url,
             publishedTime: post.publishedAt,
             images: post.thumbnail ? [{ url: post.thumbnail, width: 1080, height: 1080 }] : [],
         },
