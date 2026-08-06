@@ -145,8 +145,12 @@ export type DaycareRegionListResult = {
     totalCount: number;
 };
 
-/** 시군구 허브 페이지 카드 상한 — 중앙값(47)을 여유 있게 커버, 2열 그리드 나눗값도 깔끔 */
-export const DEFAULT_REGION_LIST_LIMIT = 72;
+/**
+ * 시군구 허브 페이지 카드 상한 — SEO 목적상 지역 내 전체 어린이집을 링크하는 게 원칙이라
+ * 실질적인 컷은 없음. 실측 최대치(779건, 경기 화성시 동탄구)를 여유 있게 웃도는 값으로,
+ * 이상 데이터로 무한정 늘어나는 것만 막는 안전장치용 상한이다.
+ */
+export const DEFAULT_REGION_LIST_LIMIT = 1000;
 
 export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;
 

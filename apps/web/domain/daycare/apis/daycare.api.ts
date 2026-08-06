@@ -162,8 +162,10 @@ export async function fetchDaycareNearby(
 /**
  * 특정 시군구(sido_name + sigungu_name 문자열 조합) 내 정상 운영 어린이집 목록 조회.
  * - sigungu_code 대신 (sido_name, sigungu_name) 조합으로 필터링 (sigungus 참조 테이블 신뢰 불가)
- * - 이름순 정렬, count:'exact'로 전체 건수 동시 반환 ("전체 N개 중 72개" 문구용)
- * - limit 기본 72 (DEFAULT_REGION_LIST_LIMIT) — 대형 지역은 상한 후 컷, 페이지네이션 없음
+ * - 이름순 정렬, count:'exact'로 전체 건수 동시 반환
+ * - limit 기본 DEFAULT_REGION_LIST_LIMIT(1000) — 실질적으로 지역 내 전체 어린이집을 반환하는
+ *   안전장치용 상한. CLAUDE.md §19 "목록 조회 limit() 강제" 준수를 위해 무제한 대신 넉넉한
+ *   상수를 둔 것이며, 실제 컷이 발생하는 지역은 없다(실측 최대 779건)
  */
 export async function fetchDaycaresBySigungu(
     sido: string,

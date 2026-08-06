@@ -9,8 +9,10 @@ type Props = {
     sigungu: string;
 };
 
-// 카드는 이름+유형뱃지+주소만(밀도 낮춰 최대 72개도 스크롤 부담 적게) — SSR 시 실제 <a href>가
+// 카드는 이름+유형뱃지+주소만(밀도 낮춰 대형 지역도 스크롤 부담 적게) — SSR 시 실제 <a href>가
 // hydration 전에 존재해야 하므로 next/link를 직접 렌더(클라이언트 전용 표시로 숨기지 않음)
+// totalCount > items.length 안내문구는 안전장치 상한(1000)에 걸리는 이상 데이터 대비용으로
+// 남겨둠 — 실제 지역에서는 노출되지 않음(실측 최대 779건)
 export default function RegionDaycareList({ sido, sigungu }: Props) {
     const { data } = useDaycareRegionList({ sido, sigungu });
     const { items, totalCount } = data;
