@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
-import { Flame, Clock, Users } from 'lucide-react';
+import { Flame, Clock, Users, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
@@ -127,6 +128,26 @@ export default async function RankingsPageView({ sido }: Props) {
                         <Suspense fallback={<RankingsListsSkeleton />}>
                             <RankingsLists sido={sido} />
                         </Suspense>
+
+                        {/* 위(랭킹 TOP10)→아래(시군구 전체 목록 허브)로 연결하는 상호 링크 피라미드 —
+                            칩 나열 대신 /region/[sido] 인덱스 페이지로 보내는 카드 1개만 노출 */}
+                        {sido && (
+                            <Link
+                                href={`/region/${encodeURIComponent(sido)}`}
+                                className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
+                            >
+                                <span className="text-2xl">📍</span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-gray-900">
+                                        {sido} 지역별 전체 목록 보기
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-gray-500">
+                                        시군구별 어린이집 전체 목록을 확인하세요
+                                    </p>
+                                </div>
+                                <ChevronRight size={16} className="shrink-0 text-gray-400" />
+                            </Link>
+                        )}
                     </div>
                 </HydrationBoundary>
             </main>

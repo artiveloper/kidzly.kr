@@ -131,6 +131,21 @@ export type DaycareNearbyItem = {
     address: string;
 };
 
+export type DaycareRegionListItem = {
+    id: string;
+    name: string;
+    typeName: string;
+    address: string;
+};
+
+export type DaycareRegionListResult = {
+    items: DaycareRegionListItem[];
+    totalCount: number;
+};
+
+/** 시군구 허브 페이지 카드 상한 — 중앙값(47)을 여유 있게 커버, 2열 그리드 나눗값도 깔끔 */
+export const DEFAULT_REGION_LIST_LIMIT = 72;
+
 export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;
 
 export const DAYCARE_AGE_FILTERS: DaycareAgeFilter[] = [0, 1, 2, 3, 4, 5];

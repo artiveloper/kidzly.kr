@@ -1,56 +1,57 @@
-# UI 레이어 변경 사항 — "같은 지역 다른 어린이집" (`components/daycare/detail`)
+# 03_ui_changes.md — 시군구 SEO 허브 2차 구조 개선: UI/라우트 레이어 구현
 
-> 범위: `01_refactor_spec.md`에 명시된 UI 작업만 수행. 신규 3파일 + 기존 2파일 수정.
+`01_refactor_spec.md`의 작업 범위(`/region/[sido]` 인덱스 신설, `/rankings/[sido]` 칩 섹션 제거,
+`sitemap.ts` 확장, `/daycare/[id]` 역링크 카드 추가)를 구현. 신규 도메인 API 없이
+`02_domain_changes.md`가 이미 구현해 둔 `fetchSigunguListBySido`/`buildRegionPath`만 재사용.
+`npx tsc --noEmit` exit 0 확인 완료.
 
-## 변경 파일 목록
+## 신규 파일
 
-| 파일 | 종류 | 내용 |
-|---|---|---|
-| `components/daycare/detail/DaycareNearbySection.tsx` | 신규 | `'use client'`, `useDaycareNearby({ sigunguCode, excludeId, limit: 10 })`로 목록 조회, `next/link`의 실제 `<Link href="/daycare/{id}">`로 카드형 리스트 렌더링. `TypeBadge` 재사용. 빈 배열이면 "같은 지역에 등록된 다른 어린이집 정보가 없습니다." 안내 문구(에러 아님). `target="_blank"` 미적용(동일 탭 상세→상세 탐색) |
-| `components/daycare/detail/DaycareNearbySectionSkeleton.tsx` | 신규 | `<Suspense fallback>`. 카드 5개 스켈레톤, `DetailSkeleton`/`NaverBlogSectionSkeleton`과 동일한 `animate-pulse` + `bg-gray-100`/`bg-gray-200` 컨벤션. 최종 카드와 높이·구조 일치(CLS 방지) |
-| `components/daycare/detail/DaycareNearbySectionError.tsx` | 신규 | `<ErrorBoundary fallback>`. `NaverBlogSectionError`와 동일 패턴("정보를 불러올 수 없습니다.") |
-| `components/daycare/detail/DaycareDetailSSR.tsx` | 수정 | 기존 `Promise.all([detail prefetch, getCachedDaycareDetail]).catch(() => notFound())` 블록은 그대로 유지. 그 직후 `daycare.sigunguCode`로 `daycarePrefetch.nearby({ sigunguCode, excludeId: id, limit: 10 })`를 별도 `runPrefetch` 호출 후 `.catch(() => null)`로 실패를 흡수(보조 섹션이므로 전체 404 미유발). `nearbyState`가 있으면 `state.queries`와 `nearbyState.queries`를 병합한 `hydrationState`를 만들어 `<HydrationBoundary state={hydrationState}>`에 전달(기존 `state` 단독 전달에서 교체) |
-| `components/daycare/detail/DaycareDetailView.tsx` | 수정 | import에 `DaycareNearbySection`/`DaycareNearbySectionError`/`DaycareNearbySectionSkeleton` 추가. `<DaycareDetailContent daycare={detail} />` 직후, 기존 `NaverBlogSection` `<ErrorBoundary>` 블록 바로 앞에 `<ErrorBoundary fallback={<DaycareNearbySectionError />}><Suspense fallback={<DaycareNearbySectionSkeleton />}><DaycareNearbySection sigunguCode={detail.sigunguCode} excludeId={id} /></Suspense></ErrorBoundary>` 삽입. 추가 prop drilling 없음 — `detail`(이미 hydrate된 `useDaycareDetail(id)` 결과)과 `id` prop에서 바로 값을 얻음 |
+| 파일 | 내용 |
+|---|---|
+| `app/region/[sido]/page.tsx` | `generateStaticParams`(`SIDO_LIST` 17개) + `dynamicParams = false` + `resolveSido()`(`/rankings/[sido]/page.tsx`와 동일 패턴, decode+NFC+`isValidSido`) + `generateMetadata`(`buildRegionSidoMetadata`) + 본문은 `RegionSidoIndexView` 위임. |
+| `app/region/[sido]/loading.tsx` | 히어로(브레드크럼+타이틀)+시군구 칩 20개 skeleton. `app/region/[sido]/[sigungu]/loading.tsx`와 동일 톤. |
+| `components/region/RegionSidoIndexView.tsx` | 서버 async 컴포넌트. `getCachedSigunguList`(React `cache()`, `generateMetadata`↔본문 fetch dedup — `RegionHubPageView.getCachedRegionCount`와 동일 패턴)로 `fetchSigunguListBySido(sido)` 호출. 옛 `SigunguLinksSection.tsx`의 칩 그리드 렌더링 로직(스타일 그대로)을 페이지 본문으로 이사. `ItemList` + `BreadcrumbList` JSON-LD, `Breadcrumb`(홈 > OO 랭킹 > 지역별 전체 목록) 포함. 빈 상태(시군구 0개 — 방어용, 실질 발생 안 함)는 `notFound()` 대신 CLAUDE.md §12 원칙대로 "아직 등록된 시군구 정보가 없습니다" 안내 문구로 처리. |
 
-## Suspense / ErrorBoundary 배치 요약
+## 수정 파일
 
-컴포넌트 레벨 2계층 경계(CLAUDE.md §11)를 `NaverBlogSection`과 동일하게 적용:
+| 파일 | 변경 내용 |
+|---|---|
+| `components/region/region-meta.ts` | `buildRegionSidoMetadata(sido, sigunguCount)` 추가(기존 `buildRegionMetadata`와 동일 구조 — title/description/canonical/OG/Twitter). 스펙 예시 그대로 title에 시도 전체 명칭 사용(`서울특별시 어린이집 지역별 전체 목록 - 키즐리`). |
+| `components/rankings/RankingsPageView.tsx` | `SigunguLinksSection`/`SigunguLinksSectionSkeleton`/`ErrorBoundary` import 및 사용 블록 제거. `sido`가 있을 때만 렌더되는 "📍 {sido} 지역별 전체 목록 보기" CTA 카드 1개로 교체(`/daycare/[id]`의 🏆 카드와 동일 톤 — `rounded-xl bg-gray-50 p-4 hover:bg-gray-100`, `/region/${encodeURIComponent(sido)}`로 링크). `Link`, `ChevronRight` import 추가. |
+| `app/sitemap.ts` | `SIDO_LIST.map(...)` 블록 추가 — `/region/${encodeURIComponent(sido)}` 17개, `changeFrequency: "weekly"`, `priority: 0.68`. 기존 `sigunguDirectory.map` 블록(2단 `/region/[sido]/[sigungu]`) 바로 위에 배치. |
+| `components/daycare/detail/DaycareDetailView.tsx` | **범위 한정**: 기존 🏆 랭킹 카드를 감싸는 `<div className="border-t ... px-3 py-4">`에 `space-y-3`만 추가하고, 그 안에 `detail.sidoName && detail.sigunguName`일 때만 렌더되는 "📍 {sigunguName} 어린이집 전체보기" 카드 1개 추가(`href={buildRegionPath(detail.sidoName, detail.sigunguName)}`, 동일 카드 스타일 복제). `import { buildRegionPath } from '@/domain/region'` 추가. 그 외 로직·섹션(같은 지역 다른 어린이집 등)은 전혀 건드리지 않음. |
 
-```
-DaycareDetailView (client)
-├─ DaycareDetailContent (동기 렌더, prefetch된 detail 사용)
-├─ ErrorBoundary(fallback=DaycareNearbySectionError)
-│    └─ Suspense(fallback=DaycareNearbySectionSkeleton)
-│         └─ DaycareNearbySection  ← useDaycareNearby (useSuspenseQuery)
-└─ ErrorBoundary(fallback=NaverBlogSectionError)
-     └─ Suspense(fallback=NaverBlogSectionSkeleton)
-          └─ NaverBlogSection
-```
+## 삭제 파일
 
-SSR 측(`DaycareDetailSSR.tsx`)에서는 `nearby` prefetch를 `detail` prefetch/notFound 판정과 분리해 별도 `.catch(() => null)`로 격리했으므로, nearby 조회가 실패해도 페이지 자체는 정상적으로 200으로 렌더링되고 클라이언트에서 `DaycareNearbySection`이 prefetch 없이 자체 fetch를 재시도(그마저 실패 시 `<ErrorBoundary>`가 흡수).
+- `components/rankings/SigunguLinksSection.tsx` (내용물은 `RegionSidoIndexView.tsx`로 이사)
+- `components/rankings/SigunguLinksSectionSkeleton.tsx` (더 이상 참조하는 곳 없음 — `app/region/[sido]/loading.tsx`에 자체 skeleton 인라인)
 
-## SSR 크롤링 확인
+삭제 후 `grep -r SigunguLinksSection apps/web` 확인 — 실제 import는 전부 제거됨, 남은 매치는
+`RegionSidoIndexView.tsx`의 이관 경위를 설명하는 주석 1건과 `_workspace/*.md` 이력 문서뿐.
 
-`DaycareNearbySection`은 `'use client'` 컴포넌트지만 `next/link`의 `<Link href={`/daycare/${item.id}`}>`를 실제로 렌더링하며, 서버에서 `nearby` 쿼리가 prefetch되어 `<HydrationBoundary>`로 hydrate되므로 클라이언트 JS 실행 전 SSR HTML에 `<a href="/daycare/{id}">`가 이미 포함된다(하이드레이션 전 상태에서도 크롤링 가능). `<Link>`를 조건부로 클라이언트 전용 렌더링(예: `useEffect` 이후에만 표시)하지 않았음을 확인.
+## Suspense 배치 요약
 
-## 모바일/접근성 체크
+- `app/region/[sido]/page.tsx` → `app/region/[sido]/loading.tsx`가 세그먼트 자동 Suspense 담당(스트리밍 skeleton). `RegionSidoIndexView`는 React Query를 쓰지 않는 순수 서버 async 컴포넌트(도메인 문서와 동일 이유 — 빌드타임/SSR 전용 집계라 `useSuspenseQuery` 대상 아님)라 컴포넌트 레벨 `<Suspense>`는 불필요.
+- `components/rankings/RankingsPageView.tsx`의 신규 CTA 카드는 정적 링크(데이터 패칭 없음)라 `Suspense`/`ErrorBoundary` 불필요 — 제거된 `SigunguLinksSection`이 갖고 있던 것들(비동기 fetch + 에러 경계)을 그대로 걷어냄.
+- `DaycareDetailView.tsx`의 신규 카드도 이미 로드된 `useDaycareDetail` 데이터(`detail.sidoName`/`detail.sigunguName`)만 사용하는 정적 링크라 추가 경계 불필요.
 
-- 터치 타겟: 각 리스트 아이템 `<Link>`에 `min-h-11`(44px) 적용
-- hover 전용 인터랙션 없음 — `hover:` 클래스는 보조 신호, `active:bg-gray-50`로 탭 시각 피드백 제공
-- 로딩 텍스트 없음 — Skeleton 컴포넌트로 대체
-- 빈 상태: 에러 UI와 분리된 안내 문구("같은 지역에 등록된 다른 어린이집 정보가 없습니다.")
-- 4공백 들여쓰기 유지, `any`/`!`/불필요한 `as` 미사용
+## 접근성 · 모바일
 
-## 재사용한 기존 패턴
-
-- `components/rankings/TypeBadge.tsx` — 그대로 import, 신규 구현 없음
-- `components/rankings/WaitingRankingList.tsx`의 카드형 톤(`rounded-xl border border-gray-100`, hover/active 클래스) — 단 `target="_blank"` 미적용(상세→상세 동일 탭 이동)
-- `NaverBlogSection`/`NaverBlogSectionError`/`NaverBlogSectionSkeleton`의 3파일 세트 + ErrorBoundary/Suspense 배치 구조
-
-## 검증
-
-- `npx tsc --noEmit` 실행 — 이번 변경 파일(`DaycareNearbySection.tsx`, `DaycareNearbySectionSkeleton.tsx`, `DaycareNearbySectionError.tsx`, `DaycareDetailSSR.tsx`, `DaycareDetailView.tsx`) 관련 타입 에러 없음. 남은 에러는 `app/contents/[slug]/page.tsx`, `components/blog/mdx-components.tsx`, `lib/blog.ts`, `velite.config.ts`의 기존 blog/mdx/velite 이슈로 이번 작업과 무관(스코프 밖, 미수정)
+- 신규 카드/칩 전부 `min-h-11`(44px) 이상 터치 타겟 유지.
+- 신규 텍스트는 `text-gray-500` 이상만 사용(WCAG AA) — 기존 🏆 카드의 `text-gray-400` 서브텍스트는 스펙 지시대로 건드리지 않고 그대로 둠(범위 밖).
+- `Breadcrumb`는 기존 시맨틱 `<nav aria-label="breadcrumb">` 컴포넌트 재사용.
 
 ## 깨진 import 경고
 
-- 없음. `domain/daycare`가 이미 `DaycareNearbyItem`, `DaycareNearbyParams`, `useDaycareNearby`, `daycarePrefetch.nearby`를 export 중임을 확인 후 사용
+없음. `npx tsc --noEmit` exit 0. `domain/region`, `domain/daycare`의 기존 export(`fetchSigunguListBySido`, `buildRegionPath`, `SIDO_LIST`, `isValidSido`)만 그대로 소비.
+
+## 검증 결과
+
+1. `npx tsc --noEmit` → exit 0, 에러 없음.
+2. `/region/서울특별시` (수동 브라우징 시 확인 필요 — dev 서버 미기동 상태로 curl 미실행): `RegionSidoIndexView`가 `fetchSigunguListBySido` 결과를 서버에서 `next/link`로 직접 렌더하므로 SSR HTML에 실제 `<a href>` 존재.
+3. `/rankings/서울특별시`: 칩 섹션 제거 확인, "📍 서울특별시 지역별 전체 목록 보기" 카드 1개만 남음.
+4. `/daycare/{id}`: `detail.sidoName`/`detail.sigunguName` 둘 다 있는 레코드에서 "OO 어린이집 전체보기" 카드 SSR 노출.
+5. `sitemap.ts`에 `SIDO_LIST.map` 17개 엔트리 추가 — `/region/[sido]/[sigungu]` 블록과 별개로 카운트되어 `/region/[^/]*"` 정규식 기준 17개 매치 예상.
+
+> 3~5번은 로컬 dev 서버 기동이 필요한 런타임 curl 검증 항목 — 이번 세션은 코드 구현+정적 타입체크까지 완료. 실제 서버 기동 후 QA 단계에서 재확인 필요.

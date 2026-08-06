@@ -1,95 +1,67 @@
-# 코드 리뷰 보고서 — "같은 지역 다른 어린이집" (nearby) 기능
+# 코드 리뷰 보고서 — 시군구 SEO 허브 구조 개선(2차)
 
-> 범위: `domain/daycare/*` nearby 관련 변경분(8개), `components/daycare/detail/DaycareNearbySection.tsx`,
-> `DaycareNearbySectionSkeleton.tsx`, `DaycareNearbySectionError.tsx`, `DaycareDetailSSR.tsx`, `DaycareDetailView.tsx`.
-> `_workspace/04_qa_report.md`가 이미 보고한 항목(섹션 타이틀 `<p>` vs `<h2>` 시맨틱 갭)은 중복 기재하지 않음.
+## 범위
+`01_refactor_spec.md` / `03_ui_changes.md` 2차 작업분 한정:
+- `app/region/[sido]/page.tsx`, `loading.tsx`
+- `components/region/RegionSidoIndexView.tsx`
+- `components/region/region-meta.ts`
+- `components/rankings/RankingsPageView.tsx`
+- `app/sitemap.ts`
+- `components/daycare/detail/DaycareDetailView.tsx`
+
+QA 보고서(`04_qa_report.md`)에서 이미 통과 처리한 diff 형태·타입체크·린트·4공백·`any`/`!` 부재 등은 재검증하지 않고 QA 참조로 처리한다.
 
 ## 요약
+P0: 0개 | P1: 1개 | P2: 3개
 
-P0: 0개 | P1: 2개 | P2: 5개
-
-전반적으로 스펙(`01_refactor_spec.md`) 대비 편차 없이 기존 `ranking*`/`NaverBlogSection` 패턴을 충실히 복제했고, prefetch↔hook `queryKey` 일치·에러 격리·`throw` 에러 패턴·select 컬럼 최소화 등 핵심 아키텍처 요구사항은 모두 준수한다. 다만 새로 작성된 UI 텍스트 색상이 WCAG AA 명암비를 만족하지 못하는 부분과, 새로 추가된 `ErrorBoundary` 블록이 `QueryErrorResetBoundary`와 연결되지 않아 에러 후 재시도 경로가 없다는 점은 CLAUDE.md §11/§18 요구사항 대비 갭으로, QA 검증 항목에 포함되지 않았던 만큼 코드 리뷰에서 보완 권고한다.
+diff 자체는 스펙과 정확히 일치하고 구조적으로 안전하다(SSG 방어 패턴 재사용, prefetch/queryKey 이슈 없음, server-only 경계 위반 없음). 다만 QA는 "diff가 스펙과 일치하는가"만 검증했고, 리뷰에서는 그 diff가 **기존 코드와 상호작용하는 지점**을 봤을 때 사용자에게 실제로 잘못된 라우팅을 유발하는 결함을 하나 발견했다(`DaycareDetailView.tsx`의 기존 🏆 카드). 이번 diff가 만든 문제는 아니지만, 바로 그 diff가 같은 `<div>` 안에 새 카드를 추가하면서 이 결함을 더 눈에 띄게 만들었으므로 보고한다. 나머지는 리팩토링 기회 수준의 P2.
 
 ## P0 이슈 (즉시 수정)
-
-없음.
-
----
+P0 이슈 없음.
 
 ## P1 이슈 (권고)
 
-### [P1] WCAG AA 본문 명암비 미달 — `text-gray-400`
-**파일:**
-- `apps/web/components/daycare/detail/DaycareNearbySection.tsx:23-25` (빈 상태 안내문), `:43` (주소 `text-xs text-gray-400`)
-- `apps/web/components/daycare/detail/DaycareNearbySectionError.tsx:7` (에러 안내문)
-
-**이유:** Tailwind `gray-400`(`#9ca3af`)를 흰 배경(`bg-white`) 위에 사용하면 실측 명암비가 약 2.5:1로, WCAG AA 본문 기준(4.5:1)은 물론 큰 텍스트 기준(3:1)에도 못 미친다. 특히 주소 텍스트는 `text-xs`(12px)로 렌더링되는 실질 콘텐츠(장식 텍스트 아님)이므로 저시력 사용자에게 가독성 문제가 된다.
-
-**참고:** `WaitingRankingList.tsx`, `NaverBlogSectionError.tsx` 등 기존 컴포넌트에도 동일한 `text-gray-400` 패턴이 이미 존재하므로 이번 기능이 새로 만든 회귀는 아니다. 다만 이번에 신규로 작성된 3개 파일에도 그대로 답습되었으므로, 최소한 이번 기능 범위에서는 `text-gray-500`(`#6b7280`, 흰 배경 대비 약 4.6:1으로 AA 통과) 이상으로 교체할 것을 권고한다. 레포 전역 통일은 별도 개선 과제로 분리 권장(QA가 보고한 `<p>`/`<h2>` 갭과 같은 성격).
-
-**수정:** `text-gray-400` → `text-gray-500` (또는 그 이상 명도 대비 확보 색상)로 교체.
-
----
-
-### [P1] 신규 `ErrorBoundary`가 `QueryErrorResetBoundary`와 미연결
-**파일:** `apps/web/components/daycare/detail/DaycareDetailView.tsx:109-113`
-
-**이유:** CLAUDE.md §11은 "`QueryErrorResetBoundary` + `ErrorBoundary` 연결 필수"를 명시한다. 현재 `ErrorBoundary`(`components/common/ErrorBoundary.tsx`)는 `getDerivedStateFromError`로 `hasError`를 한 번 세팅하면 리셋 메커니즘이 전혀 없는 순수 `Component` 기반 클래스다. `useDaycareNearby`(`useSuspenseQuery`)가 에러를 던져 이 바운더리가 열리면, 사용자가 이후 같은 세션에서 페이지를 다시 방문하지 않는 한 `DaycareNearbySectionError` 폴백이 영구적으로 고정되며 React Query 쪽 에러 상태를 리셋하고 재시도할 방법이 없다.
-
-**참고:** `NaverBlogSection`도 동일한 `ErrorBoundary`를 동일한 방식(리셋 연결 없이)으로 사용하고 있어 이번에 새로 만든 회귀는 아니다. 다만 이번 기능이 신규로 추가한 블록이므로, 최소한 이 블록에서라도 `QueryErrorResetBoundary`를 도입하거나(또는 공통 `ErrorBoundary`에 `onReset`/`resetKeys` 지원을 추가) 스펙 요구사항을 충족시키는 편이 바람직하다. 전면 리팩토링이 부담스럽다면 최소한 `<ErrorBoundary key={sigunguCode}>`처럼 상위 상태 변화 시 리마운트되는 안전장치라도 검토 권장.
-
-**수정:** `QueryErrorResetBoundary`로 감싸고 `onReset`을 `ErrorBoundary`에 연결(또는 공통 `ErrorBoundary`에 리셋 API 추가). 레포 전역 적용은 별도 과제로 분리 가능.
+### [P1] DaycareDetailView.tsx — 기존 🏆 카드가 쿼리파라미터 라우팅을 사용해 지역 필터가 무시됨
+**파일:** `apps/web/components/daycare/detail/DaycareDetailView.tsx:180-182`
+```tsx
+href={
+    detail.sidoName
+        ? `/rankings?sido=${encodeURIComponent(detail.sidoName)}`
+        : "/rankings"
+}
+```
+**이유:** `/rankings/page.tsx`(`apps/web/app/rankings/page.tsx`)는 `searchParams`를 전혀 읽지 않고 `<RankingsPageView />`를 `sido` prop 없이 그대로 렌더한다. `sido` 필터는 오직 `/rankings/[sido]/page.tsx`의 **경로 파라미터**로만 전달되며(`app/rankings/[sido]/page.tsx:32-38`), 쿼리파라미터를 경로로 리다이렉트하는 미들웨어도 없다(`middleware.ts` 부재 확인). 즉 이 카드를 클릭하면 "OO 어린이집 랭킹"이라는 라벨과 달리 항상 `/rankings`(전국)로 이동해 시도 필터가 조용히 사라진다.
+바로 아래 이번 diff로 추가된 📍 카드는 동일 정보(지역 스코프)를 `buildRegionPath`로 정확한 경로 기반 라우팅(`/region/${encodeURIComponent(sido)}/...`)으로 링크하고 있어, 같은 컴포넌트 안에서 두 카드가 서로 다른(하나는 깨진) 라우팅 컨벤션을 쓰는 상태가 되었다. 상세페이지가 24,592건이라는 점을 감안하면 파급력이 크다.
+**수정:** `` `/rankings/${encodeURIComponent(detail.sidoName)}` `` 로 변경 (다른 모든 곳 — `RankingsPageView.tsx`, `sitemap.ts`, `SidoFilter.tsx` — 와 동일한 경로 컨벤션).
+**참고:** 이 라인 자체는 이번 2차 diff의 변경 범위가 아니다(`04_qa_report.md` §6에서 "기존 로직 완전 무변경" 확인됨). 다만 이번 diff가 이 카드를 감싸는 `<div>`에 `space-y-3`를 추가하고 바로 옆에 올바른 라우팅 카드를 배치하면서 결함이 더 도드라졌으므로, 이번 작업 범위에서 같이 고치는 것을 권장한다.
 
 ---
 
 ## P2 이슈 (제안)
 
-### [P2] `DaycareDetailView.tsx` 200줄 초과
-**파일:** `apps/web/components/daycare/detail/DaycareDetailView.tsx` (전체 207줄)
+### [P2] region-meta.ts — `buildRegionSidoMetadata`가 `buildRegionMetadata`를 거의 그대로 복제
+**파일:** `apps/web/components/region/region-meta.ts:8-64`
+**이유:** 두 함수 모두 `title`/`description`/`canonical`/OG/Twitter 필드 구조가 동일하고 문자열 조합 로직만 다르다. 코드량이 2배가 되어 있고, 공통 필드(예: `siteName`, `images` 배열 shape) 변경 시 두 곳을 함께 고쳐야 하는 유지보수 부담이 생긴다.
+**제안:** `buildMetaBase({ title, description, url, ogAlt }: {...}): Metadata` 형태의 공통 헬퍼로 추출하고, 두 함수는 title/description/url 문자열만 조립해 헬퍼에 위임.
 
-이번 변경으로 import 3줄 + `ErrorBoundary`/`Suspense` 블록 6줄이 추가되며 CLAUDE.md §17 "200줄 초과 시 분리" 임계값을 넘겼다(변경 전 약 199줄 추정). "함께 보면 좋은 글" 섹션이나 "랭킹 바로가기" 카드 등 독립적인 하위 섹션을 별도 컴포넌트로 분리하면 임계값 아래로 낮출 수 있다. 당장 기능에 영향은 없으므로 제안 수준.
+### [P2] RankingsPageView.tsx / DaycareDetailView.tsx — 동일한 CTA 카드 마크업이 3곳에 중복
+**파일:** `apps/web/components/rankings/RankingsPageView.tsx:134-150`, `apps/web/components/daycare/detail/DaycareDetailView.tsx:177-216`
+**이유:** `rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200` + 이모지 아이콘 + 타이틀/서브텍스트 + `ChevronRight` 구성의 링크 카드가 세 군데(🏆, 신규 📍 × 2)에 거의 동일한 JSX로 복제되어 있다. 스펙 지시("새 컴포넌트 만들 필요 없이 인라인 JSX 블록 하나 추가면 충분")를 따른 결과라 이번 diff의 잘못은 아니지만, 카드가 3개로 늘어난 지금 시점에는 공용 `InfoLinkCard` 컴포넌트로 추출하면 스타일 변경(예: 명암비 조정)을 한 곳에서 처리할 수 있다.
 
----
-
-### [P2] `nearby` prefetch의 `.catch(() => null)`이 주요 실패 경로에서 사실상 도달 불가
-**파일:** `apps/web/components/daycare/detail/DaycareDetailSSR.tsx:46-49`
-
-`queryClient.prefetchQuery()`는 TanStack Query v5에서 내부적으로 에러를 흡수하고 캐시에 `status: 'error'`로만 기록할 뿐, 호출자에게 reject하여 던지지 않는다(`fetchQuery`와 달리). 또한 `lib/react-query/query-client.ts`의 커스텀 `shouldDehydrateQuery`는 `defaultShouldDehydrateQuery(query) || status === 'pending'` 조건이라 `status === 'error'`인 쿼리는 애초에 dehydrate 대상에서 제외된다. 즉 `fetchDaycareNearby`가 `throw`해도 `runPrefetch(...)` 자체는 정상적으로 resolve하며 `nearbyState = { queries: [], mutations: [] }`가 되어 `.catch(() => null)`이 실행될 일이 거의 없다. 결과적으로 "페이지 전체 404 방지"라는 격리 목표는 달성되지만(우연히 같은 결론에 도달), 그 메커니즘은 코드/주석이 암시하는 것과 다르다. `runPrefetch`/`dehydrate` 자체가 던지는 상위 레벨 예외(예: 직렬화 실패)에 대한 방어로서만 실질적 의미가 있다.
-
-**제안:** 주석을 "React Query의 `prefetchQuery`는 쿼리 레벨 에러를 흡수하므로 이 `.catch`는 `runPrefetch`/`dehydrate` 자체의 예외적 실패에 대한 방어용"으로 정정하거나, 굳이 유지할 필요가 없다면 제거해도 동작은 동일하다.
-
----
-
-### [P2] `nearby` prefetch의 `sigunguCode` 출처가 클라이언트로 hydrate되는 `detail` 쿼리와 다른 DB 조회 결과
-**파일:** `apps/web/components/daycare/detail/DaycareDetailSSR.tsx:41-49`
-
-`daycarePrefetch.nearby({ sigunguCode: daycare.sigunguCode, ... })`의 `daycare`는 `getCachedDaycareDetail(id)`(=`cache()`로 래핑된 `fetchDaycareDetail`)의 결과다. 반면 클라이언트에서 hydrate되어 `useDaycareDetail(id)`가 읽는 `detail.sigunguCode`는 별도로 `runPrefetch(daycarePrefetch.detail(id))`가 호출하는, 래핑되지 않은 원본 `fetchDaycareDetail(id)`의 결과다. 두 값은 사실상 항상 동일한 DB row를 두 번 독립적으로 읽은 결과이므로(이 앱은 공개 읽기 전용, 동시 쓰기 없음) 실무적으로 문제될 가능성은 극히 낮지만, 이론적으로 두 조회 사이에 값이 달라지면 SSR에서 prefetch한 `nearby` 쿼리의 키(`sigunguCode` 포함)가 클라이언트가 실제로 요청하는 키와 어긋나 캐시 미스가 발생하고 SSR prefetch 이점이 무효화된다(폴백 자체 fetch로 여전히 동작은 하므로 사용자 체감 오류는 없음).
-
-이는 `01_refactor_spec.md`에 이미 "기존부터 존재하던 이슈이며 이번 기능과 무관, 손대지 않음"으로 명시된 `DaycareDetailSSR`의 이중 fetch(`runPrefetch(daycarePrefetch.detail(id))` vs `getCachedDaycareDetail(id)`) 구조에서 파생되는 부수 효과다. 이번 기능 자체의 결함이라기보다 기존 이슈가 `nearby`의 키 파생 경로에 새로 노출된 것이므로, 향후 이중 fetch 통합 작업 시 함께 해소 권장.
-
----
-
-### [P2] `fetchDaycareNearby`의 `as DaycareNearbyRow` 캐스트에 설명 주석 누락
-**파일:** `apps/web/domain/daycare/apis/daycare.api.ts:137`
-
-같은 파일의 `fetchDaycareRankingWaiting`/`Recent`/`Oldest`/`Capacity`는 `row as DaycareRankingRow` 캐스트 직전에 `// Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언` 주석을 남겨 왜 단언이 필요한지 명시한다. `fetchDaycareNearby`(L137)에는 동일 패턴의 캐스트가 있지만 이 주석이 빠져 있어 일관성이 떨어진다. 사소하지만 향후 유지보수 시 "왜 단언했는지" 파악을 돕기 위해 동일 주석 추가 권장.
-
----
-
-### [P2] `sigungu_code` 빈 문자열 edge case 미방어
-**파일:** `apps/web/domain/daycare/apis/daycare.api.ts:116-138`
-
-`sigungu_code`는 DB 스키마상 `NOT NULL`이지만 이는 빈 문자열(`''`)까지 배제하지는 않는다. 만약 데이터 동기화 과정에서 `sigungu_code`가 `''`인 어린이집이 존재한다면, `fetchDaycareNearby('', excludeId, ...)`가 `.eq('sigungu_code', '')`로 실행되어 실제로는 "같은 지역"이 아닌, 단지 `sigungu_code`가 비어 있는 다른 어린이집들을 "같은 지역"으로 잘못 노출할 수 있다. 현재 운영 데이터에서 이런 케이스가 없다면 당장 문제는 아니나, `DaycareNearbySection` 호출 전(또는 API 함수 내부) `sigunguCode` 공백 체크 후 빈 배열 반환하는 가드를 추가하면 더 안전하다.
+### [P2] 신규 📍 카드 이모지에 `aria-hidden` 누락
+**파일:** `apps/web/components/rankings/RankingsPageView.tsx:139`, `apps/web/components/daycare/detail/DaycareDetailView.tsx:205`
+```tsx
+<span className="text-2xl">📍</span>
+```
+**이유:** 이모지가 장식 목적이고 바로 옆에 텍스트 라벨(`{sido} 지역별 전체 목록 보기` / `{sigunguName} 어린이집 전체보기`)이 있어 스크린리더가 "라운드 푸시핀" 같은 이모지 이름을 라벨 앞에 중복으로 읽게 된다. 기존 🏆 카드에도 동일 패턴이 있어(QA 범위 밖) 이번 diff가 그 패턴을 그대로 복제한 것이지만, 신규로 추가된 두 곳부터라도 `aria-hidden="true"`를 붙이는 것을 권장.
 
 ---
 
 ## 잘된 부분
 
-- 도메인 8개 파일 모두 기존 `ranking*` 4종 세트 패턴(타입·query-key·query-options·hooks·prefetch)을 정확히 복제해 CLAUDE.md §3 구조를 그대로 유지했다.
-- `queryOptions` 팩토리 재사용으로 SSR prefetch(`daycarePrefetch.nearby`)와 클라이언트 훅(`useDaycareNearby`)의 `queryKey`가 정확히 일치한다(핵심 P0 리스크 없음, 실제 검증 완료).
-- `nearby` 실패가 `notFound()` 판정 로직과 물리적으로 분리된 별도 `Promise.all`/`.catch()` 체인에 있어, 상세 페이지 핵심 렌더링과 완전히 격리된다.
-- `fetchDaycareNearby`가 `limit()`을 강제하고, `NEARBY_COLUMNS`로 카드 렌더링에 필요한 4개 컬럼만 select하며, `throw` 에러 패턴을 CLAUDE.md §4에 맞게 신규 적용했다(기존 catch-and-return `[]` 함수들과 혼재하지 않고 신규 함수만 throw로 통일).
-- `any`, non-null assertion(`!`) 전면 미사용, 4공백 들여쓰기 일관 유지.
-- `<Link>`를 `'use client'` 컴포넌트에서 조건부 렌더링 없이 최초 렌더에 직접 반환해 SSR HTML에 실제 `<a href>`가 포함되도록 구현한 점이 이번 기능의 핵심 목표(내부링크망 형성)를 정확히 달성한다.
-- 터치 타겟 `min-h-11`(44px), hover 전용이 아닌 `active:` 탭 피드백 등 모바일 퍼스트 원칙 준수.
-- 빈 상태를 에러와 분리된 안내 문구로 명시적으로 처리(CLAUDE.md §12).
+- `app/region/[sido]/page.tsx`의 `resolveSido()`(decode+NFC+화이트리스트) + `dynamicParams = false` + `generateStaticParams`가 `/rankings/[sido]/page.tsx`와 원칙적으로 완전히 동일해, 새 라우트를 추가하면서도 SSG 방어 패턴이 코드베이스 전역에서 일관되게 유지되고 있다.
+- `RegionSidoIndexView.tsx`의 `getCachedSigunguList = cache(...)`로 `generateMetadata`와 본문 렌더링 간 fetch 중복을 제거한 것은 `RegionHubPageView.getCachedRegionCount`와 동일한 검증된 패턴을 재사용한 좋은 선택.
+- `domain/region`의 기존 export(`fetchSigunguListBySido`, `buildRegionPath`, `SIDO_LIST`, `isValidSido`)만 재사용하고 신규 도메인 코드를 추가하지 않아, "UI/라우트 레이어만 작업"이라는 스펙 제약을 정확히 지켰다. `buildRegionPath`가 `encodeURIComponent`를 내부에서 처리하므로 호출부(`RegionSidoIndexView`, `DaycareDetailView`)에서 이중 인코딩 위험이 없다.
+- `DaycareDetailView.tsx` 변경이 스펙이 지시한 범위(카드 1개, `space-y-3` 클래스 1곳)에 정확히 머물러 있고, `DaycareNearbySection`/`NaverBlogSection` 등 기존 비동기 경계(`ErrorBoundary`+`Suspense`)를 전혀 건드리지 않았다.
+- `sitemap.ts`의 신규 `SIDO_LIST.map` 블록이 기존 `/rankings/[sido]` 블록 바로 옆에 자연스럽게 배치되어 있고, `priority`를 0.7(랭킹) > 0.68(지역 인덱스) > 0.65(시군구 허브) 순으로 미세 조정해 크롤 우선순위 의도가 코드만 봐도 읽힌다.
+- 신규 텍스트는 전부 `text-gray-500` 이상을 사용해(WCAG AA), 손대지 않기로 한 기존 `text-gray-400` 서브텍스트와 명확히 구분해 범위를 지켰다.

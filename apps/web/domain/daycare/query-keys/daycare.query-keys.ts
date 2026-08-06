@@ -19,6 +19,12 @@ export type DaycareNearbyParams = {
     limit?: number
 }
 
+export type DaycareRegionListParams = {
+    sido: string
+    sigungu: string
+    limit?: number
+}
+
 export const daycareQueryKeys = {
     all: ['daycare'] as const,
 
@@ -46,4 +52,7 @@ export const daycareQueryKeys = {
 
     nearby: (params: DaycareNearbyParams) =>
         [...daycareQueryKeys.all, 'nearby', params] as const,
+
+    regionList: (params: DaycareRegionListParams) =>
+        [...daycareQueryKeys.all, 'regionList', params] as const,
 }

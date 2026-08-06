@@ -1,9 +1,10 @@
 import { isServer } from '@tanstack/react-query';
 import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem, toDaycareNearbyItem } from '../parser/daycare.parser';
-import type { DaycareRankingRow, DaycareNearbyRow } from '../parser/daycare.parser';
-import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, MapBounds } from '../types';
+import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem, toDaycareNearbyItem, toDaycareRegionListItem } from '../parser/daycare.parser';
+import type { DaycareRankingRow, DaycareNearbyRow, DaycareRegionRow } from '../parser/daycare.parser';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, DaycareRegionListResult, MapBounds } from '../types';
+import { DEFAULT_REGION_LIST_LIMIT } from '../types';
 import type { DaycareRow, SigunguRow, DaycareTypeNameRow, DaycareServiceTypeRow, DaycareIdRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
@@ -17,6 +18,10 @@ const DETAIL_COLUMNS =
     'daycare_code, name, sido_name, sigungu_code, sigungu_name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, synced_at, services, vehicle_operation, ai_analysis';
 
 const NEARBY_COLUMNS = 'daycare_code, name, type_name, address';
+
+const REGION_LIST_COLUMNS = 'daycare_code, name, type_name, address';
+
+type DaycareRegionScanRow = Pick<DaycareRow, 'sido_name' | 'sigungu_name'>;
 
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
     const { limit = 200 } = options;
@@ -137,6 +142,40 @@ export async function fetchDaycareNearby(
     return (data ?? []).map((row) => toDaycareNearbyItem(row as DaycareNearbyRow));
 }
 
+/**
+ * 특정 시군구(sido_name + sigungu_name 문자열 조합) 내 정상 운영 어린이집 목록 조회.
+ * - sigungu_code 대신 (sido_name, sigungu_name) 조합으로 필터링 (sigungus 참조 테이블 신뢰 불가)
+ * - 이름순 정렬, count:'exact'로 전체 건수 동시 반환 ("전체 N개 중 72개" 문구용)
+ * - limit 기본 72 (DEFAULT_REGION_LIST_LIMIT) — 대형 지역은 상한 후 컷, 페이지네이션 없음
+ */
+export async function fetchDaycaresBySigungu(
+    sido: string,
+    sigungu: string,
+    options: { limit?: number } = {}
+): Promise<DaycareRegionListResult> {
+    const { limit = DEFAULT_REGION_LIST_LIMIT } = options;
+    const supabase = createSupabaseClient();
+
+    const { data, error, count } = await supabase
+        .from('daycares')
+        .select(REGION_LIST_COLUMNS, { count: 'exact' })
+        .eq('status', '정상')
+        .eq('sido_name', sido)
+        .eq('sigungu_name', sigungu)
+        .order('name', { ascending: true })
+        .limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycaresBySigungu]', error.message);
+        throw new Error(error.message);
+    }
+
+    return {
+        items: (data ?? []).map((row) => toDaycareRegionListItem(row as DaycareRegionRow)),
+        totalCount: count ?? 0,
+    };
+}
+
 export async function fetchDaycareTypeNames(): Promise<string[]> {
     const supabase = createSupabaseClient();
 
@@ -198,6 +237,36 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
     }));
+}
+
+/**
+ * status='정상' 레코드의 (sido_name, sigungu_name)만 배치로 조회 — sitemap.ts의
+ * fetchDaycareIdsPaginated와 동일한 배치 패턴. domain/region의 시군구 디렉토리 집계 함수가
+ * 전량 스캔용으로 호출한다 (build-time/SSR 전용, React Query 미경유).
+ */
+export async function fetchDaycareRegionRowsPaginated(options: {
+    offset: number;
+    limit: number;
+    sido?: string;
+}): Promise<{ sido: string | null; sigungu: string | null }[]> {
+    const { offset, limit, sido } = options;
+    const supabase = createServerClient();
+
+    let req = supabase
+        .from('daycares')
+        .select('sido_name, sigungu_name')
+        .eq('status', '정상');
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.range(offset, offset + limit - 1);
+
+    if (error) {
+        console.error('[fetchDaycareRegionRowsPaginated]', error.message);
+        return [];
+    }
+
+    return ((data ?? []) as DaycareRegionScanRow[]).map((r) => ({ sido: r.sido_name, sigungu: r.sigungu_name }));
 }
 
 const RANKING_COLUMNS =

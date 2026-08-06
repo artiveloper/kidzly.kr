@@ -1,5 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
-import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem } from '../types';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, DaycareRegionListItem } from '../types';
 
 export type DaycareRankingRow = Pick<DaycareRow,
     | 'daycare_code'
@@ -15,6 +15,13 @@ export type DaycareRankingRow = Pick<DaycareRow,
 >;
 
 export type DaycareNearbyRow = Pick<DaycareRow,
+    | 'daycare_code'
+    | 'name'
+    | 'type_name'
+    | 'address'
+>;
+
+export type DaycareRegionRow = Pick<DaycareRow,
     | 'daycare_code'
     | 'name'
     | 'type_name'
@@ -114,6 +121,15 @@ export function toDaycareCapacityItem(row: DaycareRankingRow, rank: number): Day
 }
 
 export function toDaycareNearbyItem(row: DaycareNearbyRow): DaycareNearbyItem {
+    return {
+        id: row.daycare_code,
+        name: row.name,
+        typeName: row.type_name ?? '',
+        address: row.address ?? '',
+    };
+}
+
+export function toDaycareRegionListItem(row: DaycareRegionRow): DaycareRegionListItem {
     return {
         id: row.daycare_code,
         name: row.name,
