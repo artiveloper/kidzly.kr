@@ -23,6 +23,7 @@ export type DaycareDetail = {
     typeName: string;
     sidoName: string | null;
     sigunguName: string | null;
+    sigunguCode: string;
     status: string;
     representativeName: string | null;
     capacity: number | null;
@@ -121,6 +122,13 @@ export type DaycareCapacityItem = {
     capacity: number;
     currentChildCount: number | null;
     waitingChildTotal: number | null;
+};
+
+export type DaycareNearbyItem = {
+    id: string;
+    name: string;
+    typeName: string;
+    address: string;
 };
 
 export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;

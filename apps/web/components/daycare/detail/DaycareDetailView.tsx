@@ -13,6 +13,9 @@ import DaycareDetailContent from './DaycareDetailContent';
 import NaverBlogSection from './NaverBlogSection';
 import NaverBlogSectionError from './NaverBlogSectionError';
 import NaverBlogSectionSkeleton from './NaverBlogSectionSkeleton';
+import DaycareNearbySection from './DaycareNearbySection';
+import DaycareNearbySectionError from './DaycareNearbySectionError';
+import DaycareNearbySectionSkeleton from './DaycareNearbySectionSkeleton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
@@ -102,6 +105,12 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
             </div>
 
             <DaycareDetailContent daycare={detail} />
+
+            <ErrorBoundary fallback={<DaycareNearbySectionError />}>
+                <Suspense fallback={<DaycareNearbySectionSkeleton />}>
+                    <DaycareNearbySection sigunguCode={detail.sigunguCode} excludeId={id} />
+                </Suspense>
+            </ErrorBoundary>
 
             <ErrorBoundary fallback={<NaverBlogSectionError />}>
                 <Suspense fallback={<NaverBlogSectionSkeleton />}>

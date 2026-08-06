@@ -13,6 +13,12 @@ export type DaycareRankingParams = {
     sido?: string
 }
 
+export type DaycareNearbyParams = {
+    sigunguCode: string
+    excludeId: string
+    limit?: number
+}
+
 export const daycareQueryKeys = {
     all: ['daycare'] as const,
 
@@ -37,4 +43,7 @@ export const daycareQueryKeys = {
 
     rankingRecent: (params: DaycareRankingParams = {}) =>
         [...daycareQueryKeys.all, 'ranking', 'recent', params] as const,
+
+    nearby: (params: DaycareNearbyParams) =>
+        [...daycareQueryKeys.all, 'nearby', params] as const,
 }

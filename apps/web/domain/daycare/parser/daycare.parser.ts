@@ -1,5 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
-import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem } from '../types';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem } from '../types';
 
 export type DaycareRankingRow = Pick<DaycareRow,
     | 'daycare_code'
@@ -12,6 +12,13 @@ export type DaycareRankingRow = Pick<DaycareRow,
     | 'capacity'
     | 'current_child_count'
     | 'certified_date'
+>;
+
+export type DaycareNearbyRow = Pick<DaycareRow,
+    | 'daycare_code'
+    | 'name'
+    | 'type_name'
+    | 'address'
 >;
 
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
@@ -106,6 +113,15 @@ export function toDaycareCapacityItem(row: DaycareRankingRow, rank: number): Day
     };
 }
 
+export function toDaycareNearbyItem(row: DaycareNearbyRow): DaycareNearbyItem {
+    return {
+        id: row.daycare_code,
+        name: row.name,
+        typeName: row.type_name ?? '',
+        address: row.address ?? '',
+    };
+}
+
 export function toDaycareDetail(row: DaycareRow): DaycareDetail {
     return {
         id: row.daycare_code,
@@ -116,6 +132,7 @@ export function toDaycareDetail(row: DaycareRow): DaycareDetail {
         typeName: row.type_name ?? '',
         sidoName: row.sido_name ?? null,
         sigunguName: row.sigungu_name ?? null,
+        sigunguCode: row.sigungu_code,
         status: row.status ?? '',
         representativeName: row.representative_name ?? null,
         capacity: row.capacity,

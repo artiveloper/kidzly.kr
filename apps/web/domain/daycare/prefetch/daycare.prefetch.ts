@@ -2,7 +2,7 @@ import 'server-only'
 import type { QueryClient } from '@tanstack/react-query'
 import { daycareQueryOptions } from '../query-options/daycare.query-options'
 import { DEFAULT_BOUNDS } from '../types'
-import type { DaycareRankingParams } from '../query-keys/daycare.query-keys'
+import type { DaycareRankingParams, DaycareNearbyParams } from '../query-keys/daycare.query-keys'
 
 export const daycarePrefetch = {
     bounds(params: Parameters<typeof daycareQueryOptions.bounds>[0] = { bounds: DEFAULT_BOUNDS }) {
@@ -50,6 +50,12 @@ export const daycarePrefetch = {
     rankingRecent(params: DaycareRankingParams = {}) {
         return async (queryClient: QueryClient) => {
             await queryClient.prefetchQuery(daycareQueryOptions.rankingRecent(params))
+        }
+    },
+
+    nearby(params: DaycareNearbyParams) {
+        return async (queryClient: QueryClient) => {
+            await queryClient.prefetchQuery(daycareQueryOptions.nearby(params))
         }
     },
 }

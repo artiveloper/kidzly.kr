@@ -1,9 +1,9 @@
 import { isServer } from '@tanstack/react-query';
 import { createServerClient } from '@/lib/supabase/server';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem } from '../parser/daycare.parser';
-import type { DaycareRankingRow } from '../parser/daycare.parser';
-import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, MapBounds } from '../types';
+import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem, toDaycareNearbyItem } from '../parser/daycare.parser';
+import type { DaycareRankingRow, DaycareNearbyRow } from '../parser/daycare.parser';
+import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, MapBounds } from '../types';
 import type { DaycareRow, SigunguRow, DaycareTypeNameRow, DaycareServiceTypeRow, DaycareIdRow } from '@/lib/supabase/types';
 
 function createSupabaseClient() {
@@ -14,7 +14,9 @@ const LIST_COLUMNS =
     'daycare_code, name, type_name, address, latitude, longitude, capacity, current_child_count, phone, services, vehicle_operation, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5';
 
 const DETAIL_COLUMNS =
-    'daycare_code, name, sido_name, sigungu_name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, synced_at, services, vehicle_operation, ai_analysis';
+    'daycare_code, name, sido_name, sigungu_code, sigungu_name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, synced_at, services, vehicle_operation, ai_analysis';
+
+const NEARBY_COLUMNS = 'daycare_code, name, type_name, address';
 
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
     const { limit = 200 } = options;
@@ -102,6 +104,37 @@ export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
     }
 
     return toDaycareDetail(data as DaycareRow);
+}
+
+/**
+ * 같은 시군구(sigungu_code) 내 다른 정상 운영 어린이집 조회.
+ * - 현재 상세페이지의 id는 제외
+ * - status='정상'만 포함
+ * - limit 필수 (기본 10)
+ * - 필요한 컬럼만 select (daycare_code, name, type_name, address)
+ */
+export async function fetchDaycareNearby(
+    sigunguCode: string,
+    excludeId: string,
+    options: { limit?: number } = {}
+): Promise<DaycareNearbyItem[]> {
+    const { limit = 10 } = options;
+    const supabase = createSupabaseClient();
+
+    const { data, error } = await supabase
+        .from('daycares')
+        .select(NEARBY_COLUMNS)
+        .eq('sigungu_code', sigunguCode)
+        .eq('status', '정상')
+        .neq('daycare_code', excludeId)
+        .limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareNearby]', error.message);
+        throw new Error(error.message);
+    }
+
+    return (data ?? []).map((row) => toDaycareNearbyItem(row as DaycareNearbyRow));
 }
 
 export async function fetchDaycareTypeNames(): Promise<string[]> {

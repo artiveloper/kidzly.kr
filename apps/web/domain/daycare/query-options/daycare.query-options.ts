@@ -1,5 +1,5 @@
 import { keepPreviousData } from '@tanstack/react-query'
-import { daycareQueryKeys, type DaycareQueryParams, type DaycareRankingParams } from '../query-keys/daycare.query-keys'
+import { daycareQueryKeys, type DaycareQueryParams, type DaycareRankingParams, type DaycareNearbyParams } from '../query-keys/daycare.query-keys'
 import {
     fetchDaycaresInBounds,
     fetchDaycareDetail,
@@ -9,6 +9,7 @@ import {
     fetchDaycareRankingCapacity,
     fetchDaycareRankingOldest,
     fetchDaycareRankingRecent,
+    fetchDaycareNearby,
 } from '../apis/daycare.api'
 
 export const daycareQueryOptions = {
@@ -65,6 +66,14 @@ export const daycareQueryOptions = {
     rankingRecent: (params: DaycareRankingParams = {}) => ({
         queryKey: daycareQueryKeys.rankingRecent(params),
         queryFn: () => fetchDaycareRankingRecent(params.limit ?? 10, params.sido),
+        staleTime: 60 * 60 * 1000,
+    }),
+
+    nearby: (params: DaycareNearbyParams) => ({
+        queryKey: daycareQueryKeys.nearby(params),
+        queryFn: () => fetchDaycareNearby(params.sigunguCode, params.excludeId, { limit: params.limit ?? 10 }),
+        // 정적에 가까운 데이터 — ranking* 쿼리와 동일하게 1시간 staleTime (CLAUDE.md §5: 일반 리스트는 global staleTime이 원칙이나,
+        // 같은 어린이집 목록은 ranking*과 성격이 같은 준정적 리스트이므로 기존 ranking* 패턴을 그대로 따름)
         staleTime: 60 * 60 * 1000,
     }),
 }

@@ -3,7 +3,7 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { daycareQueryOptions } from '../query-options/daycare.query-options'
 import type { MapBounds } from '../types'
-import type { DaycareRankingParams } from '../query-keys/daycare.query-keys'
+import type { DaycareRankingParams, DaycareNearbyParams } from '../query-keys/daycare.query-keys'
 
 export function useDaycaresInBounds(
     bounds: MapBounds,
@@ -38,4 +38,8 @@ export function useDaycareRankingOldest(params: DaycareRankingParams = {}) {
 
 export function useDaycareRankingRecent(params: DaycareRankingParams = {}) {
     return useSuspenseQuery(daycareQueryOptions.rankingRecent(params))
+}
+
+export function useDaycareNearby(params: DaycareNearbyParams) {
+    return useSuspenseQuery(daycareQueryOptions.nearby(params))
 }

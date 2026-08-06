@@ -1,10 +1,13 @@
-# QA 검증 보고서
+# QA 검증 보고서 — "같은 지역 다른 어린이집" (nearby) 기능
 
 ## 요약
 
-검증 일시: 2026-07-02
-통과: 34 | 실패: 3 | 갭: 6
-**상태**: 🟡 일부 수정 필요
+검증 일시: 2026-08-06
+검증 범위: `domain/daycare/*`(nearby 관련 변경분), `components/daycare/detail/DaycareNearbySection.tsx`, `DaycareNearbySectionSkeleton.tsx`, `DaycareNearbySectionError.tsx`, `DaycareDetailSSR.tsx`, `DaycareDetailView.tsx`
+통과: 24 | 실패: 0 | 갭: 1
+**상태**: 🟢 통과
+
+Ground truth: `_workspace/01_refactor_spec.md`, `02_domain_changes.md`, `03_ui_changes.md`, `CLAUDE.md`
 
 ---
 
@@ -12,159 +15,121 @@
 
 | 검증 항목 | 결과 | 주요 이슈 |
 |----------|------|----------|
-| 도메인 구조 | ⚠️ | server.ts에 prefetch 외 API 함수 3개 잔존 |
-| React Query 패턴 | ✅ | 전체 패턴 준수 |
-| API↔Hook 타입 교차 | ❌ | row as DaycareRow 단언 4개 잔존 |
-| Prefetch 정합성 | ✅ | queryKey 완전 일치 확인 |
-| Server/Client 경계 | ⚠️ | loading.tsx 없음, Suspense fallback 누락 |
-| Supabase 쿼리 품질 | ❌ | row as DaycareRow 단언(Axis 3 연동) |
-| TypeScript·코드 품질 | ✅ | any/! 없음, 4-space 전환 완료 |
+| `next tsc --noEmit` 통과 | ✅ | scope 파일 에러 0건 (기존 blog/mdx/velite 무관 에러만 잔존) |
+| SEO: SSR HTML에 링크 포함 (prefetch→Hydration→Suspense) | ✅ | `<Link>` 실사용, prefetch merge 구조 정합 |
+| 에러 격리 (nearby 실패 시 전체 404 방지) | ✅ | `.catch(() => null)`로 분리, 별도 `Promise.all` 아님 |
+| 도메인 구조 (§3) | ✅ | 8개 파일 모두 스펙대로 수정, `server.ts` 무변경 유지 |
+| React Query 패턴 (§5) | ✅ | queryOptions 팩토리, `useSuspenseQuery`, inline queryKey 없음 |
+| Prefetch 정합성 (§6) | ✅ | `server-only` 양쪽 존재, queryOptions 재사용으로 key 일치 |
+| Suspense/에러경계 (§11) | ✅ | ErrorBoundary+Suspense 2계층, `NaverBlogSection`과 동일 패턴 |
+| 빈 상태 (§12) | ✅ | 에러 UI와 분리된 안내 문구 |
+| 4공백 들여쓰기 (§15) | ✅ | 탭 문자 없음 확인 |
+| Mobile-first (§16) | ✅ | `min-h-11`, hover 아닌 `active:` 탭 대안 존재 |
+| 컴포넌트 규칙 (§17) | ✅ | 파일당 1개 컴포넌트, default export, 관심사 분리 |
+| API↔Hook 타입 교차 | ✅ | `DaycareNearbyItem` 일관 사용, DB Row 미노출 |
+| Supabase 쿼리 품질 | ✅ | `limit()` 강제, N+1 없음, 최소 컬럼 select |
+| `any` / non-null assertion(`!`) | ✅ | grep 결과 0건 |
+| 시맨틱 헤딩 (§18, 보조) | ⚠️ | 섹션 타이틀이 `<p>`(기존 `NaverBlogSection` 패턴과 동일, 신규 회귀 아님) |
 
 ---
 
-## 실패 시나리오 상세
+## 검증 축 1 — 도메인 구조 (AAA)
 
-| # | 파일 | 문제 | 심각도 | 수정 방향 |
-|---|------|------|--------|----------|
-| 1 | `domain/daycare/apis/daycare.api.ts` L193 | `row as DaycareRow` 타입 단언 — RANKING_COLUMNS 부분 select 결과를 전체 Row 타입으로 단언. 런타임에 undefined 필드 접근 가능 | P0 | `fetchDaycareRankingWaiting/Capacity/Oldest/Recent` 반환 타입에 맞는 부분 타입 선언 (`Pick<DaycareRow, keyof typeof RANKING_COLUMNS>`) 또는 parser 시그니처 수정 |
-| 2 | `domain/daycare/apis/daycare.api.ts` L216 | 동일: `fetchDaycareRankingRecent`에서 `row as DaycareRow` | P0 | 위 동일 |
-| 3 | `domain/daycare/apis/daycare.api.ts` L239 | 동일: `fetchDaycareRankingOldest`에서 `row as DaycareRow` | P0 | 위 동일 |
-| 4 | `domain/daycare/apis/daycare.api.ts` L263 | 동일: `fetchDaycareRankingCapacity`에서 `row as DaycareRow` | P0 | 위 동일 |
-| 5 | `domain/daycare/server.ts` L5, L8 | `fetchDaycareIdsPaginated`, `fetchDaycareDetail`, `fetchDaycareCount` export — 스펙 §3: server.ts는 prefetch만 re-export | P1 | `lib/sitemap-helpers.ts`로 `fetchDaycareIdsPaginated` 이동, `DaycareDetailSSR`를 `daycareQueryOptions.detail(id).queryFn + cache()` 패턴으로 전환 후 server.ts 정리 |
-| 6 | `domain/naver-blog/query-options/naver-blog.query-options.ts` | `export {}` 만 있는 빈 파일 — 혼란 유발 (P2) | P2 | 파일 삭제 또는 주석으로 이유 명기 |
+**1-1. 타입 확장**
+- Arrange: `domain/daycare/types/index.ts` 를 읽음
+- Act: `DaycareDetail` 정의 확인
+- Assert: `sigunguCode: string`(non-null) L26에 존재, `DaycareNearbyItem`(id/name/typeName/address) L127-132에 존재 → ✅ 스펙 일치
 
----
+**1-2. API 함수**
+- Arrange: `apis/daycare.api.ts` L109-138 `fetchDaycareNearby`
+- Act: select/eq/eq/neq/limit 체인 확인
+- Assert: `NEARBY_COLUMNS`(daycare_code,name,type_name,address) → `.eq('sigungu_code', sigunguCode)` → `.eq('status','정상')` → `.neq('daycare_code', excludeId)` → `.limit(limit)`, 에러 시 `throw new Error(...)` → ✅ 스펙 시그니처·필터·에러패턴 완전 일치
 
-## AAA 기반 핵심 시나리오 검증
+**1-3. Parser**
+- Arrange: `parser/daycare.parser.ts`
+- Act: `DaycareNearbyRow`(Pick), `toDaycareNearbyItem`, `toDaycareDetail`의 `sigunguCode: row.sigungu_code` 매핑 확인
+- Assert: L17-22, L116-123, L135 모두 존재. `row.sigungu_code`는 `lib/supabase/types.ts` L7에서 `string`(not null)이므로 non-null assertion 불필요 — 직접 할당 확인(단언 없음) → ✅
 
-### S-01: Prefetch queryKey ↔ Hook queryKey 일치 (rankingWaiting)
+**1-4. query-keys / query-options / hooks / prefetch**
+- Arrange: 4개 파일 각각 읽음
+- Act: `DaycareNearbyParams` 타입, `daycareQueryKeys.nearby`, `daycareQueryOptions.nearby`(queryKey+queryFn+staleTime 1h), `useDaycareNearby`(useSuspenseQuery), `daycarePrefetch.nearby`(server-only 파일 내) 확인
+- Assert: 모두 스펙과 1:1 일치 → ✅
 
-**Arrange**: `rankings/page.tsx`에서 `daycarePrefetch.rankingWaiting({ sido: validSido })` 호출  
-**Act**: `RankingsContent.tsx`에서 `useDaycareRankingWaiting({ sido })` 호출 (sido = validSido)  
-**Assert**: 양쪽 모두 `daycareQueryOptions.rankingWaiting(params)`를 거쳐 `daycareQueryKeys.rankingWaiting(params)` 생성 → `['daycare', 'ranking', 'waiting', { sido: validSido }]` 동일 ✅
-
-경계값: `validSido = undefined` 시 양쪽 `{ sido: undefined }` 전달 → 동일 키 ✅
-
-### S-02: server-only 경계 (rankings page)
-
-**Arrange**: `app/rankings/page.tsx` — Server Component (async, no 'use client')  
-**Act**: `@/domain/daycare/server` import  
-**Assert**: `server.ts` L1: `import 'server-only'` ✅, Client에서 import 불가 ✅  
-`RankingsContent.tsx`는 `@/domain/daycare` (index.ts) entry만 사용 ✅
-
-### S-03: row as DaycareRow 타입 안전성 위험
-
-**Arrange**: `fetchDaycareRankingWaiting`가 `RANKING_COLUMNS`로 부분 select (certified_date, waiting_child_total 등 14개 컬럼만)  
-**Act**: `.map((row, i) => toDaycareRankingItem(row as DaycareRow, i + 1))`  
-**Assert**: `DaycareRow`는 80+ 컬럼을 가진 전체 Row 타입. 파서 `toDaycareRankingItem`이 `row.sido_name`, `row.sigungu_name`, `row.waiting_child_total` 등을 접근 — 이들은 RANKING_COLUMNS에 포함되어 런타임 오류는 없으나 TypeScript 단언이 타입 시스템 보호를 우회 ❌ (P0)
-
-### S-04: useSuspenseQuery 컴포넌트가 Suspense 안에 위치
-
-**Arrange**: `RankingsContent.tsx` — `useSuspenseQuery × 3`  
-**Act**: `rankings/page.tsx` L177: `<Suspense fallback={<div className="animate-pulse...">}>` 내부에 `<RankingsContent />` 배치  
-**Assert**: Suspense 경계 있음 ✅, `HydrationBoundary` 바깥에 Suspense 있음 ✅ (올바른 순서)
-
-### S-05: DaycareDetailView useSuspenseQuery Suspense 경계
-
-**Arrange**: `DaycareDetailView.tsx` — `useDaycareDetail(id)` (`useSuspenseQuery`)  
-**Act**: `app/daycare/[id]/page.tsx` L57: `<Suspense fallback={<DaycareDetailLoading />}>`로 `<DaycareDetailSSR id={id} />` 감싸기  
-**Assert**: Suspense 경계 올바름 ✅, skeleton fallback 제공 ✅
+**1-5. index.ts / server.ts**
+- Arrange: `domain/daycare/index.ts`, `server.ts`
+- Act: export 목록 확인
+- Assert: `DaycareNearbyItem`, `DaycareNearbyParams`, `useDaycareNearby` export 추가됨(L1,8,19). `server.ts`는 `daycarePrefetch` 객체 전체 re-export이므로 `nearby` 자동 포함, 실제로 무변경 상태 확인(git status에 미포함) → ✅
 
 ---
 
-## 통과 항목
+## 검증 축 2 — SEO 핵심 포인트 (SSR 링크 노출)
 
-**도메인 구조:**
-- daycare 전체 필수 파일 존재 (types/, apis/, parser/, query-keys/, query-options/, hooks/, index.ts, server.ts, prefetch/) ✅
-- `parsers/` (복수형 금지) 디렉토리 완전 제거 ✅
-- `parser/daycare.filter-parsers.ts` 및 `parser/daycare.parser.ts` 단수형 위치 ✅
-- naver-blog 전체 파일 존재, server.ts 없음 (prefetch 없는 도메인) ✅
-- 모든 Client Component가 `@/domain/daycare` (index.ts) entry만 사용 ✅
-- 서버 라우트(`rankings/page.tsx`, `app/page.tsx`, `sitemap.ts`)가 `@/domain/daycare/server` entry 사용 ✅
-- deep import 없음 (`@/domain/daycare/hooks/...` 패턴 미검출) ✅
-- `export *` 없음 ✅
-- `fetchSigungus` index.ts에서 제거 완료 (P0-2 ✅)
-- ranking API 함수 4개 server.ts에서 제거 완료 ✅
+**2-1. 실제 `<a>` 태그로 렌더링되는지**
+- Arrange: `DaycareNearbySection.tsx` L30-33
+- Act: `next/link`의 `<Link href={\`/daycare/${item.id}\`}>` 사용 확인 (조건부 클라이언트 전용 렌더링 아님, `useEffect` 뒤 렌더링 아님)
+- Assert: `'use client'` 컴포넌트이지만 최초 렌더 시점(SSR 트리 내 Suspense 하위)에 곧바로 `<Link>` JSX 반환 → RSC/SSR 단계에서 `<a href="/daycare/{id}">`로 직렬화됨 → ✅ 크롤링 가능 구조
 
-**React Query 패턴:**
-- 모든 queryKey 팩토리 함수 사용 (inline string 없음) ✅
-- `useEffect` 내 fetch 없음 (DaycareMap의 useEffect는 지도 pan/scroll 목적) ✅
-- `router.refresh()` 데이터 갱신 목적 사용 없음 ✅
-- `useQuery + suspense: true` v5 제거 패턴 없음 ✅
-- URL 상태를 `useState`로 관리하는 패턴 없음 ✅
-- `useDaycareTypeNames`, `useDaycareServiceTypes` → `useSuspenseQuery` 전환 완료 (P1-2 ✅)
-- 신규 ranking hooks 4개 모두 `useSuspenseQuery` 사용 ✅
-- ranking queryOptions 4개 모두 `queryKey + queryFn` 포함 ✅
+**2-2. Prefetch → HydrationBoundary → Suspense 경로**
+- Arrange: `DaycareDetailSSR.tsx` L40-53, `DaycareDetailView.tsx` L109-113
+- Act: `runPrefetch(daycarePrefetch.nearby({ sigunguCode: daycare.sigunguCode, excludeId: id, limit: 10 }))` 실행 후 `state.queries`와 `nearbyState.queries`를 병합한 `hydrationState`를 `<HydrationBoundary state={hydrationState}>`에 전달, 그 하위 `DaycareDetailView` → `DaycareNearbySection`이 `<ErrorBoundary><Suspense>` 안에서 `useDaycareNearby`(=`useSuspenseQuery`) 사용
+- Assert: `getQueryClient()`(`lib/react-query/query-client.ts` L20-23)는 `isServer`일 때 매 호출마다 새 `QueryClient` 인스턴스를 생성 — 즉 `runPrefetch`를 두 번 호출하면 서로 다른 dehydrated state가 나오므로 `queries` 배열 병합이 실제로 필요하고 정확함(스펙 근거와 일치, 중복 키 없음: `detail` 상태와 `nearby` 상태는 서로 다른 QueryClient에서 왔으므로 병합 시 충돌 없음) → ✅ prefetch된 데이터가 hydrate되어 `useSuspenseQuery`가 서버에서 즉시 resolve, 클라이언트 JS 실행 전 SSR HTML에 링크 포함
 
-**API↔Hook 타입:**
-- Supabase Row → parser → 도메인 타입 변환 경로 정상 (`daycare.parser.ts` 경유) ✅
-- UI에서 DB Row 타입 직접 사용 없음 (모두 파서 통과) ✅
-- hooks 반환 타입과 queryFn 반환 타입 일치 ✅
-
-**Prefetch 정합성:**
-- `daycare.prefetch.ts` L1: `import 'server-only'` ✅
-- `daycare.server.ts` L1: `import 'server-only'` ✅
-- ranking 4종 prefetch 모두 `daycareQueryOptions.*` 재사용 → prefetch↔hook queryKey 동일 보장 ✅
-- `runPrefetch` 사용, page에서 QueryClient 직접 다루지 않음 ✅
-
-**Server/Client 경계:**
-- `RankingsContent.tsx`: `'use client'` 선언 ✅, `<Suspense>` 경계 내 위치 ✅
-- `DaycareDetailView.tsx`: `'use client'` 선언 ✅, `<Suspense fallback>` 경계 내 위치 ✅
-- `DaycareDetailSSR.tsx`: Server Component (async, 'use client' 없음) ✅
-- `daycarePrefetch`, `fetchDaycareDetail` import는 server.ts entry 사용 ✅
-- Server Component에서 Client-only hook 사용 없음 ✅
-
-**Supabase 쿼리 품질:**
-- `lib/supabase/server.ts` non-null assertion 제거, `if (!url || !key) throw` 패턴 적용 ✅
-- 랭킹 함수: `if (error) throw new Error(error.message)` 패턴 ✅
-- fetchDaycareDetail: error throw 패턴 ✅
-- `limit()` 사용: `fetchDaycaresInBounds`, `fetchDaycareRankingWaiting/Capacity/Oldest/Recent`, `fetchDaycareIdsPaginated` 모두 ✅
-- N+1 쿼리 없음 ✅
-- `lib/supabase/types.ts`에 `daycare_type_names`, `daycare_service_types` 뷰 타입 추가 → `as never` 단언 제거 ✅
-
-**TypeScript·코드 품질:**
-- `any` 타입 미검출 ✅
-- `!` non-null assertion 미검출 ✅
-- 4-space 들여쓰기: `app/layout.tsx`, `DaycareDetailContent.tsx`, `DaycareDetailView.tsx`, `lib/supabase/server.ts`, `lib/supabase/types.ts` 모두 확인 ✅
-- `formatDate` / `formatDateTime`: `DaycareDetailView.tsx`, `DaycareDetailContent.tsx`, `DaycareDetailSSR.tsx` 모두 `lib/format.ts` 사용 ✅
-- `<img>` 태그 미검출 (`next/image` 사용) ✅
-- hover + active 병용 패턴 (`hover:bg-* active:bg-*`) ✅
+**2-3. queryKey 일치 (prefetch ↔ hook)**
+- Arrange: prefetch 호출 `{ sigunguCode: daycare.sigunguCode, excludeId: id, limit: 10 }` vs hook 호출 `{ sigunguCode, excludeId, limit: 10 }`(`DaycareNearbySection` props에서 옴, `detail.sigunguCode`/`id`는 동일 요청 내 동일 값)
+- Act: 두 호출 모두 `daycareQueryOptions.nearby(params)` 팩토리 통해 `daycareQueryKeys.nearby(params)` 생성
+- Assert: TanStack Query의 `hashKey`는 객체 키 순서에 무관하게 정규화하므로 값이 동일하면 키 해시 일치 → hydration이 정확히 해당 캐시 엔트리를 채움 → ✅
 
 ---
 
-## 갭 항목 (P2 — 재검증 불필요)
+## 검증 축 3 — 에러 격리 (404 미유발)
 
-| # | 항목 | 설명 |
-|---|------|------|
-| G-1 | `naver-blog/query-options/naver-blog.query-options.ts` | `export {}` 만 있는 빈 파일 (P2) |
-| G-2 | `domain/region/index.ts` | lib/ 유틸리티로 이동 권장 (P2) |
-| G-3 | `app/page.tsx` L21 | `<Suspense>` fallback 없음 (P2) |
-| G-4 | `loading.tsx` 없음 | `/rankings`, `/daycare/[id]` 라우트 loading.tsx 없음 (P2) |
-| G-5 | `DaycareDetailContent.tsx` L1 | 불필요한 `'use client'` — 부모가 이미 client (P2) |
-| G-6 | `fetchDaycareTypeNames/ServiceTypes` | error 시 `return []` (throw 미사용) — 필터 UX 의도적 결정 |
+- Arrange: `DaycareDetailSSR.tsx` L41-49
+- Act: 상세 데이터(`detail`)는 `Promise.all([...]).catch(() => notFound())`로 처리, `nearby`는 그 아래 **별도** `runPrefetch(...).catch(() => null)`로 처리(같은 `Promise.all`에 편입되지 않음)
+- Assert: `fetchDaycareNearby`가 throw하더라도 `notFound()`가 호출되는 코드 경로에 도달하지 않음(별개의 catch) → 페이지는 200으로 계속 렌더링되고 `nearbyState`가 `null`이 되어 `hydrationState = state`(기존 detail 상태만)로 fallback → 클라이언트에서 `DaycareNearbySection`이 prefetch 없이 자체 `useSuspenseQuery` 재시도, 그마저 실패하면 `<ErrorBoundary fallback={<DaycareNearbySectionError />}>`가 흡수 → 상세페이지 본문(제목·주소·JSON-LD 등)은 영향 없음 → ✅ 격리 확인
 
 ---
+
+## 검증 축 4 — CLAUDE.md 섹션별
+
+| 섹션 | 확인 내용 | 결과 |
+|---|---|---|
+| §3 도메인 구조 | 8개 파일(server.ts 제외) 전부 스펙대로 수정, deep import/export * 없음 | ✅ |
+| §5 React Query | inline queryKey/queryFn 없음, `useSuspenseQuery` 사용, queryOptions 팩토리만 참조 | ✅ |
+| §6 Prefetch | `prefetch/daycare.prefetch.ts` L1 `import 'server-only'`, `server.ts` L1 `import 'server-only'`, queryOptions 재사용으로 key 일치, `DaycareDetailSSR`는 `runPrefetch` 사용(직접 QueryClient 조작 없음) | ✅ |
+| §11 Suspense/에러경계 | `DaycareNearbySection`(useSuspenseQuery)이 `<ErrorBoundary><Suspense>` 안에 위치(`DaycareDetailView.tsx` L109-113) | ✅ |
+| §12 빈 상태 | `items.length === 0`일 때 안내 문구, 에러 문구와 분리(`DaycareNearbySection.tsx` L22-25) | ✅ |
+| §15 4공백 | 스코프 파일 tab 문자 grep 0건 | ✅ |
+| §16 Mobile-first | `min-h-11`(44px) 터치 타겟, `active:bg-gray-50` 탭 피드백, hover는 보조 신호 | ✅ |
+| §17 컴포넌트 규칙 | 파일당 컴포넌트 1개, default export, 데이터(`useDaycareNearby`)/렌더 분리 | ✅ |
+
+---
+
+## 검증 축 5 — Supabase 쿼리 품질 / TypeScript
+
+- `.limit(limit)` 호출 확인(`daycare.api.ts` L130) → ✅
+- N+1 없음 — 단일 쿼리로 목록 조회 → ✅
+- select 컬럼 최소화 — `NEARBY_COLUMNS = 'daycare_code, name, type_name, address'`(L19), 상세 4개 필드만 → ✅
+- `any` 사용: 스코프 파일 grep 0건 → ✅
+- non-null assertion(`!`): 스코프 파일 grep 0건. `row.sigungu_code`(not null 컬럼) 직접 할당, 단언 불필요 확인 → ✅
+- UI에서 DB Row 타입 직접 사용 금지: `DaycareNearbySection`은 `DaycareNearbyItem`(parser 통과 타입)만 사용, `DaycareNearbyRow`/`DaycareRow` 미노출 → ✅
+
+---
+
+## 통과 항목 요약
+
+- `next tsc --noEmit` 스코프 파일 에러 0건 (잔존 에러는 blog/mdx/velite 관련 기존 이슈, 이번 기능과 무관 — `app/contents/[slug]/page.tsx`, `components/blog/mdx-components.tsx`, `lib/blog.ts`, `velite.config.ts`)
+- `git status` 기준 변경 파일이 스펙에 명시된 파일 목록과 정확히 일치(신규 3, 수정 10, `server.ts` 무변경) — 스코프 외 변경 없음
+- SSR HTML에 실제 `<a href="/daycare/{id}">` 링크가 포함되는 구조(prefetch→merge→HydrationBoundary→Suspense) 확인
+- nearby 조회 실패가 상세페이지 전체 `notFound()`를 유발하지 않는 격리 구조 확인
+- Supabase 쿼리 품질(limit 강제, 최소 select, N+1 없음, throw 에러 패턴) 확인
+- `any`/non-null assertion 미사용, 4공백 들여쓰기 확인
+
+## 갭 (P2, 개선 권장— 이번 기능 신규 회귀 아님)
+
+| # | 파일 | 문제 | 심각도 | 비고 |
+|---|------|------|--------|------|
+| 1 | `DaycareNearbySection.tsx` L18, `DaycareNearbySectionError.tsx` L4 | 섹션 타이틀이 `<h2>` 등 헤딩 태그가 아닌 `<p>`로 렌더링(WCAG 시맨틱 구조 권장사항) | P2 | `NaverBlogSection`/`NaverBlogSectionError`의 기존 패턴을 그대로 재사용한 것으로, 이번 기능이 새로 만든 회귀가 아님. 페이지 전체(예: `NaverBlogSection` 등)에 일괄 적용할 별도 개선 과제로 분리 권장 |
 
 ## 재검증 요청
 
-**P0 실패(4건)** — domain-engineer 재호출 필요:
-
-`domain/daycare/apis/daycare.api.ts` 의 ranking API 함수 4개에서 `row as DaycareRow` 타입 단언이 해소되지 않았습니다.
-
-```
-fetchDaycareRankingWaiting  L193: (data ?? []).map((row, i) => toDaycareRankingItem(row as DaycareRow, i + 1))
-fetchDaycareRankingRecent   L216: (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1))
-fetchDaycareRankingOldest   L239: (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRow, i + 1))
-fetchDaycareRankingCapacity L263: (data ?? []).map((row, i) => toDaycareCapacityItem(row as DaycareRow, i + 1))
-```
-
-수정 방향: RANKING_COLUMNS에 포함된 컬럼만을 포함하는 부분 타입을 `lib/supabase/types.ts`에 추가하거나, parser 함수 시그니처를 partial row 타입으로 변경.
-
-**P1 실패(1건)** — domain-engineer 재호출 필요:
-
-`domain/daycare/server.ts`가 `fetchDaycareIdsPaginated`, `fetchDaycareDetail`, `fetchDaycareCount`를 여전히 export함. 스펙 §3: server.ts는 prefetch만 re-export.
-
-수정 방향:
-1. `fetchDaycareIdsPaginated` → `lib/sitemap-helpers.ts`로 이동, `app/sitemap.ts` import 경로 변경
-2. `fetchDaycareDetail` → `DaycareDetailSSR.tsx`에서 `daycareQueryOptions.detail(id).queryFn`을 `cache()`로 감싸 대체
-3. `fetchDaycareCount` → 사용처 확인 후 제거 또는 lib/ 이동
+없음 — P0/P1 실패 없음. 재작업 불필요.
