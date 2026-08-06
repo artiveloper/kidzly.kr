@@ -73,7 +73,15 @@ export const daycareQueryOptions = {
 
     nearby: (params: DaycareNearbyParams) => ({
         queryKey: daycareQueryKeys.nearby(params),
-        queryFn: () => fetchDaycareNearby(params.sigunguCode, params.excludeId, { limit: params.limit ?? 10 }),
+        queryFn: () =>
+            fetchDaycareNearby(
+                params.sigunguCode,
+                params.excludeId,
+                params.latitude !== null && params.longitude !== null
+                    ? { latitude: params.latitude, longitude: params.longitude }
+                    : null,
+                { limit: params.limit ?? 10 }
+            ),
         // 정적에 가까운 데이터 — ranking* 쿼리와 동일하게 1시간 staleTime (CLAUDE.md §5: 일반 리스트는 global staleTime이 원칙이나,
         // 같은 어린이집 목록은 ranking*과 성격이 같은 준정적 리스트이므로 기존 ranking* 패턴을 그대로 따름)
         staleTime: 60 * 60 * 1000,

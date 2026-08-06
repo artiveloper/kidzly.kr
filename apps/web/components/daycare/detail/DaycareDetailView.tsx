@@ -109,7 +109,12 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
 
             <ErrorBoundary fallback={<DaycareNearbySectionError />}>
                 <Suspense fallback={<DaycareNearbySectionSkeleton />}>
-                    <DaycareNearbySection sigunguCode={detail.sigunguCode} excludeId={id} />
+                    <DaycareNearbySection
+                        sigunguCode={detail.sigunguCode}
+                        excludeId={id}
+                        latitude={detail.latitude}
+                        longitude={detail.longitude}
+                    />
                 </Suspense>
             </ErrorBoundary>
 
