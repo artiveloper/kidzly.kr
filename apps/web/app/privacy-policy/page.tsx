@@ -161,12 +161,12 @@ export default function PrivacyPolicyPage() {
                                     이용자의 이전 방문 기록을 바탕으로 관심사 기반 광고가 표시될 수 있습니다.
                                 </p>
                                 <a
-                                    href="https://policies.google.com/privacy"
+                                    href="https://policies.google.com/technologies/partner-sites"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-xs text-amber-700 underline underline-offset-2"
                                 >
-                                    Google 개인정보처리방침 보기
+                                    Google이 파트너 사이트 정보를 사용하는 방식 보기
                                 </a>
                             </div>
                             <p className="text-xs text-gray-500 leading-relaxed">
@@ -176,15 +176,24 @@ export default function PrivacyPolicyPage() {
                             <div>
                                 <p className="font-medium text-gray-800 mb-2">쿠키 거부 방법</p>
                                 <ul className="space-y-1.5 text-gray-500">
-                                    {[
-                                        "브라우저 설정 > 쿠키 차단으로 거부 가능 (일부 기능 제한될 수 있음)",
-                                        "Google 광고 맞춤설정 거부: g.co/adsettings",
-                                    ].map((item) => (
-                                        <li key={item} className="flex items-start gap-2">
-                                            <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-300 shrink-0" />
-                                            {item}
-                                        </li>
-                                    ))}
+                                    <li className="flex items-start gap-2">
+                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-300 shrink-0" />
+                                        브라우저 설정 &gt; 쿠키 차단으로 거부 가능 (일부 기능 제한될 수 있음)
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-300 shrink-0" />
+                                        <span>
+                                            Google 광고 맞춤설정 거부:{" "}
+                                            <a
+                                                href="https://adssettings.google.com/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-emerald-600 underline underline-offset-2"
+                                            >
+                                                g.co/adsettings
+                                            </a>
+                                        </span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
