@@ -43,9 +43,15 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
         getCachedDaycareDetail(id),
     ]).catch(() => notFound());
 
-    // "같은 지역 다른 어린이집"은 보조 섹션 — 실패해도 페이지 전체를 404 처리하지 않음
+    // "주변 다른 어린이집"은 보조 섹션 — 실패해도 페이지 전체를 404 처리하지 않음
     const nearbyState = await runPrefetch(
-        daycarePrefetch.nearby({ sigunguCode: daycare.sigunguCode, excludeId: id, limit: 10 })
+        daycarePrefetch.nearby({
+            sigunguCode: daycare.sigunguCode,
+            excludeId: id,
+            latitude: daycare.latitude,
+            longitude: daycare.longitude,
+            limit: 10,
+        })
     ).catch(() => null);
 
     const hydrationState = nearbyState

@@ -129,6 +129,8 @@ export type DaycareNearbyItem = {
     name: string;
     typeName: string;
     address: string;
+    /** 기준 좌표(origin) 대비 직선 거리(km). origin이 없거나 좌표 결측 시 null */
+    distanceKm: number | null;
 };
 
 export type DaycareAgeFilter = 0 | 1 | 2 | 3 | 4 | 5;

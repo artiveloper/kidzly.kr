@@ -16,7 +16,10 @@ const LIST_COLUMNS =
 const DETAIL_COLUMNS =
     'daycare_code, name, sido_name, sigungu_code, sigungu_name, type_name, status, address, phone, fax, latitude, longitude, capacity, current_child_count, nursery_room_count, nursery_room_size, playground_count, cctv_count, childcare_staff_count, class_count_age_0, class_count_age_1, class_count_age_2, class_count_age_3, class_count_age_4, class_count_age_5, class_count_infant_mixed, class_count_child_mixed, class_count_special, child_count_age_0, child_count_age_1, child_count_age_2, child_count_age_3, child_count_age_4, child_count_age_5, child_count_infant_mixed, child_count_child_mixed, child_count_special, waiting_child_age_0, waiting_child_age_1, waiting_child_age_2, waiting_child_age_3, waiting_child_age_4, waiting_child_age_5, staff_director_count, staff_teacher_count, staff_special_teacher_count, staff_therapist_count, staff_nutritionist_count, staff_nurse_count, staff_nursing_assistant_count, staff_cook_count, staff_office_count, staff_tenure_under_1y, staff_tenure_1y_to_2y, staff_tenure_2y_to_4y, staff_tenure_4y_to_6y, staff_tenure_over_6y, representative_name, certified_date, data_standard_date, synced_at, services, vehicle_operation, ai_analysis';
 
-const NEARBY_COLUMNS = 'daycare_code, name, type_name, address';
+const NEARBY_COLUMNS = 'daycare_code, name, type_name, address, latitude, longitude';
+
+/** origin 기준 거리순 정렬 전, 후보 풀로 가져올 최대 행 수 — latitude/longitude가 varchar라 DB 레벨 거리 정렬 불가 */
+const NEARBY_POOL_LIMIT = 200;
 
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
     const { limit = 200 } = options;
@@ -107,15 +110,19 @@ export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
 }
 
 /**
- * 같은 시군구(sigungu_code) 내 다른 정상 운영 어린이집 조회.
+ * 같은 시군구(sigungu_code) 내 다른 정상 운영 어린이집 조회 — origin 좌표 기준 가까운 순 정렬.
  * - 현재 상세페이지의 id는 제외
  * - status='정상'만 포함
  * - limit 필수 (기본 10)
- * - 필요한 컬럼만 select (daycare_code, name, type_name, address)
+ * - 필요한 컬럼만 select (daycare_code, name, type_name, address, latitude, longitude)
+ * - latitude/longitude가 varchar 컬럼이라 DB에서 직접 거리 정렬 불가 →
+ *   같은 시군구 후보를 NEARBY_POOL_LIMIT만큼 가져와 JS에서 haversine 거리 계산 후 정렬·slice
+ * - origin이 null(현재 어린이집 좌표 결측)이면 거리 정렬 없이 DB 반환 순서 그대로 limit
  */
 export async function fetchDaycareNearby(
     sigunguCode: string,
     excludeId: string,
+    origin: { latitude: number; longitude: number } | null,
     options: { limit?: number } = {}
 ): Promise<DaycareNearbyItem[]> {
     const { limit = 10 } = options;
@@ -127,14 +134,24 @@ export async function fetchDaycareNearby(
         .eq('sigungu_code', sigunguCode)
         .eq('status', '정상')
         .neq('daycare_code', excludeId)
-        .limit(limit);
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .limit(NEARBY_POOL_LIMIT);
 
     if (error) {
         console.error('[fetchDaycareNearby]', error.message);
         throw new Error(error.message);
     }
 
-    return (data ?? []).map((row) => toDaycareNearbyItem(row as DaycareNearbyRow));
+    const items = (data ?? []).map((row) => toDaycareNearbyItem(row as DaycareNearbyRow, origin));
+
+    if (!origin) {
+        return items.slice(0, limit);
+    }
+
+    return items
+        .sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity))
+        .slice(0, limit);
 }
 
 export async function fetchDaycareTypeNames(): Promise<string[]> {

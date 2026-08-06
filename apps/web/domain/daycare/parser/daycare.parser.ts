@@ -1,4 +1,5 @@
 import type { DaycareRow } from '@/lib/supabase/types';
+import { haversineDistanceKm } from '@/lib/geo';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem } from '../types';
 
 export type DaycareRankingRow = Pick<DaycareRow,
@@ -19,6 +20,8 @@ export type DaycareNearbyRow = Pick<DaycareRow,
     | 'name'
     | 'type_name'
     | 'address'
+    | 'latitude'
+    | 'longitude'
 >;
 
 function toAgeRange(row: DaycareRow): { min: number; max: number } | null {
@@ -113,12 +116,23 @@ export function toDaycareCapacityItem(row: DaycareRankingRow, rank: number): Day
     };
 }
 
-export function toDaycareNearbyItem(row: DaycareNearbyRow): DaycareNearbyItem {
+export function toDaycareNearbyItem(
+    row: DaycareNearbyRow,
+    origin: { latitude: number; longitude: number } | null
+): DaycareNearbyItem {
+    const lat = row.latitude ? parseFloat(row.latitude) : null;
+    const lng = row.longitude ? parseFloat(row.longitude) : null;
+    const distanceKm =
+        origin && lat !== null && lng !== null
+            ? haversineDistanceKm(origin.latitude, origin.longitude, lat, lng)
+            : null;
+
     return {
         id: row.daycare_code,
         name: row.name,
         typeName: row.type_name ?? '',
         address: row.address ?? '',
+        distanceKm,
     };
 }
 

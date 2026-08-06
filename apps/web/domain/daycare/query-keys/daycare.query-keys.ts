@@ -16,6 +16,9 @@ export type DaycareRankingParams = {
 export type DaycareNearbyParams = {
     sigunguCode: string
     excludeId: string
+    /** 거리 정렬 기준 좌표 — 결측 시 거리 정렬 없이 반환 */
+    latitude: number | null
+    longitude: number | null
     limit?: number
 }
 
