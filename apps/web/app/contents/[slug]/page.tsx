@@ -48,12 +48,12 @@ export default async function BlogPostPage({ params }: Props) {
     if (!post) notFound()
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <Header />
             <ViewTracker uuid={post.uuid} />
 
             <main className="pt-14">
-                <article className="mx-auto max-w-2xl bg-white px-4 py-8 sm:px-6 sm:my-6 sm:rounded-2xl sm:border sm:border-gray-100 sm:shadow-sm">
+                <article className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                     <div className="mb-2 flex flex-wrap items-center gap-3 text-sm text-gray-400">
                         <span className="font-medium text-blue-600">{post.category}</span>
                         <time>{post.publishedAt}</time>
