@@ -80,6 +80,37 @@ function getBounds(map: naver.maps.Map): MapBounds {
     return { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() };
 }
 
+// 클러스터 마커 개수 구간별 아이콘 (작을수록 옅은 그린, 많을수록 짙은 그린)
+const CLUSTER_TIERS = [
+    { size: 36, bg: '#10b981' },
+    { size: 44, bg: '#059669' },
+    { size: 52, bg: '#047857' },
+    { size: 60, bg: '#065f46' },
+];
+const CLUSTER_INDEX_GENERATOR = [10, 30, 100];
+
+function getClusterIcons(): naver.maps.HtmlIcon[] {
+    return CLUSTER_TIERS.map(({ size, bg }) => ({
+        content: `
+        <div style="
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:${bg};border:3px solid #fff;
+          box-shadow:0 2px 8px rgba(0,0,0,0.25);
+          display:flex;align-items:center;justify-content:center;
+          color:#fff;font-weight:700;font-size:${size >= 52 ? 14 : 13}px;
+          font-family:-apple-system,sans-serif;
+        "><span class="knm-cluster-count"></span></div>`,
+        size: new naver.maps.Size(size, size),
+        anchor: new naver.maps.Point(size / 2, size / 2),
+    }));
+}
+
+// 클러스터 마커에 실제 소속 마커 개수를 표시
+function clusterStylingFunction(clusterMarker: naver.maps.Marker, count: number): void {
+    const countEl = clusterMarker.getElement().querySelector<HTMLElement>('.knm-cluster-count');
+    if (countEl) countEl.textContent = String(count);
+}
+
 const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     daycares,
     selectedId,
@@ -91,8 +122,10 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<naver.maps.Map | null>(null);
     const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+    const clusterRef = useRef<MarkerClustering | null>(null);
     const onBoundsChangeRef = useRef(onBoundsChange);
     const isProgrammaticMoveRef = useRef(false);
+    const [sdkLoaded, setSdkLoaded] = useState(false);
     const [scriptLoaded, setScriptLoaded] = useState(false);
     const [zoom, setZoom] = useState(16);
 
@@ -173,9 +206,9 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
                     marker.setZIndex(selected ? 10 : 1);
                 }
             } else {
+                // map은 여기서 지정하지 않는다 — 클러스터링 인스턴스가 노출 여부를 관리한다
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(daycare.latitude, daycare.longitude),
-                    map,
                     icon: { content: html, anchor },
                     title: daycare.name,
                     zIndex: selected ? 10 : 1,
@@ -186,6 +219,33 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
                 existing.set(daycare.id, marker);
             }
         }
+
+        // 선택된 마커는 클러스터에서 제외하고 항상 단독으로 강조 노출
+        const clusterableMarkers: naver.maps.Marker[] = [];
+        let selectedMarker: naver.maps.Marker | null = null;
+        for (const [id, marker] of existing) {
+            if (id === selectedId) {
+                selectedMarker = marker;
+            } else {
+                clusterableMarkers.push(marker);
+            }
+        }
+
+        clusterRef.current?.setMap(null);
+        clusterRef.current = new MarkerClustering({
+            map,
+            markers: clusterableMarkers,
+            disableClickZoom: false,
+            minClusterSize: 2,
+            maxZoom: NAME_MIN_ZOOM,
+            gridSize: 100,
+            icons: getClusterIcons(),
+            indexGenerator: CLUSTER_INDEX_GENERATOR,
+            averageCenter: true,
+            stylingFunction: clusterStylingFunction,
+        });
+
+        selectedMarker?.setMap(map);
     }, [scriptLoaded, daycares, onSelectDaycare, zoom, selectedId]);
 
     if (!CLIENT_ID) {
@@ -206,8 +266,15 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
             <Script
                 src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${CLIENT_ID}`}
                 strategy="afterInteractive"
-                onReady={() => setScriptLoaded(true)}
+                onReady={() => setSdkLoaded(true)}
             />
+            {sdkLoaded && (
+                <Script
+                    src="/vendor/naver-marker-clustering.js"
+                    strategy="afterInteractive"
+                    onReady={() => setScriptLoaded(true)}
+                />
+            )}
             <div ref={containerRef} className="w-full h-full" />
             <button
                 onClick={onOpenBottomSheet}
