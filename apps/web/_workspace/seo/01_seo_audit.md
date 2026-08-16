@@ -120,10 +120,23 @@ P0: 0개 | P1: 5개 | P2: 6개
 - [x] Supabase에서 `daycare` 테이블(또는 상당 뷰)의 실제 row 수 확인 → sitemap 인덱스 파일 전환 필요 규모인지 재평가 (P2 이슈 참조) — **확인 완료(2026-08-16): 약 23,000건.** 사이트맵 XML 단일 파일 한도(50,000 URL)에 여유가 있어 지금은 인덱스 파일 전환 불필요. 블로그·정적 페이지가 더해져도 당분간 안전. 향후 daycare 레코드가 큰 폭으로 늘면(예: 4만 건 이상) 재평가.
 - [x] `daycare` 레코드 중 `ai_analysis IS NULL` 비율 확인 → Scaled Content Abuse 대응 커버리지 판단 (P1 이슈 참조) — **확인 완료(2026-08-16): `status='정상'` 기준 23,000건 중 30건(약 0.13%).** 사실상 전수 커버 — 이 P1 이슈는 해소된 것으로 처리.
 - [ ] 네이버 사이트맵(1개 제한) 실제 제출 여부 및 RSS 피드 별도 제출 여부 확인 — **보류: 이번 SEO 반영(P0~P2) 완료 후 마지막에 제출 예정(사용자 계획).**
-- [ ] Daum 검색등록 Seed URL(사이트맵) 제출 여부 확인 — 반영까지 수개월 소요 고지됨 — **보류: 위와 동일하게 반영 완료 후 마지막에 제출 예정.**
+- [x] Daum 검색등록 Seed URL(사이트맵) 제출 여부 확인 — 반영까지 수개월 소요 고지됨 — **제출 완료(2026-08-16, 사용자 확인).** 사이트맵 `https://kidzly.kr/sitemap.xml` + 리스트 페이지(`/daycares`, `/contents`, `/rankings`) Seed URL 등록. 다음 웹마스터도구 "검색최적화" 진단 결과 확인 — Status 200, title/description·robots.txt·sitemap 참조 모두 정상, `/api/`만 의도대로 색인 차단.
 
 ---
 
 ## 재감사 이력
 
-(최초 실행 — 이력 없음)
+### 2026-08-16 — 네이버 서치어드바이저 실크롤 진단 반영
+
+최초 코드 감사(P0~P2)에서는 잡히지 않았던 이슈 2건이 네이버 서치어드바이저 "유형별 진단 정보"에서 발견되어 반영.
+
+- **`<H1>` 요소 2개 이상 발견 (1.3만 페이지)**
+  **원인:** `daycare/[id]` 상세 페이지마다 `<h1>`이 2개 존재 — `DaycareDetailSSR.tsx`의 Googlebot용 `sr-only` 블록과 `DaycareDetailView.tsx`의 화면 상단 sticky 헤더가 둘 다 `daycare.name`을 `<h1>`로 렌더링. 코드 리뷰만으로는 두 컴포넌트가 같은 페이지에서 조합되는 시점의 DOM 구조를 놓쳤던 부분.
+  **조치:** `DaycareDetailSSR.tsx`의 sr-only 블록 h1을 p로 낮춰 페이지당 h1 1개로 정리. (`DaycareDetailView.tsx`의 화면 헤더가 유일한 h1으로 유지)
+
+- **`<meta name="description">` 중복 (3,400 페이지, 14.8%)**
+  **원인:** description이 `daycare.aiAnalysisSummary`(커버리지 99.87%) 우선이었는데, 프로필이 비슷한 어린이집끼리 AI 생성 문장이 수렴해 중복이 발생한 것으로 추정. (P1 "AI 분석 커버리지" 항목에서는 NULL 비율만 확인했고, 텍스트 자체의 유일성은 확인 대상이 아니었음)
+  **조치:** description을 `daycare.aiAnalysisSummary` 대신 구조화 실데이터(주소·정원·현원·교사·운영연차·전화) 조합으로 전환 — 레코드마다 값이 달라 중복 리스크가 구조적으로 낮음. 155자 방어 캡 적용. AI 요약은 페이지 본문(sr-only 블록·`DaycareDetailContent`)에는 그대로 유지 — 콘텐츠 차별화(Scaled Content Abuse 대응) 목적의 P1 결론과는 무관.
+  **경쟁사 비교:** daycarekorea.com의 동일 페이지 description을 참고해 교사 수·운영 연차 항목을 보강. 대기 인원은 제외(경쟁사에 없는 kidzly 고유 정보였으나 불필요 판단), 전화번호는 유지.
+
+**파일:** `apps/web/components/daycare/detail/DaycareDetailSSR.tsx`
