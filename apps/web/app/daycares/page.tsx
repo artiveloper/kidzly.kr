@@ -4,7 +4,9 @@ import { cn } from '@workspace/ui/lib/utils'
 import { SIDO_LIST, SIDO_SHORT } from '@/domain/region'
 import { fetchSigunguNames } from '@/domain/region/server'
 import type { SigunguEntry } from '@/domain/region'
-import { fetchDaycareRankingUpcoming } from '@/domain/daycare/server'
+import { daycarePrefetch, fetchDaycareRankingUpcoming } from '@/domain/daycare/server'
+import { runPrefetch } from '@/lib/react-query/prefetch'
+import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import SidoChipList from '@/components/region/SidoChipList'
@@ -43,11 +45,11 @@ const TABS = [
 ] as const
 
 type Props = {
-    searchParams: Promise<{ tab?: string }>
+    searchParams: Promise<{ tab?: string; sido?: string; sigungu?: string }>
 }
 
 export default async function DaycaresPage({ searchParams }: Props) {
-    const { tab } = await searchParams
+    const { tab, sido, sigungu } = await searchParams
     const activeTab = tab === 'upcoming' ? 'upcoming' : 'region'
 
     return (
@@ -82,7 +84,11 @@ export default async function DaycaresPage({ searchParams }: Props) {
                 </div>
 
                 <div className="mx-auto max-w-2xl px-4 pt-6 pb-12">
-                    {activeTab === 'region' ? <RegionSection /> : <UpcomingSection />}
+                    {activeTab === 'region' ? (
+                        <RegionSection sido={sido} sigungu={sigungu} />
+                    ) : (
+                        <UpcomingSection />
+                    )}
                 </div>
             </main>
 
@@ -100,9 +106,22 @@ function groupBySido(entries: SigunguEntry[]): Record<string, SigunguEntry[]> {
     return map
 }
 
-async function RegionSection() {
+async function RegionSection({ sido, sigungu }: { sido?: string; sigungu?: string }) {
     const entries = await fetchSigunguNames()
-    return <SidoChipList sigunguBySido={groupBySido(entries)} />
+    const sigunguBySido = groupBySido(entries)
+
+    // sido=&sigungu= 딥링크로 들어온 경우 초기 로드부터 해당 지역 목록을 prefetch —
+    // sigunguBySido와 대조해 유효한 조합일 때만 (SidoChipList의 클라이언트 검증과 동일 기준)
+    if (sido && sigungu && sigunguBySido[sido]?.some((entry) => entry.sigungu === sigungu)) {
+        const state = await runPrefetch(daycarePrefetch.regionList({ sido, sigungu }))
+        return (
+            <HydrationBoundary state={state}>
+                <SidoChipList sigunguBySido={sigunguBySido} />
+            </HydrationBoundary>
+        )
+    }
+
+    return <SidoChipList sigunguBySido={sigunguBySido} />
 }
 
 // 현재 전국 6건 수준이라 사실상 전수 노출 — 데이터 이상 유입 대비 안전장치로만 상한을 둔다

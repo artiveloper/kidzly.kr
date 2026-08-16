@@ -203,7 +203,7 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
 
                 {detail.sidoName && detail.sigunguName && (
                     <Link
-                        href="/daycares"
+                        href={`/daycares?sido=${encodeURIComponent(detail.sidoName)}&sigungu=${encodeURIComponent(detail.sigunguName)}`}
                         className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                     >
                         <span className="text-2xl" aria-hidden="true">📍</span>

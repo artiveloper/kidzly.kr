@@ -1,8 +1,10 @@
 'use client'
 
 // 시도 → 시군구 → 결과 순으로 같은 페이지 안에서 전환되는 3단계 지역 필터
-// (/daycares 지역별 탭 전용, 페이지 이동 없이 칩 선택으로만 진행/취소)
-import { Suspense, useState } from 'react'
+// (/daycares 지역별 탭 전용, 선택 상태를 sido/sigungu 쿼리 파라미터에 동기화해
+// 다른 페이지에서 특정 지역으로 바로 딥링크할 수 있게 한다)
+import { Suspense } from 'react'
+import { parseAsString, useQueryState } from 'nuqs'
 import { cn } from '@workspace/ui/lib/utils'
 import { SIDO_LIST, SIDO_SHORT, getSidoShort } from '@/domain/region'
 import type { SigunguEntry } from '@/domain/region'
@@ -27,19 +29,24 @@ function chipClass(active: boolean) {
 }
 
 export default function SidoChipList({ sigunguBySido }: Props) {
-    const [selectedSido, setSelectedSido] = useState<string | null>(null)
-    const [selectedSigungu, setSelectedSigungu] = useState<string | null>(null)
+    const [sidoParam, setSidoParam] = useQueryState('sido', parseAsString)
+    const [sigunguParam, setSigunguParam] = useQueryState('sigungu', parseAsString)
+
+    // URL에서 들어온 값은 잘못됐거나(오타·과거 지역명 등) 낡았을 수 있어 sigunguBySido와
+    // 대조해 검증 — 유효하지 않으면 무시하고 초기 화면으로 폴백
+    const selectedSido = sidoParam && sigunguBySido[sidoParam] ? sidoParam : null
+    const items = selectedSido ? sigunguBySido[selectedSido] ?? [] : []
+    const selectedSigungu =
+        selectedSido && items.some((item) => item.sigungu === sigunguParam) ? sigunguParam : null
 
     if (!selectedSido) {
         const sidoItems: SidoChipItem[] = SIDO_LIST.map((sido) => ({ key: sido, label: SIDO_SHORT[sido] }))
         return (
             <div className="flex flex-wrap gap-2">
-                <SidoFilterChips items={sidoItems} activeKey={undefined} onSelect={setSelectedSido} />
+                <SidoFilterChips items={sidoItems} activeKey={undefined} onSelect={setSidoParam} />
             </div>
         )
     }
-
-    const items = sigunguBySido[selectedSido] ?? []
 
     return (
         <div>
@@ -47,8 +54,8 @@ export default function SidoChipList({ sigunguBySido }: Props) {
                 <button
                     type="button"
                     onClick={() => {
-                        setSelectedSido(null)
-                        setSelectedSigungu(null)
+                        setSidoParam(null)
+                        setSigunguParam(null)
                     }}
                     className={chipClass(false)}
                 >
@@ -60,7 +67,7 @@ export default function SidoChipList({ sigunguBySido }: Props) {
                         <button
                             key={sigungu}
                             type="button"
-                            onClick={() => setSelectedSigungu(sigungu)}
+                            onClick={() => setSigunguParam(sigungu)}
                             className={chipClass(active)}
                         >
                             {sigungu}
