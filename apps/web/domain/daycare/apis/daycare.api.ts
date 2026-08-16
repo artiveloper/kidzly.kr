@@ -63,6 +63,8 @@ export async function fetchDaycaresInBounds(
         req = req.or(`name.ilike.%${query}%,address.ilike.%${query}%`)
     } else {
         req = req
+            .neq('latitude', '')
+            .neq('longitude', '')
             .filter('latitude::float8', 'gte', south)
             .filter('latitude::float8', 'lte', north)
             .filter('longitude::float8', 'gte', west)
