@@ -321,3 +321,16 @@ apps/web/domain/{name}/
 | 2026-07-01 | CLAUDE.md 슬림화 — 규칙만 유지, 코드 예시 제거 | CLAUDE.md | 컨텍스트 효율화 + temp/ 패턴 반영 |
 | 2026-07-01 | temp/ 컨벤션 전면 반영 — WCAG AA, N+1, 날짜 KST, nuqs, 에러경계, Skeleton 규칙 추가 | CLAUDE.md, agents/*, skills/supabase-guide | temp/ 기준 가이드 통합 |
 | 2026-08-16 | "작업 원칙" 9개 조항(생각 먼저, 단순함 우선, 외과적 변경, 목표 기반 실행, 한국어 마침표, 새 파일 한국어 역할 주석, 오류는 읽고 추측 안 함, 실행 검증, 원자적 커밋) 신설, 기존 기술 스펙은 "기술 스펙" 절로 유지하며 10~28번으로 재번호 | CLAUDE.md | 다른 저장소용 CLAUDE.md가 실수로 덮어써진 것을 복구하는 과정에서, 그 문서의 행동 지침 부분이 유용하다고 판단해 키즐리 기준으로 반영 |
+
+---
+
+## 하네스: 사이트 SEO 관리
+
+**목표:** 구글·네이버·다음 3사 기준으로 kidzly-web의 기술 SEO(메타데이터·구조화 데이터·sitemap/robots)를 진단하고, 승인 시 코드에 반영
+
+**트리거:** SEO 점검, 검색 노출 진단, 구조화 데이터 추가, 메타태그 점검 요청 시 `seo-manager` 스킬을 사용하라. 글 단위 SEO 카피라이팅은 `content-creator`(`seo-writer`)가 계속 담당 — 역할이 겹치지 않는다.
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-08-16 | 초기 구성 — seo-auditor(진단, 코드 수정 없음) → 승인 시 seo-engineer(반영) 2단계 파이프라인. 구글 Scaled Content Abuse(2026.3 코어 업데이트) 리스크를 P0 최우선 점검 항목으로 반영, 네이버/다음은 API 자격증명 없이 체크리스트 산출물로 대응 | agents/seo-auditor.md, agents/seo-engineer.md, skills/seo-manager/SKILL.md, skills/seo-manager/references/naver-daum-google-seo-guide.md | 2026년 최신 3사 SEO 리서치 기반 신규 하네스 구성. 기술 SEO와 콘텐츠 SEO(content-creator)의 역할 중복을 피하기 위해 범위를 사이트 구조로 한정 |
