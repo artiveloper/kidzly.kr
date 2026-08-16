@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return {
             title: { absolute: '어린이집 정보 | 키즐리' },
             alternates: { canonical: `https://kidzly.kr/daycare/${id}` },
+            robots: { index: false, follow: false },
         };
     }
 }

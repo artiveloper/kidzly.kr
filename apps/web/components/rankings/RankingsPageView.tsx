@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Flame, Clock, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { runPrefetch } from '@/lib/react-query/prefetch';
-import { daycarePrefetch } from '@/domain/daycare/server';
+import { daycarePrefetch, fetchDaycareRegionSummary } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsLists from '@/components/rankings/RankingsLists';
 import { RankingsListsSkeleton } from '@/components/rankings/RankingsSkeleton';
@@ -64,11 +64,14 @@ export default async function RankingsPageView({ sido }: Props) {
         ],
     };
 
-    const state = await runPrefetch(
-        daycarePrefetch.rankingWaiting({ sido }),
-        daycarePrefetch.rankingCapacity({ sido }),
-        daycarePrefetch.rankingOldest({ sido }),
-    );
+    const [state, regionSummary] = await Promise.all([
+        runPrefetch(
+            daycarePrefetch.rankingWaiting({ sido }),
+            daycarePrefetch.rankingCapacity({ sido }),
+            daycarePrefetch.rankingOldest({ sido }),
+        ),
+        fetchDaycareRegionSummary(sido),
+    ]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -92,6 +95,10 @@ export default async function RankingsPageView({ sido }: Props) {
                         <h1 className="mb-1 text-xl font-bold text-gray-900">
                             {regionLabel} 어린이집 랭킹
                         </h1>
+                        <p className="text-sm text-gray-400 mb-1">
+                            {regionLabel} 정상 운영 어린이집 {regionSummary.totalCount.toLocaleString('ko-KR')}곳
+                            {regionSummary.avgWaiting !== null && `, 대기 있는 곳 평균 ${regionSummary.avgWaiting}명 대기`}
+                        </p>
                         <p className="text-sm text-gray-400 mb-5">
                             다양한 기준으로 {regionLabel} 어린이집을 비교해보세요.
                         </p>

@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Clock } from 'lucide-react'
 import { getAllPosts, getPost } from '@/lib/blog'
+import { formatDate } from '@/lib/format'
+import { buildArticleJsonLd } from '@/lib/structured-data/article'
 import MDXContent from '@/components/blog/MDXContent'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
@@ -47,8 +49,21 @@ export default async function BlogPostPage({ params }: Props) {
     const post = getPost(slug)
     if (!post) notFound()
 
+    const url = `${BASE_URL}/contents/${encodeURIComponent(post.slug)}`
+    const jsonLd = buildArticleJsonLd({
+        title: post.title,
+        description: post.description,
+        url,
+        publishedAt: post.publishedAt,
+        thumbnail: post.thumbnail,
+    })
+
     return (
         <div className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <Header />
             <ViewTracker uuid={post.uuid} />
 
@@ -56,7 +71,7 @@ export default async function BlogPostPage({ params }: Props) {
                 <article className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                     <div className="mb-2 flex flex-wrap items-center gap-3 text-sm text-gray-400">
                         <span className="font-medium text-blue-600">{post.category}</span>
-                        <time>{post.publishedAt}</time>
+                        <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
                         <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                             <span className="sr-only">소요시간</span>

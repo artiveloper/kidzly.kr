@@ -253,6 +253,50 @@ export async function fetchDaycareCount(): Promise<number> {
     return count ?? 0;
 }
 
+/**
+ * rankings/[sido] 소개 문단용 지역 요약 통계 — 정상 운영 어린이집 총 수와 대기 있는 곳의 평균 대기 인원.
+ * avgWaiting은 REGION_SUMMARY_WAITING_POOL_LIMIT 행까지만 조회해 계산하는 근사치로,
+ * 정확한 순위 산정이 아니라 소개 문구 차별화 목적이므로 DB 집계 대신 이 방식을 사용한다.
+ */
+const REGION_SUMMARY_WAITING_POOL_LIMIT = 5000;
+
+export async function fetchDaycareRegionSummary(sido?: string): Promise<{ totalCount: number; avgWaiting: number | null }> {
+    const supabase = createServerClient();
+
+    let countReq = supabase
+        .from('daycares')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', '정상');
+    if (sido) countReq = countReq.eq('sido_name', sido);
+
+    const { count, error: countError } = await countReq;
+    if (countError) {
+        console.error('[fetchDaycareRegionSummary:count]', countError.message);
+        return { totalCount: 0, avgWaiting: null };
+    }
+
+    let waitingReq = supabase
+        .from('daycares')
+        .select('waiting_child_total')
+        .eq('status', '정상')
+        .not('waiting_child_total', 'is', null)
+        .gt('waiting_child_total', 0);
+    if (sido) waitingReq = waitingReq.eq('sido_name', sido);
+
+    const { data: waitingRows, error: waitingError } = await waitingReq.limit(REGION_SUMMARY_WAITING_POOL_LIMIT);
+    if (waitingError) {
+        console.error('[fetchDaycareRegionSummary:waiting]', waitingError.message);
+        return { totalCount: count ?? 0, avgWaiting: null };
+    }
+
+    const rows = (waitingRows ?? []) as { waiting_child_total: number | null }[];
+    const avgWaiting = rows.length > 0
+        ? Math.round(rows.reduce((sum, row) => sum + (row.waiting_child_total ?? 0), 0) / rows.length)
+        : null;
+
+    return { totalCount: count ?? 0, avgWaiting };
+}
+
 export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<{ id: string; lastModified: string | null }[]> {
     const { offset, limit } = options;
     const supabase = createServerClient();
