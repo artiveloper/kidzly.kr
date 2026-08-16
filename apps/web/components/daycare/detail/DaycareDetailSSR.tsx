@@ -34,13 +34,20 @@ export function buildDaycareMetaStrings(daycare: DaycareDetail) {
             ? `${location} 소재 ${typeLabel}`
             : typeLabel;
 
-    const description = daycare.aiAnalysisSummary
-        ? daycare.aiAnalysisSummary.slice(0, 155)
-        : [
-            addressLine,
-            daycare.phone ? `전화 ${daycare.phone}` : null,
-            '운영시간·대기현황은 키즐리에서 확인하세요.',
-          ].filter(Boolean).join('. ');
+    // description은 구조화 실데이터(주소·정원·현원·교사·운영연차·전화) 기반으로 구성 — 레코드마다 값이 달라 중복
+    // title/description 리스크가 구조적으로 낮다. AI 요약(aiAnalysisSummary)은 프로필이 비슷한 어린이집끼리 문장이
+    // 수렴할 수 있어 메타 description에서는 제외하고, 본문(sr-only 블록·DaycareDetailContent)에만 유지한다.
+    const certifiedYear = daycare.certifiedDate ? parseInt(daycare.certifiedDate.slice(0, 4)) : NaN;
+    const yearsSince = !isNaN(certifiedYear) ? year - certifiedYear + 1 : null;
+    // 주소가 긴 레코드(건물명·동호수 포함)에서 155자를 넘을 수 있어 방어적으로 캡
+    const description = ([
+        addressLine,
+        daycare.capacity !== null ? `정원 ${daycare.capacity}명` : null,
+        daycare.currentChildCount !== null ? `현원 ${daycare.currentChildCount}명` : null,
+        daycare.staffTeacherCount !== null ? `교사 ${daycare.staffTeacherCount}명` : null,
+        yearsSince !== null ? `${yearsSince}년차` : null,
+        daycare.phone ? `전화 ${daycare.phone}` : null,
+    ].filter(Boolean).join(', ') + '. 운영시간·상세 정보는 키즐리에서 확인하세요.').slice(0, 155);
 
     return { title, description };
 }
@@ -136,8 +143,9 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
             {daumDatetime !== '-' && <div className="daum-wm-datetime hidden">{daumDatetime}</div>}
             <div className="daum-wm-content hidden">{description}</div>
             {/* 서버 렌더링 콘텐츠 블록 — Googlebot 초기 크롤용. 화면에는 표시되지 않고 JS 렌더링 완료 후 DaycareDetailView가 실제 UI를 담당함. */}
+            {/* h1은 DaycareDetailView의 상단 헤더가 담당 — 페이지당 h1 1개 유지 */}
             <div className="sr-only" aria-hidden="true">
-                <h1>{daycare.name}</h1>
+                <p>{daycare.name}</p>
                 <p>{description}</p>
                 {daycare.aiAnalysisSummary && <p>{daycare.aiAnalysisSummary}</p>}
                 {daycare.address && <p>주소: {daycare.address}</p>}
