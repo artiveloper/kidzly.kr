@@ -1,9 +1,93 @@
-# CLAUDE.md
+# CLAUDE.md — 키즐리(kidzly.kr) 작업 지침
 > Next.js 16 · React 19 · React Query v5 | Lighthouse ≥ 90
+
+이 문서는 키즐리 저장소에서 코드를 다룰 때 지켜야 할 행동 지침이다.
+속도보다 신중함을 우선한다. 불필요한 diff가 줄고, 재작성이 줄고, 질문이 앞당겨지면 잘 지켜지고 있는 것이다.
 
 ---
 
-## 1. Stack
+## 작업 원칙
+
+### 1. 코딩 전에 생각한다
+
+가정하지 말고, 혼란을 숨기지 말고, 트레이드오프를 드러낸다.
+
+- 가정은 명시한다. 불확실하면 묻는다.
+- 해석이 여럿이면 조용히 하나를 고르지 말고 제시한다.
+- 더 단순한 방법이 있으면 말한다. 필요하면 반대 의견도 낸다.
+- 불명확하면 멈추고, 무엇이 헷갈리는지 이름 붙여 묻는다.
+
+### 2. 단순함 우선
+
+문제를 푸는 최소 코드만 쓴다. 추측성 구현은 없다.
+
+- 요청받지 않은 기능·추상화·"유연성"은 넣지 않는다.
+- 일어날 수 없는 시나리오에 대한 에러 처리는 넣지 않는다.
+- 200줄인데 50줄로 될 것 같으면 다시 쓴다. "시니어가 과설계라 할까?" 자문한다.
+
+### 3. 외과적 변경
+
+건드려야 하는 것만 건드리고, 내가 만든 것만 치운다.
+
+- 인접 코드·주석·서식을 "개선"하지 않는다. 안 깨진 걸 리팩터링하지 않는다.
+- 내가 좋아하는 방식이라도 기존 스타일에 맞춘다.
+- 무관한 죽은 코드는 발견하면 언급만 하고 지우지 않는다.
+- 단, 내 변경이 만든 미사용 import·변수·함수는 내가 제거한다.
+
+### 4. 목표 기반 실행
+
+성공 기준을 정의하고 검증될 때까지 반복한다.
+
+- "검증 추가"는 "잘못된 입력에 대한 테스트를 쓰고 통과시킨다"로 바꾼다.
+- "버그 수정"은 "재현 테스트를 쓰고 통과시킨다"로 바꾼다.
+- 다단계 작업은 먼저 짧게 적는다. 단계별 **계획**, 완료를 표시할 **체크리스트**, 결정·전제를 남기는 **컨텍스트 노트**를 두고, 각 단계마다 검증 방법을 명시한다.
+
+### 5. 한국어 출력 시 문장 끝은 마침표
+
+한국어 문장을 콜론(:)으로 끝내지 않는다.
+
+- 다음 줄이 목록·예시여도 문장 종결은 `.` `?` `!` 로 한다.
+- 영어 문서로 학습된 콜론 습관이 한국어에 새어 나온다. 잡아낸다.
+- 코드·키값 쌍·라벨 안의 콜론은 괜찮다. 문장 종결로만 쓰지 않는다.
+
+### 6. 새 파일 첫 줄은 한국어 역할 주석
+
+새 소스 파일을 만들면 첫 줄에 역할을 한 줄 한국어로 적는다.
+
+- TypeScript는 `// 어린이집 목록을 무한 스크롤로 렌더링하는 리스트 컴포넌트` 처럼 쓴다.
+- 필수 지시자(`'use client'`, `'use server'` 등) 바로 아래 둔다.
+- 설정 파일(`*.json`, `*.mjs` 설정 등)은 예외다.
+- 이유는 에이전트가 파일을 선택적으로 읽기 때문이다. 한 줄 헤더가 다음 세션에 즉시 맥락을 준다.
+
+### 7. 오류는 읽고, 추측하지 않는다
+
+실패하면 실제 에러·로그 줄을 읽는다.
+
+- 전체 에러 메시지와 스택 트레이스를 읽는다. 가정한 로그가 아니라 실제 출력을 본다.
+- 원인 확인 전에 "흔한 수정"을 적용하지 않는다. 불명확하면 로그를 찍어 상태를 확인한 뒤 고친다.
+- 이 저장소는 Supabase·네이버 지도 SDK 같은 외부 의존이 있다. 실패 시 어느 경계에서 났는지(Server Component fetch/React Query/Supabase 쿼리/지도 SDK) 먼저 특정한다.
+
+### 8. 완료 전에 실행해서 확인한다
+
+코드를 건드렸으면 "다 됐다"고 하기 전에 검증한다.
+
+- 린트·타입체크를 맞춘다(`pnpm lint`, `pnpm typecheck`, 웹만이면 `apps/web`에서 동일 스크립트).
+- 빌드로 확인한다(`pnpm build`, Next.js는 `next build`로 라우트·타입 오류까지 잡힌다).
+- 사용자가 "끝", "완료"라고 하기 전에 선제적으로 검증한다.
+
+### 9. 커밋은 원자적·의미 단위로
+
+되돌릴 수 있게, 한 번에 하나의 논리적 변경만 커밋한다.
+
+- 무관한 변경을 한 커밋에 섞지 않는다. 리팩터링과 기능 추가를 분리한다.
+- 커밋 메시지는 "무엇을 왜"가 드러나게 쓴다.
+- 커밋·푸시는 사용자가 요청할 때 한다. `main` 에 직접 커밋·푸시한다(별도 브랜치를 만들지 않는다).
+
+---
+
+## 기술 스펙
+
+### 10. Stack
 
 - Next.js 16 (App Router) · React 19 · TypeScript strict
 - TanStack React Query v5 · nuqs v2 · Tailwind CSS v4
@@ -12,7 +96,7 @@
 
 ---
 
-## 2. Architecture
+### 11. Architecture
 
 - Domain-based directory structure — **MANDATORY**
 - Server Components 기본; Client Components 최소화·명시적
@@ -21,7 +105,7 @@
 
 ---
 
-## 3. Domain Structure
+### 12. Domain Structure
 
 ```
 apps/web/domain/{name}/
@@ -47,7 +131,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 4. APIs Layer
+### 13. APIs Layer
 
 - `lib/supabase/client.ts` / `lib/supabase/server.ts` 사용
 - non-null assertion(`!`) 금지 — 명시적 null 체크 후 에러 throw
@@ -56,7 +140,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 5. React Query
+### 14. React Query
 
 - queryKey: 팩토리 함수만 — inline 직접 작성 금지
 - queryFn: queryOptions 팩토리만 — inline useQuery 금지
@@ -70,7 +154,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 6. Prefetch
+### 15. Prefetch
 
 - 리스트·상세 페이지: **필수**
 - 무한 스크롤 첫 페이지: `prefetchInfiniteQuery` 필수
@@ -81,7 +165,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 7. 상태 소유권
+### 16. 상태 소유권
 
 | 상태 유형 | 도구 |
 |----------|------|
@@ -93,7 +177,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 8. nuqs 규칙
+### 17. nuqs 규칙
 
 - 목록 필터·검색·정렬·페이지·탭은 `useQueryState`/`useQueryStates` 사용
 - nuqs 값을 queryOptions 파라미터로 전달 → queryKey에 포함
@@ -103,7 +187,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 9. Mutation
+### 18. Mutation
 
 - `invalidateQueries`로 갱신 — UI 상태 직접 수정 금지
 - `router.refresh()` 금지 (인증 세션 갱신 예외)
@@ -111,7 +195,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 10. Server/Client 경계
+### 19. Server/Client 경계
 
 - `server.ts`, `prefetch`: `import "server-only"` 필수
 - `apis`: server-only 불필요 (양쪽 모두 사용)
@@ -119,7 +203,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 11. Suspense & Error 경계 (3계층)
+### 20. Suspense & Error 경계 (3계층)
 
 | 계층 | 파일 | 대상 |
 |------|------|------|
@@ -135,7 +219,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 12. 로딩 · 에러 · 빈 상태
+### 21. 로딩 · 에러 · 빈 상태
 
 - 로딩 텍스트(`"불러오는 중..."`) 금지 → Skeleton 컴포넌트 사용
 - Skeleton은 최종 레이아웃 크기와 일치 (CLS 방지)
@@ -144,14 +228,14 @@ apps/web/domain/{name}/
 
 ---
 
-## 13. 날짜 · 시간
+### 22. 날짜 · 시간
 
 - **모든** 날짜·시간 표시: `lib/format.ts`의 `formatDate` / `formatDateTime` 사용 (KST)
 - `new Date(x).toLocaleDateString('ko-KR')` timeZone 누락 형태 금지
 
 ---
 
-## 14. TypeScript
+### 23. TypeScript
 
 - `any` 금지
 - non-null assertion (`!`) 금지
@@ -160,14 +244,14 @@ apps/web/domain/{name}/
 
 ---
 
-## 15. 코드 포맷 (MANDATORY)
+### 24. 코드 포맷 (MANDATORY)
 
 - 들여쓰기: **4공백** (탭·2공백 금지)
 - TypeScript · JavaScript · JSON · JSX/TSX 전체 적용
 
 ---
 
-## 16. Mobile-First (MANDATORY)
+### 25. Mobile-First (MANDATORY)
 
 - 모바일 기준 시작 → `sm:` `md:` `lg:` 순 확장
 - 터치 타겟 최소 44×44px
@@ -176,7 +260,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 17. 컴포넌트 규칙
+### 26. 컴포넌트 규칙
 
 - 파일당 컴포넌트 1개, default export
 - 200줄 초과 또는 props 과다 시 분리
@@ -184,7 +268,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 18. 접근성 (WCAG AA)
+### 27. 접근성 (WCAG AA)
 
 - 시맨틱 HTML, 폼 `label`/`aria-*` 필수
 - 명암비: 본문 4.5:1, 큰 텍스트·UI 컴포넌트 3:1
@@ -194,7 +278,7 @@ apps/web/domain/{name}/
 
 ---
 
-## 19. Performance
+### 28. Performance
 
 - `useEffect` fetch 금지 (React Query 사용)
 - 자주 렌더링되는 컴포넌트 내 dynamic import 금지
@@ -236,3 +320,4 @@ apps/web/domain/{name}/
 | 2026-07-01 | 초기 구성 | 전체 | temp/ 에이전트/스킬 기반 kidzly-web 개발 하네스 구성 |
 | 2026-07-01 | CLAUDE.md 슬림화 — 규칙만 유지, 코드 예시 제거 | CLAUDE.md | 컨텍스트 효율화 + temp/ 패턴 반영 |
 | 2026-07-01 | temp/ 컨벤션 전면 반영 — WCAG AA, N+1, 날짜 KST, nuqs, 에러경계, Skeleton 규칙 추가 | CLAUDE.md, agents/*, skills/supabase-guide | temp/ 기준 가이드 통합 |
+| 2026-08-16 | "작업 원칙" 9개 조항(생각 먼저, 단순함 우선, 외과적 변경, 목표 기반 실행, 한국어 마침표, 새 파일 한국어 역할 주석, 오류는 읽고 추측 안 함, 실행 검증, 원자적 커밋) 신설, 기존 기술 스펙은 "기술 스펙" 절로 유지하며 10~28번으로 재번호 | CLAUDE.md | 다른 저장소용 CLAUDE.md가 실수로 덮어써진 것을 복구하는 과정에서, 그 문서의 행동 지침 부분이 유용하다고 판단해 키즐리 기준으로 반영 |
