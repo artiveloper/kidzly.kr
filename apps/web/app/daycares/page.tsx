@@ -6,6 +6,7 @@ import { fetchSigunguNames } from '@/domain/region/server'
 import type { SigunguEntry } from '@/domain/region'
 import { daycarePrefetch, fetchDaycareRankingUpcoming } from '@/domain/daycare/server'
 import { runPrefetch } from '@/lib/react-query/prefetch'
+import { buildBreadcrumbJsonLd } from '@/lib/structured-data/breadcrumb'
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
@@ -48,12 +49,23 @@ type Props = {
     searchParams: Promise<{ tab?: string; sido?: string; sigungu?: string }>
 }
 
+const breadcrumbLd = buildBreadcrumbJsonLd([
+    { name: '키즐리', url: BASE_URL },
+    { name: '어린이집 목록', url: `${BASE_URL}/daycares` },
+])
+
 export default async function DaycaresPage({ searchParams }: Props) {
     const { tab, sido, sigungu } = await searchParams
     const activeTab = tab === 'upcoming' ? 'upcoming' : 'region'
 
     return (
         <div className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+            />
+            <div className="daum-wm-title hidden">{TITLE}</div>
+            <div className="daum-wm-content hidden">{DESCRIPTION}</div>
             <Header />
 
             <main className="pt-14">

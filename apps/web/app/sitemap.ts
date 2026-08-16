@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const daycareEntries: MetadataRoute.Sitemap = entries.map(({ id, lastModified }) => ({
         url: `${BASE_URL}/daycare/${id}`,
         lastModified: lastModified ? new Date(lastModified) : undefined,
-        changeFrequency: "weekly",
+        changeFrequency: "daily",
         priority: 0.7,
     }))
 

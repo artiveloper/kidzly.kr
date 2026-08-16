@@ -16,9 +16,17 @@ export function buildDaycareMetaStrings(daycare: DaycareDetail) {
     const year = new Date().getFullYear();
     const location = [daycare.sidoName, daycare.sigunguName].filter(Boolean).join(' ');
     const typeLabel = `${daycare.typeName}어린이집`;
-    const title = location
-        ? `${daycare.name} (${year}) | ${location} ${typeLabel} - 키즐리`
-        : `${daycare.name} (${year}) | ${typeLabel} - 키즐리`;
+    const buildTitle = (loc: string) =>
+        loc
+            ? `${daycare.name} (${year}) | ${loc} ${typeLabel} - 키즐리`
+            : `${daycare.name} (${year}) | ${typeLabel} - 키즐리`;
+
+    // 60자 초과 시 시군구를 생략해 시도명만으로 재구성 — 초장문 기관명 대응
+    // (실측 최장 사례: DB 전수 조회 기준 63자 1건, 시도만 남기면 59자로 60자 이내)
+    let title = buildTitle(location);
+    if (title.length > 60 && daycare.sidoName) {
+        title = buildTitle(daycare.sidoName);
+    }
 
     const addressLine = daycare.address
         ? `${daycare.address} 소재 ${typeLabel}`
