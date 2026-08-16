@@ -24,8 +24,6 @@ const NEARBY_POOL_LIMIT = 200;
 
 const REGION_LIST_COLUMNS = 'daycare_code, name, type_name, address';
 
-type DaycareRegionScanRow = Pick<DaycareRow, 'sido_name' | 'sigungu_name'>;
-
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
     const { limit = 200 } = options;
     const supabase = createServerClient();
@@ -277,38 +275,6 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
     }));
-}
-
-/**
- * status='정상' 레코드의 (sido_name, sigungu_name)만 배치로 조회 — sitemap.ts의
- * fetchDaycareIdsPaginated와 동일한 배치 패턴. domain/region의 시군구 디렉토리 집계 함수가
- * 전량 스캔용으로 호출한다 (build-time/SSR 전용, React Query 미경유).
- */
-export async function fetchDaycareRegionRowsPaginated(options: {
-    offset: number;
-    limit: number;
-    sido?: string;
-}): Promise<{ sido: string | null; sigungu: string | null }[]> {
-    const { offset, limit, sido } = options;
-    const supabase = createServerClient();
-
-    let req = supabase
-        .from('daycares')
-        .select('sido_name, sigungu_name')
-        .eq('status', '정상');
-
-    if (sido) req = req.eq('sido_name', sido);
-
-    // order 없이 range()만 쓰면 페이지마다 행 순서가 안정적이지 않아 배치 간 중복·누락이 발생한다
-    // (시군구 집계 카운트가 실제보다 작게 나오는 원인) — daycare_code로 정렬해 페이지네이션을 고정한다
-    const { data, error } = await req.order('daycare_code', { ascending: true }).range(offset, offset + limit - 1);
-
-    if (error) {
-        console.error('[fetchDaycareRegionRowsPaginated]', error.message);
-        return [];
-    }
-
-    return ((data ?? []) as DaycareRegionScanRow[]).map((r) => ({ sido: r.sido_name, sigungu: r.sigungu_name }));
 }
 
 const RANKING_COLUMNS =

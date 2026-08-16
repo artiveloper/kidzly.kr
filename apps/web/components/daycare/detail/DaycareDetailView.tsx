@@ -8,7 +8,6 @@ import { ArrowLeft, Check, Share2, ChevronRight } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { sendGAEvent } from '@next/third-parties/google';
 import { useDaycareDetail } from '@/domain/daycare';
-import { buildRegionPath } from '@/domain/region';
 import type { BlogPostMeta } from '@/lib/blog';
 import DaycareDetailContent from './DaycareDetailContent';
 import NaverBlogSection from './NaverBlogSection';
@@ -204,7 +203,7 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
 
                 {detail.sidoName && detail.sigunguName && (
                     <Link
-                        href={buildRegionPath(detail.sidoName, detail.sigunguName)}
+                        href="/daycares"
                         className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                     >
                         <span className="text-2xl" aria-hidden="true">📍</span>

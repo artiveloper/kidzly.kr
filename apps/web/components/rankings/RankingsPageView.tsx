@@ -122,11 +122,11 @@ export default async function RankingsPageView({ sido }: Props) {
                             <RankingsLists sido={sido} />
                         </Suspense>
 
-                        {/* 위(랭킹 TOP10)→아래(시군구 전체 목록 허브)로 연결하는 상호 링크 피라미드 —
-                            칩 나열 대신 /region/[sido] 인덱스 페이지로 보내는 카드 1개만 노출 */}
+                        {/* 위(랭킹 TOP10)→아래(지역별 전체 목록)로 연결하는 상호 링크 피라미드 —
+                            /region 폐지 후 /daycares 지역별 탭으로 안내(칩 재선택 필요) */}
                         {sido && (
                             <Link
-                                href={`/region/${encodeURIComponent(sido)}`}
+                                href="/daycares"
                                 className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                             >
                                 <span className="text-2xl">📍</span>

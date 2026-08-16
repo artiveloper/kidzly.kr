@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
-import { fetchSigunguDirectory } from "@/domain/region/server"
-import { SIDO_LIST, buildRegionPath } from "@/domain/region"
+import { SIDO_LIST } from "@/domain/region"
 import { getAllPosts } from "@/lib/blog"
 
 export const revalidate = 86400 // 24시간 캐시
@@ -29,7 +28,6 @@ const TERMS_UPDATED = new Date("2026-07-03")
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entries = await fetchAllDaycareEntries()
-    const sigunguDirectory = await fetchSigunguDirectory()
     const posts = getAllPosts()
 
     // sitemap 자체 재생성 시각 — /rankings는 revalidate 3600(1시간)으로 데이터가 계속 갱신되므로
@@ -81,20 +79,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             lastModified: now,
             changeFrequency: "daily" as const,
             priority: 0.7,
-        })),
-        // 시도 단위 지역 인덱스 — /region/[sido]/[sigungu] 허브로 진입하는 상위 목록 페이지
-        ...SIDO_LIST.map((sido) => ({
-            url: `${BASE_URL}/region/${encodeURIComponent(sido)}`,
-            lastModified: now,
-            changeFrequency: "weekly" as const,
-            priority: 0.68,
-        })),
-        // 시군구 단위 SEO 허브 — 랭킹(TOP10)과 상세(24,592건) 사이 빠진 중간층 크롤 경로
-        ...sigunguDirectory.map(({ sido, sigungu }) => ({
-            url: `${BASE_URL}${buildRegionPath(sido, sigungu)}`,
-            lastModified: now,
-            changeFrequency: "weekly" as const,
-            priority: 0.65,
         })),
         {
             // 최신 글 발행일 기준 — 목록 페이지가 실제로 언제 바뀌었는지 반영

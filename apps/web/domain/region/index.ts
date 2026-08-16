@@ -1,4 +1,4 @@
-export type { SigunguDirectoryEntry, SigunguEntry } from './types'
+export type { SigunguEntry } from './types'
 
 export const SIDO_LIST = [
     '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시',
@@ -41,9 +41,4 @@ export function formatLocation(sidoName: string | null, sigunguName: string | nu
 
 export function isValidSido(value: string): value is Sido {
     return (SIDO_LIST as readonly string[]).includes(value);
-}
-
-/** `/region/[sido]/[sigungu]` 경로 빌더 — encodeURIComponent 산재 방지용 단일 진입점. */
-export function buildRegionPath(sido: string, sigungu: string): string {
-    return `/region/${encodeURIComponent(sido)}/${encodeURIComponent(sigungu)}`;
 }
