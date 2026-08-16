@@ -7,7 +7,6 @@ import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsLists from '@/components/rankings/RankingsLists';
 import { RankingsListsSkeleton } from '@/components/rankings/RankingsSkeleton';
 import SidoFilter from '@/components/rankings/SidoFilter';
-import ShareButton from '@/components/rankings/ShareButton';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 
@@ -90,15 +89,9 @@ export default async function RankingsPageView({ sido }: Props) {
                 {/* 페이지 소개 */}
                 <div className="bg-white border-b border-gray-100">
                     <div className="max-w-2xl mx-auto px-4 pt-7 pb-6">
-                        <div className="flex items-center justify-between gap-3 mb-1">
-                            <h1 className="text-xl font-bold text-gray-900">
-                                {regionLabel} 어린이집 랭킹
-                            </h1>
-                            <ShareButton
-                                title={`${regionLabel} 어린이집 랭킹 | 키즐리`}
-                                url={pageUrl}
-                            />
-                        </div>
+                        <h1 className="mb-1 text-xl font-bold text-gray-900">
+                            {regionLabel} 어린이집 랭킹
+                        </h1>
                         <p className="text-sm text-gray-400 mb-5">
                             다양한 기준으로 {regionLabel} 어린이집을 비교해보세요.
                         </p>
@@ -113,8 +106,8 @@ export default async function RankingsPageView({ sido }: Props) {
                                         <Icon size={15} />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-gray-800 leading-snug">{label}</p>
-                                        <p className="text-[11px] text-gray-400 leading-snug mt-0.5">{description}</p>
+                                        <p className="text-sm font-bold text-gray-800 leading-snug">{label}</p>
+                                        <p className="text-xs text-gray-400 leading-snug mt-0.5">{description}</p>
                                     </div>
                                 </a>
                             ))}

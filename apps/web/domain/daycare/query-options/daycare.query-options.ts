@@ -89,7 +89,12 @@ export const daycareQueryOptions = {
 
     regionList: (params: DaycareRegionListParams) => ({
         queryKey: daycareQueryKeys.regionList(params),
-        queryFn: () => fetchDaycaresBySigungu(params.sido, params.sigungu, { limit: params.limit ?? DEFAULT_REGION_LIST_LIMIT }),
+        queryFn: () => fetchDaycaresBySigungu(params.sido, params.sigungu, {
+            limit: params.limit ?? DEFAULT_REGION_LIST_LIMIT,
+            vehicleOperation: params.vehicleOperation,
+            services: params.services,
+            ages: params.ages,
+        }),
         // nearby/ranking*과 동일하게 준정적 리스트로 취급 — 1시간 staleTime
         staleTime: 60 * 60 * 1000,
     }),

@@ -52,7 +52,7 @@ export default function RecentRankingList({ items }: Props) {
 
                             <div className="shrink-0 text-right">
                                 <p className="text-sm font-bold text-gray-800 leading-none">{formatDate(item.certifiedDate)}</p>
-                                <p className="text-[10px] text-gray-400 mt-0.5">인가일</p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">인허가일</p>
                             </div>
                         </Link>
                     </li>

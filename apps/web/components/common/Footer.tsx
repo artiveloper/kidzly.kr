@@ -9,10 +9,6 @@ export default function Footer() {
                         서비스 소개
                     </Link>
                     <span className="w-px h-3 bg-gray-200" />
-                    <Link href="/region" className="hover:text-gray-900 transition-colors">
-                        지역별 보기
-                    </Link>
-                    <span className="w-px h-3 bg-gray-200" />
                     <Link href="/about#contact" className="hover:text-gray-900 transition-colors">
                         문의
                     </Link>

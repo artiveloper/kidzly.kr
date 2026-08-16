@@ -170,17 +170,35 @@ export async function fetchDaycareNearby(
 export async function fetchDaycaresBySigungu(
     sido: string,
     sigungu: string,
-    options: { limit?: number } = {}
+    options: { limit?: number; vehicleOperation?: boolean; services?: string[]; ages?: number[] } = {}
 ): Promise<DaycareRegionListResult> {
-    const { limit = DEFAULT_REGION_LIST_LIMIT } = options;
+    const { limit = DEFAULT_REGION_LIST_LIMIT, vehicleOperation, services, ages } = options;
     const supabase = createSupabaseClient();
 
-    const { data, error, count } = await supabase
+    let req = supabase
         .from('daycares')
         .select(REGION_LIST_COLUMNS, { count: 'exact' })
         .eq('status', '정상')
         .eq('sido_name', sido)
-        .eq('sigungu_name', sigungu)
+        .eq('sigungu_name', sigungu);
+
+    if (vehicleOperation) {
+        req = req.eq('vehicle_operation', '운영');
+    }
+
+    if (services && services.length > 0) {
+        // 콤마 구분 문자열 내 부분 일치 — 선택한 서비스 모두 포함 (AND, fetchDaycaresInBounds와 동일 패턴)
+        for (const s of services) {
+            req = req.ilike('services', `%${s}%`);
+        }
+    }
+
+    if (ages && ages.length > 0) {
+        const ageFilter = ages.map((a) => `class_count_age_${a}.gt.0`).join(',');
+        req = req.or(ageFilter);
+    }
+
+    const { data, error, count } = await req
         .order('name', { ascending: true })
         .limit(limit);
 
@@ -241,10 +259,13 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
     const { offset, limit } = options;
     const supabase = createServerClient();
 
+    // order 없이 range()만 쓰면 페이지마다 행 순서가 안정적이지 않아 배치 간 중복·누락이 발생한다
+    // (sitemap URL 누락/중복 원인) — daycare_code로 정렬해 페이지네이션을 고정한다
     const { data, error } = await supabase
         .from('daycares')
         .select('daycare_code, data_standard_date')
         .eq('status', '정상')
+        .order('daycare_code', { ascending: true })
         .range(offset, offset + limit - 1);
 
     if (error) {
@@ -278,7 +299,9 @@ export async function fetchDaycareRegionRowsPaginated(options: {
 
     if (sido) req = req.eq('sido_name', sido);
 
-    const { data, error } = await req.range(offset, offset + limit - 1);
+    // order 없이 range()만 쓰면 페이지마다 행 순서가 안정적이지 않아 배치 간 중복·누락이 발생한다
+    // (시군구 집계 카운트가 실제보다 작게 나오는 원인) — daycare_code로 정렬해 페이지네이션을 고정한다
+    const { data, error } = await req.order('daycare_code', { ascending: true }).range(offset, offset + limit - 1);
 
     if (error) {
         console.error('[fetchDaycareRegionRowsPaginated]', error.message);
@@ -354,6 +377,35 @@ export async function fetchDaycareRankingOldest(limit = 10, sido?: string): Prom
 
     if (error) {
         console.error('[fetchDaycareRankingOldest]', error.message);
+        throw new Error(error.message);
+    }
+
+    // Supabase JS가 string-typed select에서 열을 추론하지 못하므로 DaycareRankingRow(Pick)로 단언
+    return (data ?? []).map((row, i) => toDaycareRecentItem(row as DaycareRankingRow, i + 1));
+}
+
+/**
+ * 오픈 예정 어린이집 조회 — certified_date(인가일자)가 오늘(KST) 이후인 건을 인가일 임박 순으로 반환.
+ * 공공데이터 특성상 인가일자가 미래로 등록된 경우가 있어(개원 예정), "최근 등록"과 별개로 다룬다.
+ */
+export async function fetchDaycareRankingUpcoming(limit = 10, sido?: string): Promise<DaycareRecentItem[]> {
+    const supabase = createSupabaseClient();
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+
+    let req = supabase
+        .from('daycares')
+        .select(RANKING_COLUMNS)
+        .eq('status', '정상')
+        .not('certified_date', 'is', null)
+        .gte('certified_date', today)
+        .order('certified_date', { ascending: true });
+
+    if (sido) req = req.eq('sido_name', sido);
+
+    const { data, error } = await req.limit(limit);
+
+    if (error) {
+        console.error('[fetchDaycareRankingUpcoming]', error.message);
         throw new Error(error.message);
     }
 

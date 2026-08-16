@@ -5,7 +5,7 @@ export function saveDaycareReturnUrl() {
 }
 
 export function popDaycareReturnUrl(): string {
-    const url = sessionStorage.getItem('daycare_return_url') ?? '/';
+    const url = sessionStorage.getItem('daycare_return_url') ?? '/map';
     sessionStorage.removeItem('daycare_return_url');
     return url;
 }

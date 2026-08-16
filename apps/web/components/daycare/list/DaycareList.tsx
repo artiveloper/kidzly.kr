@@ -6,7 +6,11 @@ import type { DaycareListItem as DaycareListItemType, DaycareAgeFilter } from '@
 import { daycareFilterParsers } from '@/domain/daycare';
 import type { BlogPostMeta } from '@/lib/blog';
 import DaycareListItem from './DaycareListItem';
+import DaycareListItemSkeleton from './DaycareListItemSkeleton';
 import ContentPromoCard from './ContentPromoCard';
+
+// 초기 로딩 시 노출할 스켈레톤 개수
+const SKELETON_COUNT = 6;
 
 // 목록이 충분히 길 때만 자연스럽게 끼워넣기 위한 삽입 위치(0-based, 해당 인덱스 항목 뒤에 삽입)
 const CONTENT_SLOT_POSITIONS = [5, 15];
@@ -38,7 +42,13 @@ export default function DaycareList({ daycares, isLoading = false, scrollRef, pr
                 <div className="h-full bg-emerald-500 animate-[loading_1s_ease-in-out_infinite]" />
             </div>
 
-            {daycares.length === 0 && !isLoading ? (
+            {daycares.length === 0 && isLoading ? (
+                <>
+                    {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                        <DaycareListItemSkeleton key={i} />
+                    ))}
+                </>
+            ) : daycares.length === 0 && !isLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center px-6">
                     <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
                         <span className="text-2xl">🔍</span>

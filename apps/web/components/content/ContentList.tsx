@@ -27,11 +27,11 @@ export default function ContentList({ posts }: Props) {
         <div>
             {categories.length > 1 && (
                 <div className="flex gap-2 flex-nowrap overflow-x-auto scrollbar-none sm:flex-wrap sm:overflow-visible py-2 -mx-4 px-4 sm:mx-0 sm:px-0 mb-2">
-                    <FilterChip active={category === null} onClick={() => setCategory(null)}>
+                    <FilterChip size="lg" active={category === null} onClick={() => setCategory(null)}>
                         전체
                     </FilterChip>
                     {categories.map((name) => (
-                        <FilterChip key={name} active={category === name} onClick={() => setCategory(name)}>
+                        <FilterChip key={name} size="lg" active={category === name} onClick={() => setCategory(name)}>
                             {name}
                         </FilterChip>
                     ))}

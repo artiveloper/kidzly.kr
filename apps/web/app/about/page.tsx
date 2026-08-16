@@ -120,7 +120,7 @@ export default function AboutPage() {
             <main className="pt-14">
                 {/* Hero */}
                 <section className="pt-12 pb-14 bg-emerald-50">
-                    <div className="max-w-lg mx-auto px-5">
+                    <div className="max-w-2xl mx-auto px-4">
                         <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-full px-3 py-1 mb-5">
                             <MapPin size={11} />
                             지도 기반 어린이집 검색
@@ -138,7 +138,7 @@ export default function AboutPage() {
                             size="lg"
                             className="rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white"
                         >
-                            <Link href="/">
+                            <Link href="/map">
                                 어린이집 찾아보기
                                 <ArrowRight size={15} />
                             </Link>
@@ -146,7 +146,7 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                <div className="max-w-lg mx-auto px-5">
+                <div className="max-w-2xl mx-auto px-4">
                     {/* 만들게 된 이야기 */}
                     <section className="py-10 border-b border-gray-100">
                         <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-4">
@@ -379,7 +379,7 @@ export default function AboutPage() {
                                 size="lg"
                                 className="rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white"
                             >
-                                <Link href="/">
+                                <Link href="/map">
                                     어린이집 찾아보기
                                     <ArrowRight size={15} />
                                 </Link>

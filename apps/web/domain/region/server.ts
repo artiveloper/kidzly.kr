@@ -1,6 +1,6 @@
 import 'server-only'
-import { fetchDaycareRegionRowsPaginated } from '@/domain/daycare/server'
-import type { SigunguDirectoryEntry } from './types'
+import { fetchDaycareRegionRowsPaginated, fetchSigungus } from '@/domain/daycare/server'
+import type { SigunguDirectoryEntry, SigunguEntry } from './types'
 
 const BATCH_SIZE = 1_000
 
@@ -59,4 +59,22 @@ export async function fetchSigunguDirectory(): Promise<SigunguDirectoryEntry[]> 
 export async function fetchSigunguListBySido(sido: string): Promise<SigunguDirectoryEntry[]> {
     const rows = await scanRegionRows(sido)
     return aggregate(rows)
+}
+
+/**
+ * 정적 sigungus 참조 테이블에서 시군구 이름만 가져온다 — 단일 쿼리, 카운트 없음.
+ * daycares 24,000여 건을 배치로 전량 스캔하는 fetchSigunguDirectory보다 훨씬 가볍지만,
+ * 참조 테이블이 최신 daycares 데이터와 어긋날 수 있어(폐원·행정구역 변경 등) 등록된
+ * 어린이집이 없는 시군구가 섞여 들어올 수 있다 — 해당 칩을 눌러도 목록이 비어 있을 뿐 에러는 아니다.
+ * /daycares 지역별 탭(사용자 요청 경로) 전용 — generateStaticParams·sitemap.ts는 화이트리스트
+ * 정확도가 더 중요해 fetchSigunguDirectory를 그대로 쓴다.
+ */
+export async function fetchSigunguNames(): Promise<SigunguEntry[]> {
+    const rows = await fetchSigungus()
+    return rows
+        .map((row) => ({ sido: row.sidoname, sigungu: row.sigunname }))
+        .sort((a, b) => {
+            if (a.sido !== b.sido) return a.sido.localeCompare(b.sido, 'ko')
+            return a.sigungu.localeCompare(b.sigungu, 'ko')
+        })
 }

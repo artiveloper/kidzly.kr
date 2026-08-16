@@ -26,6 +26,9 @@ export type DaycareRegionListParams = {
     sido: string
     sigungu: string
     limit?: number
+    vehicleOperation?: boolean
+    services?: string[]
+    ages?: number[]
 }
 
 export const daycareQueryKeys = {

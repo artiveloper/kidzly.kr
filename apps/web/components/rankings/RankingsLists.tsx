@@ -62,7 +62,7 @@ export default function RankingsLists({ sido }: Props) {
                     <h2 className="text-lg font-bold text-gray-900 mb-1">
                         {regionLabel} 가장 오래된 어린이집 TOP 10
                     </h2>
-                    <p className="text-xs text-gray-400">인가일 기준 가장 역사가 긴 어린이집</p>
+                    <p className="text-xs text-gray-400">인허가일 기준 가장 역사가 긴 어린이집</p>
                 </div>
                 <RecentRankingList items={oldest} />
             </section>
@@ -71,7 +71,7 @@ export default function RankingsLists({ sido }: Props) {
                 <p className="text-sm font-semibold text-gray-900 mb-1">내 주변 어린이집이 궁금하신가요?</p>
                 <p className="text-xs text-gray-400 mb-3">지도에서 위치·대기·정원을 한눈에 확인하세요.</p>
                 <Link
-                    href="/"
+                    href="/map"
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 px-4 py-2 rounded-lg transition-colors"
                 >
                     어린이집 찾아보기

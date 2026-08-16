@@ -4,21 +4,27 @@ import { useQueryState } from 'nuqs';
 import { RotateCcw } from 'lucide-react';
 import React from 'react';
 import type { DaycareAgeFilter } from '@/domain/daycare';
-import {
-    DAYCARE_AGE_LABELS,
-    useDaycareTypeNames,
-    useDaycareServiceTypes,
-    daycareFilterParsers,
-} from '@/domain/daycare';
+import { DAYCARE_AGE_LABELS, daycareFilterParsers } from '@/domain/daycare';
+import { cn } from '@workspace/ui/lib/utils';
 import { Button } from '@workspace/ui/components/button';
 import TypeFilter from "@/components/daycare/list/filters/TypeFilter"
 import AgeFilter from "@/components/daycare/list/filters/AgeFilter"
 import ServicesFilter from "@/components/daycare/list/filters/ServicesFilter"
+import { DAYCARE_TYPE_EMOJI, DAYCARE_SERVICE_EMOJI } from "@/components/daycare/list/filters/filterEmojis"
 
-export default function DaycareFilters() {
-    const { data: typeNames = [] } = useDaycareTypeNames();
-    const { data: serviceTypes = [] } = useDaycareServiceTypes();
+// DB의 daycare_type_names/daycare_service_types는 "실제 존재하는 값"만 담겨 있어 일부 유형·서비스가
+// 누락될 수 있다 — 필터는 항상 전체 분류 체계를 보여줘야 하므로 정적 카탈로그(filterEmojis)를 기준으로 삼는다.
+// 통학차량은 별도 체크박스(vehicle_operation)로 이미 다뤄지므로 지원서비스 목록에서는 제외.
+const TYPE_NAMES = Object.keys(DAYCARE_TYPE_EMOJI);
+const SERVICE_TYPES = Object.keys(DAYCARE_SERVICE_EMOJI).filter((name) => name !== '통학차량');
 
+type Props = {
+    // /map처럼 컨테이너 없이 화면 전체 너비에 놓일 땐 기본 px-4(좌측 여백)가 필요하고,
+    // /daycares처럼 이미 px-4 컨테이너 안에 놓일 땐 목록과 좌측 기준을 맞추기 위해 지워야 한다
+    className?: string;
+};
+
+export default function DaycareFilters({ className }: Props) {
     const [activeType, setActiveType] = useQueryState('type', daycareFilterParsers.type);
     const [vehicleOperation, setVehicleOperation] = useQueryState('vehicle', daycareFilterParsers.vehicle);
     const [activeServices, setActiveServices] = useQueryState('services', daycareFilterParsers.services);
@@ -77,7 +83,7 @@ export default function DaycareFilters() {
     };
 
     return (
-        <div className="scrollbar-none flex gap-2 overflow-x-auto px-4 py-2.5">
+        <div className={cn("scrollbar-none flex gap-2 overflow-x-auto px-4 py-2.5", className)}>
             {isAnyActive && (
                 <Button
                     size="sm"
@@ -89,7 +95,7 @@ export default function DaycareFilters() {
                 </Button>
             )}
             <TypeFilter
-                typeNames={typeNames}
+                typeNames={TYPE_NAMES}
                 activeType={activeType}
                 toggleType={toggleType}
                 isActive={isTypeActive}
@@ -104,7 +110,7 @@ export default function DaycareFilters() {
             />
 
             <ServicesFilter
-                serviceTypes={serviceTypes}
+                serviceTypes={SERVICE_TYPES}
                 activeServices={activeServices}
                 vehicleOperation={vehicleOperation ?? false}
                 toggleService={toggleService}

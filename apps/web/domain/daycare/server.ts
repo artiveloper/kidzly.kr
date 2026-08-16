@@ -8,3 +8,9 @@ export { fetchDaycareDetail } from './apis/daycare.api'
 export { fetchDaycareRegionRowsPaginated } from './apis/daycare.api'
 // RegionHubPageView의 generateMetadata/notFound(totalCount===0) 판단에 직접 사용
 export { fetchDaycaresBySigungu } from './apis/daycare.api'
+// 홈페이지 통계 섹션의 등록 어린이집 수 표시에 사용
+export { fetchDaycareCount } from './apis/daycare.api'
+// 홈페이지 "지역별 오픈 예정 어린이집" 섹션에 사용
+export { fetchDaycareRankingUpcoming } from './apis/daycare.api'
+// domain/region의 fetchSigunguNames가 정적 sigungus 참조 테이블 조회에 사용
+export { fetchSigungus } from './apis/daycare.api'

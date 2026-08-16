@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const url = `${BASE_URL}/contents/${encodeURIComponent(post.slug)}`
 
     return {
-        title: `${post.title} | Kidzly`,
+        title: { absolute: `${post.title} | 키즐리` },
         description: post.description,
         keywords: post.keywords,
         alternates: { canonical: url },

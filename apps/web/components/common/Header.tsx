@@ -15,7 +15,8 @@ import {
 } from '@workspace/ui/components/sheet';
 
 const NAV_LINKS = [
-    { href: '/', label: '홈' },
+    { href: '/map', label: '지도' },
+    { href: '/daycares', label: '어린이집 찾기' },
     { href: '/rankings', label: '랭킹' },
     { href: '/contents', label: '콘텐츠' },
     { href: '/about', label: '서비스 소개' },
@@ -38,12 +39,24 @@ export default function Header() {
                     variant="ghost"
                     size="sm"
                     className={
-                        isActive('/')
+                        isActive('/map')
                             ? 'text-gray-900 font-bold underline underline-offset-4'
                             : 'text-gray-600 font-semibold'
                     }
                 >
-                    <Link href="/">홈</Link>
+                    <Link href="/map">지도</Link>
+                </Button>
+                <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className={
+                        isActive('/daycares')
+                            ? 'text-gray-900 font-bold underline underline-offset-4'
+                            : 'text-gray-600 font-semibold'
+                    }
+                >
+                    <Link href="/daycares">어린이집 찾기</Link>
                 </Button>
                 <Button
                     asChild
@@ -72,10 +85,6 @@ export default function Header() {
             </div>
 
             <div className="col-start-3 flex items-center justify-end gap-2">
-                <Button asChild className="hidden rounded sm:inline-flex" variant="secondary" size="sm">
-                    <Link href="/about">서비스 소개</Link>
-                </Button>
-
                 <Sheet>
                     <SheetTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-11 sm:hidden" aria-label="메뉴 열기">

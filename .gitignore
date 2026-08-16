@@ -40,3 +40,6 @@ npm-debug.log*
 
 .idea
 .tokensave
+
+# Serena MCP local cache/memory
+.serena/

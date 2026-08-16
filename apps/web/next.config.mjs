@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     transpilePackages: ["@workspace/ui"],
+    async redirects() {
+        // /region 인덱스는 /daycares(지역별 탭)로 완전히 대체됨 — /region/[sido] 이하는 그대로 유지
+        return [
+            { source: "/region", destination: "/daycares", permanent: true },
+        ]
+    },
 }
 
 // Run Velite on config load so it works under both webpack and Turbopack
