@@ -5,6 +5,12 @@ const nextConfig = {
         // /region 인덱스는 /daycares(지역별 탭)로 완전히 대체됨 — /region/[sido] 이하는 그대로 유지
         return [
             { source: "/region", destination: "/daycares", permanent: true },
+            // 보육료 글 2개가 사실상 같은 주제라 하나로 통합 — 흡수된 쪽을 유지 슬러그로 넘김
+            {
+                source: "/contents/보육료-지원-누가-얼마나",
+                destination: "/contents/보육료-지원-대상-및-금액",
+                permanent: true,
+            },
         ]
     },
 }
