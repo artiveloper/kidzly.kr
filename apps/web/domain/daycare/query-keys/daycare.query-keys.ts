@@ -23,8 +23,8 @@ export type DaycareNearbyParams = {
 }
 
 export type DaycareRegionListParams = {
-    sido: string
-    sigungu: string
+    /** sigungus.arcode와 동일한 값 공간의 시군구 코드 (daycares.sigungu_code) */
+    sigunguCode: string
     limit?: number
     vehicleOperation?: boolean
     services?: string[]

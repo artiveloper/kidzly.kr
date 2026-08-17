@@ -2,4 +2,6 @@
 export type SigunguEntry = {
     sido: string;
     sigungu: string;
+    /** sigungus.arcode — daycares.sigungu_code와 동일한 값 공간(둘 다 varchar), 지역별 목록 조회 키 */
+    arcode: string;
 };

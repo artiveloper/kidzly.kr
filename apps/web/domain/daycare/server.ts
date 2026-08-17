@@ -14,3 +14,5 @@ export { fetchDaycareRegionSummary } from './apis/daycare.api'
 export { fetchDaycareRankingUpcoming } from './apis/daycare.api'
 // domain/region의 fetchSigunguNames가 정적 sigungus 참조 테이블 조회에 사용
 export { fetchSigungus } from './apis/daycare.api'
+// /daycares 지역별 탭이 딥링크의 필터를 클라이언트와 같은 파서로 읽어 prefetch에 반영할 때 사용
+export { loadDaycareFilters, toDaycareFilterParams } from './parser/daycare.filter-parsers'

@@ -201,9 +201,9 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
                     <ChevronRight size={16} className="shrink-0 text-gray-400" />
                 </Link>
 
-                {detail.sidoName && detail.sigunguName && (
+                {detail.sigunguCode && detail.sigunguName && (
                     <Link
-                        href={`/daycares?sido=${encodeURIComponent(detail.sidoName)}&sigungu=${encodeURIComponent(detail.sigunguName)}`}
+                        href={`/daycares?arcode=${detail.sigunguCode}`}
                         className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                     >
                         <span className="text-2xl" aria-hidden="true">📍</span>

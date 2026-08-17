@@ -89,7 +89,7 @@ export const daycareQueryOptions = {
 
     regionList: (params: DaycareRegionListParams) => ({
         queryKey: daycareQueryKeys.regionList(params),
-        queryFn: () => fetchDaycaresBySigungu(params.sido, params.sigungu, {
+        queryFn: () => fetchDaycaresBySigungu(params.sigunguCode, {
             limit: params.limit ?? DEFAULT_REGION_LIST_LIMIT,
             vehicleOperation: params.vehicleOperation,
             services: params.services,

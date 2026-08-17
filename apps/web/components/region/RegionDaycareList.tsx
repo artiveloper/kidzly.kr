@@ -7,8 +7,8 @@ import { useDaycareRegionList, daycareFilterParsers } from '@/domain/daycare';
 import TypeBadge from '@/components/rankings/TypeBadge';
 
 type Props = {
-    sido: string;
-    sigungu: string;
+    /** sigungus.arcode와 동일한 값 공간의 시군구 코드 (daycares.sigungu_code) */
+    sigunguCode: string;
 };
 
 // 카드는 이름+유형뱃지+주소만(밀도 낮춰 대형 지역도 스크롤 부담 적게) — SSR 시 실제 <a href>가
@@ -21,15 +21,14 @@ type Props = {
 // (지역 스코프 결과가 이미 소량이라 유형까지 서버 왕복할 필요는 없음).
 // 필터 UI(DaycareFilters) 자체는 부모(SidoChipList)가 Suspense 경계 밖에서 렌더한다 —
 // 여기 두면 필터를 바꿀 때마다 이 컴포넌트가 통째로 suspend되며 필터 바까지 스켈레톤에 가려진다.
-export default function RegionDaycareList({ sido, sigungu }: Props) {
+export default function RegionDaycareList({ sigunguCode }: Props) {
     const [activeType] = useQueryState('type', daycareFilterParsers.type);
     const [vehicleOperation] = useQueryState('vehicle', daycareFilterParsers.vehicle);
     const [activeServices] = useQueryState('services', daycareFilterParsers.services);
     const [activeAge] = useQueryState('age', daycareFilterParsers.age);
 
     const { data } = useDaycareRegionList({
-        sido,
-        sigungu,
+        sigunguCode,
         vehicleOperation: vehicleOperation || undefined,
         services: activeServices.length > 0 ? activeServices : undefined,
         ages: activeAge !== null ? [Number(activeAge)] : undefined,

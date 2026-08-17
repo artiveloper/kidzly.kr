@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
-import { SIDO_LIST } from "@/domain/region"
+import { fetchSidoNames } from "@/domain/region/server"
 import { getAllPosts } from "@/lib/blog"
 
 export const revalidate = 86400 // 24시간 캐시
@@ -28,6 +28,7 @@ const TERMS_UPDATED = new Date("2026-07-03")
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entries = await fetchAllDaycareEntries()
+    const sidoNames = await fetchSidoNames()
     const posts = getAllPosts()
 
     // sitemap 자체 재생성 시각 — /rankings는 revalidate 3600(1시간)으로 데이터가 계속 갱신되므로
@@ -74,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         },
         // 경로형 지역 랭킹 — 쿼리파라미터 대신 색인 가능한 개별 URL
-        ...SIDO_LIST.map((sido) => ({
+        ...sidoNames.map((sido) => ({
             url: `${BASE_URL}/rankings/${encodeURIComponent(sido)}`,
             lastModified: now,
             changeFrequency: "daily" as const,

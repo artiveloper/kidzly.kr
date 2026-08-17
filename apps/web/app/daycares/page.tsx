@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
-import { SIDO_LIST, SIDO_SHORT } from '@/domain/region'
-import { fetchSigunguNames } from '@/domain/region/server'
+import { getSidoShort } from '@/domain/region'
+import { fetchSidoNames, fetchSigunguNames } from '@/domain/region/server'
 import type { SigunguEntry } from '@/domain/region'
-import { daycarePrefetch, fetchDaycareRankingUpcoming } from '@/domain/daycare/server'
+import {
+    daycarePrefetch,
+    fetchDaycareRankingUpcoming,
+    loadDaycareFilters,
+    toDaycareFilterParams,
+} from '@/domain/daycare/server'
 import { runPrefetch } from '@/lib/react-query/prefetch'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data/breadcrumb'
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
@@ -45,8 +50,13 @@ const TABS = [
     { key: 'upcoming', label: '인허가예정' },
 ] as const
 
+// sido와 arcode는 배타적이다 — 시군구까지 선택된 상태는 ?arcode=11680, 시도만 선택된
+// 상태는 ?sido=서울특별시. sido는 클라이언트(SidoChipList)에서만 소비하므로 여기선 읽지 않는다.
+// 필터(vehicle/services/age)는 loadDaycareFilters로 읽어야 하므로 인덱스 시그니처를 함께 둔다.
 type Props = {
-    searchParams: Promise<{ tab?: string; sido?: string; sigungu?: string }>
+    searchParams: Promise<
+        { tab?: string; sido?: string; arcode?: string } & Record<string, string | string[] | undefined>
+    >
 }
 
 const breadcrumbLd = buildBreadcrumbJsonLd([
@@ -55,7 +65,8 @@ const breadcrumbLd = buildBreadcrumbJsonLd([
 ])
 
 export default async function DaycaresPage({ searchParams }: Props) {
-    const { tab, sido, sigungu } = await searchParams
+    const params = await searchParams
+    const { tab, arcode } = params
     const activeTab = tab === 'upcoming' ? 'upcoming' : 'region'
 
     return (
@@ -97,7 +108,7 @@ export default async function DaycaresPage({ searchParams }: Props) {
 
                 <div className="mx-auto max-w-2xl px-4 pt-6 pb-12">
                     {activeTab === 'region' ? (
-                        <RegionSection sido={sido} sigungu={sigungu} />
+                        <RegionSection arcode={arcode} searchParams={params} />
                     ) : (
                         <UpcomingSection />
                     )}
@@ -118,14 +129,27 @@ function groupBySido(entries: SigunguEntry[]): Record<string, SigunguEntry[]> {
     return map
 }
 
-async function RegionSection({ sido, sigungu }: { sido?: string; sigungu?: string }) {
+async function RegionSection({
+    arcode,
+    searchParams,
+}: {
+    arcode?: string
+    searchParams: Record<string, string | string[] | undefined>
+}) {
     const entries = await fetchSigunguNames()
     const sigunguBySido = groupBySido(entries)
 
-    // sido=&sigungu= 딥링크로 들어온 경우 초기 로드부터 해당 지역 목록을 prefetch —
-    // sigunguBySido와 대조해 유효한 조합일 때만 (SidoChipList의 클라이언트 검증과 동일 기준)
-    if (sido && sigungu && sigunguBySido[sido]?.some((entry) => entry.sigungu === sigungu)) {
-        const state = await runPrefetch(daycarePrefetch.regionList({ sido, sigungu }))
+    // arcode= 딥링크로 들어온 경우 초기 로드부터 해당 시군구 목록을 prefetch —
+    // 엔트리 목록에 실재하는 코드일 때만 (SidoChipList의 클라이언트 검증과 동일 기준).
+    // sido=만 들어온 1단계 상태는 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않는다.
+    const selectedEntry = arcode ? entries.find((entry) => entry.arcode === arcode) : undefined
+    if (selectedEntry) {
+        // 필터가 URL에 함께 실려 있으면 prefetch에도 반영해야 한다 — 반영하지 않으면
+        // queryKey가 클라이언트 hook과 어긋나 목록이 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
+        const filters = toDaycareFilterParams(loadDaycareFilters(searchParams))
+        const state = await runPrefetch(
+            daycarePrefetch.regionList({ sigunguCode: selectedEntry.arcode, ...filters })
+        )
         return (
             <HydrationBoundary state={state}>
                 <SidoChipList sigunguBySido={sigunguBySido} />
@@ -140,13 +164,14 @@ async function RegionSection({ sido, sigungu }: { sido?: string; sigungu?: strin
 const UPCOMING_LIMIT = 100
 
 async function UpcomingSection() {
+    const sidoNames = await fetchSidoNames()
     const [upcomingAll, ...upcomingBySido] = await Promise.all([
         fetchDaycareRankingUpcoming(UPCOMING_LIMIT),
-        ...SIDO_LIST.map((sido) => fetchDaycareRankingUpcoming(UPCOMING_LIMIT, sido)),
+        ...sidoNames.map((sido) => fetchDaycareRankingUpcoming(UPCOMING_LIMIT, sido)),
     ])
     const regions = [
         { key: '전체', label: '전체', items: upcomingAll },
-        ...SIDO_LIST.map((sido, i) => ({ key: sido, label: SIDO_SHORT[sido], items: upcomingBySido[i] ?? [] })),
+        ...sidoNames.map((sido, i) => ({ key: sido, label: getSidoShort(sido), items: upcomingBySido[i] ?? [] })),
     ]
 
     return <UpcomingDaycareList regions={regions} />

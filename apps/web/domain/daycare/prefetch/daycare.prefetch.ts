@@ -59,7 +59,7 @@ export const daycarePrefetch = {
         }
     },
 
-    // /daycares?sido=&sigungu= 딥링크 진입 시 초기 페이지에서 사용
+    // /daycares?arcode= 딥링크 진입 시 초기 페이지에서 사용 (arcode = sigunguCode)
     regionList(params: DaycareRegionListParams) {
         return async (queryClient: QueryClient) => {
             await queryClient.prefetchQuery(daycareQueryOptions.regionList(params))

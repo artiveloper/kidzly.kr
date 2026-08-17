@@ -1,55 +1,152 @@
-# 02_domain_changes.md — 시군구 SEO 허브 페이지: 도메인 레이어 구현
+# Phase 2 — 도메인 레이어 변경 사항 (daycare)
 
-`01_refactor_spec.md`의 "신규/수정 파일" 중 `domain/region`, `domain/daycare` 범위만 구현.
-`npx tsc --noEmit` 통과 확인 완료 (exit 0, 신규/기존 코드 모두 에러 없음).
+지역별 어린이집 조회를 `(sido_name, sigungu_name)` 문자열 매칭 → `sigungu_code`(= `sigungus.arcode`) 코드 조인으로 전환했다.
+region 도메인(`types/index.ts`, `server.ts`)은 선행 작업에서 이미 완료된 상태를 확인만 하고 건드리지 않았다.
 
-## 신규 — `domain/region/`
-
-region 도메인은 스펙 설계대로 `apis/parser/query-keys/query-options/hooks/prefetch` 8계층을
-채우지 않음(자체 테이블 없음 + 빌드타임/SSR 전용이라 React Query가 소비하지 않음).
-
-| 파일 | 내용 |
-|---|---|
-| `domain/region/types/index.ts` (신규) | `SigunguDirectoryEntry = { sido, sigungu, count }` |
-| `domain/region/server.ts` (신규, `import 'server-only'`) | `fetchSigunguDirectory()` (전국 스캔), `fetchSigunguListBySido(sido)` (시도 스코프 스캔). 둘 다 내부 `scanRegionRows()`가 `domain/daycare/server`의 `fetchDaycareRegionRowsPaginated`를 1,000건 배치로 반복 호출해 전량 수집한 뒤, 내부 `aggregate()`가 `Map<"sido|sigungu", entry>`로 집계·건수 카운트·가나다순 정렬(`localeCompare('ko')`). `sido`/`sigungu` 중 하나라도 null인 행은 집계에서 제외. |
-| `domain/region/index.ts` (수정) | 최상단에 `export type { SigunguDirectoryEntry } from './types'` 추가. 하단에 `buildRegionPath(sido, sigungu)` 헬퍼 추가 — `/region/${encodeURIComponent(sido)}/${encodeURIComponent(sigungu)}` 반환. 기존 `SIDO_LIST`/`Sido`/`SIDO_SHORT`/`getSidoShort`/`formatLocation`/`isValidSido`는 그대로 유지(다른 파일 22곳에서 참조 중이라 시그니처 변경 없이 순수 추가만 진행). |
-
-## 수정 — `domain/daycare/`
-
-기존 `nearby`/`ranking*` 8계층 패턴을 그대로 복제해 `regionList` 계열 추가.
+## 변경 파일
 
 | 파일 | 변경 내용 |
-|---|---|
-| `types/index.ts` | `DaycareRegionListItem = { id, name, typeName, address }`, `DaycareRegionListResult = { items, totalCount }`, `DEFAULT_REGION_LIST_LIMIT = 72` 추가 (기존 `DaycareNearbyItem` 바로 아래). |
-| `parser/daycare.parser.ts` | `DaycareRegionRow = Pick<DaycareRow, 'daycare_code'\|'name'\|'type_name'\|'address'>` (`DaycareNearbyRow`와 동일 컬럼셋이지만 스펙 지시대로 별도 타입/함수로 분리), `toDaycareRegionListItem(row)` 파서 추가. |
-| `apis/daycare.api.ts` | ① `fetchDaycaresBySigungu(sido, sigungu, { limit = DEFAULT_REGION_LIST_LIMIT })` — `sido_name`+`sigungu_name` **문자열 조합**으로 `eq` 필터링(sigungu_code 미사용), `status='정상'`, `order('name', asc)`, `select(..., { count: 'exact' })`로 총 건수 동시 반환, `createSupabaseClient()`(isServer 분기)로 서버/클라 양쪽에서 재사용. 에러는 throw(기존 `fetchDaycareNearby`/`fetchDaycareDetail`과 동일 패턴). ② `fetchDaycareRegionRowsPaginated({ offset, limit, sido? })` — `sitemap.ts`의 `fetchDaycareIdsPaginated`와 동일한 offset/limit range 배치 패턴, `select('sido_name, sigungu_name')`만 조회, `createServerClient()` 직접 사용(build-time 전용), 에러 시 콘솔 로그 후 빈 배열 반환(throw 아님 — `fetchDaycareIdsPaginated`와 동일하게 sitemap/디렉토리 생성이 부분 실패해도 빌드가 죽지 않도록). `DaycareRegionScanRow = Pick<DaycareRow, 'sido_name'\|'sigungu_name'>`로 캐스팅. |
-| `query-keys/daycare.query-keys.ts` | `DaycareRegionListParams = { sido, sigungu, limit? }` 타입, `regionList: (params) => [...all, 'regionList', params] as const` 키 팩토리 추가. |
-| `query-options/daycare.query-options.ts` | `regionList: (params) => ({ queryKey: daycareQueryKeys.regionList(params), queryFn: () => fetchDaycaresBySigungu(...), staleTime: 60*60*1000 })` — `nearby`/`ranking*`과 동일하게 준정적 리스트로 취급해 1시간 staleTime. |
-| `hooks/daycare.hooks.ts` | `useDaycareRegionList(params: DaycareRegionListParams)` — `useSuspenseQuery(daycareQueryOptions.regionList(params))`. |
-| `prefetch/daycare.prefetch.ts` | `regionList(params)` — `queryClient.prefetchQuery(daycareQueryOptions.regionList(params))`. |
-| `index.ts` | `DaycareRegionListItem`, `DaycareRegionListResult` 타입, `DEFAULT_REGION_LIST_LIMIT` 상수, `DaycareRegionListParams` 타입, `useDaycareRegionList` 훅 export 추가. |
-| `server.ts` | `fetchDaycareRegionRowsPaginated` export 추가(region 도메인의 배치 스캔용 — `daycarePrefetch`엔 이미 `regionList`가 포함되므로 별도 export 불필요), `fetchDaycaresBySigungu` export 추가(`fetchDaycareDetail`과 동일 이유로 `generateMetadata`/`totalCount===0` → `notFound()` 판단에 UI 레이어가 직접 호출할 수 있도록). |
+|------|----------|
+| `apps/web/domain/daycare/apis/daycare.api.ts` | `fetchDaycaresBySigungu` 시그니처·WHERE 절·JSDoc 교체 |
+| `apps/web/domain/daycare/query-keys/daycare.query-keys.ts` | `DaycareRegionListParams` 필드 교체 |
+| `apps/web/domain/daycare/query-options/daycare.query-options.ts` | `regionList` queryFn 호출 인자 교체 |
+| `apps/web/domain/daycare/prefetch/daycare.prefetch.ts` | `regionList` 위 주석의 딥링크 URL 표기만 갱신 (코드 변경 없음) |
 
-## 핵심 설계 준수 확인
+변경 없음(확인만 완료) — `hooks/daycare.hooks.ts`, `index.ts`, `server.ts`, `parser/daycare.parser.ts`, `types/index.ts`.
+모두 `DaycareRegionListParams` 타입을 그대로 재수출·소비하고 있어 타입 변경이 자동 반영된다.
+`server.ts:7-8`의 `fetchDaycaresBySigungu` re-export 주석은 여전히 정확해 유지했다.
 
-- 그룹핑/필터 키는 전 구간 `sido_name`+`sigungu_name` 문자열 조합만 사용, `sigungus`/`sigungu_code` 미사용(기존 `fetchDaycareNearby`만 `sigungu_code` 사용 — 이건 스펙 범위 밖이라 그대로 둠).
-- non-null assertion(`!`), `any` 없음. `type` 사용. 에러는 throw(단, `fetchDaycareRegionRowsPaginated`는 기존 `fetchDaycareIdsPaginated`와 동일하게 빌드타임 배치 스캔 특성상 콘솔 로그 후 빈 배열 — 기존 컨벤션 그대로 복제).
-- `limit` 필수 파라미터(기본값 있음), 필요한 컬럼만 select.
-- prefetch queryKey = hook queryKey (동일 `daycareQueryOptions.regionList` 재사용으로 보장).
+## 시그니처 변경 전/후
 
-## 깨진 import 경고
+### `fetchDaycaresBySigungu` (apis/daycare.api.ts)
 
-없음. `npx tsc --noEmit` 전체 통과(0 errors). 기존 22개 파일에서 `@/domain/region` 또는
-`@/domain/daycare*`를 참조 중이나 모두 기존 export를 그대로 유지한 채 추가만 했으므로 영향 없음.
+```ts
+// 전
+export async function fetchDaycaresBySigungu(
+    sido: string,
+    sigungu: string,
+    options: { limit?: number; vehicleOperation?: boolean; services?: string[]; ages?: number[] } = {}
+): Promise<DaycareRegionListResult>
 
-## 이번 세션에서 다루지 않은 것 (스펙상 범위 밖, UI/라우트 레이어)
+// 후
+export async function fetchDaycaresBySigungu(
+    sigunguCode: string,
+    options: { limit?: number; vehicleOperation?: boolean; services?: string[]; ages?: number[] } = {}
+): Promise<DaycareRegionListResult>
+```
 
-- `app/region/[sido]/[sigungu]/page.tsx`, `loading.tsx`
-- `components/region/*` (`RegionHubPageView`, `RegionDaycareList` 등)
-- `components/rankings/SigunguLinksSection.tsx`, `RankingsPageView.tsx` 수정
-- `components/common/Breadcrumb.tsx`
-- `app/sitemap.ts`의 `/region/*` 엔트리 추가
+WHERE 절:
 
-위 항목은 `fetchSigunguDirectory`/`fetchSigunguListBySido`/`useDaycareRegionList`/
-`daycarePrefetch.regionList`/`buildRegionPath`를 그대로 소비하면 되도록 이번 도메인 레이어를
-설계함.
+```ts
+// 전
+.eq('status', '정상').eq('sido_name', sido).eq('sigungu_name', sigungu)
+
+// 후
+.eq('status', '정상').eq('sigungu_code', sigunguCode)
+```
+
+유지된 것 — `DEFAULT_REGION_LIST_LIMIT`(1000), `REGION_LIST_COLUMNS`, `count: 'exact'`,
+`order('name', { ascending: true })`, `vehicleOperation`/`services`/`ages` 필터 로직, 에러 throw 방식.
+파라미터명은 같은 파일 `fetchDaycareNearby(sigunguCode, ...)`의 기존 컨벤션에 맞췄다.
+
+JSDoc에 사각지대를 명시했다 — daycares 60,223건 중 `sigungus.arcode`에 없는 `sigungu_code`가
+3개 코드(12110/12240/12300) 총 4건(0.0066%). 전남광주통합특별시 관련 데이터 오염이며 무시 확정.
+칩 목록에 해당 시군구가 나타나지 않으므로 조회 자체가 도달하지 않는다.
+`daycares.sigungu_code`는 varchar(10) NOT NULL, `sigungus.arcode`도 varchar라 캐스팅·null 체크 없음.
+
+### `DaycareRegionListParams` (query-keys/daycare.query-keys.ts)
+
+```ts
+// 전
+export type DaycareRegionListParams = {
+    sido: string
+    sigungu: string
+    limit?: number
+    vehicleOperation?: boolean
+    services?: string[]
+    ages?: number[]
+}
+
+// 후
+export type DaycareRegionListParams = {
+    /** sigungus.arcode와 동일한 값 공간의 시군구 코드 (daycares.sigungu_code) */
+    sigunguCode: string
+    limit?: number
+    vehicleOperation?: boolean
+    services?: string[]
+    ages?: number[]
+}
+```
+
+`daycareQueryKeys.regionList` 팩토리는 params 객체를 그대로 키에 담으므로 로직 변경 없음.
+같은 파일 `DaycareNearbyParams.sigunguCode`(17번 줄)는 별개 용도라 손대지 않았다.
+
+### `daycareQueryOptions.regionList` (query-options/daycare.query-options.ts)
+
+```ts
+// 전
+queryFn: () => fetchDaycaresBySigungu(params.sido, params.sigungu, { ... })
+
+// 후
+queryFn: () => fetchDaycaresBySigungu(params.sigunguCode, { ... })
+```
+
+staleTime(1시간), limit 기본값 처리는 그대로.
+prefetch↔hook은 같은 queryOptions를 공유하므로 queryKey 일치는 계속 보장된다.
+
+## Phase 3에서 ui-engineer가 고쳐야 할 깨진 호출부
+
+typecheck 에러 2건 + 타입 에러는 안 나지만 함께 고쳐야 하는 1건.
+
+### 1. `apps/web/components/region/RegionDaycareList.tsx` — 타입 에러 (31번 줄)
+
+```
+error TS2353: Object literal may only specify known properties, and 'sido' does not exist in type 'DaycareRegionListParams'.
+```
+
+- `type Props = { sido: string; sigungu: string }` → `{ sigunguCode: string }`로 교체 (9-12번 줄).
+- `useDaycareRegionList({ sido, sigungu, ... })` → `useDaycareRegionList({ sigunguCode, ... })` (30-36번 줄).
+- 렌더링 로직은 sido/sigungu 이름을 화면에 쓰지 않으므로(카드는 name/typeName/address만) 그대로 두면 된다.
+
+### 2. `apps/web/app/daycares/page.tsx` — 타입 에러 (128번 줄)
+
+```
+error TS2353: Object literal may only specify known properties, and 'sido' does not exist in type 'DaycareRegionListParams'.
+```
+
+`RegionSection`(121-137번 줄)이 `?sido=&sigungu=` 딥링크를 검증한 뒤
+`daycarePrefetch.regionList({ sido, sigungu })`를 호출한다.
+확정된 URL 설계(`?arcode=11680` 2단계 / `?sido=서울특별시` 1단계 배타 사용)에 맞춰
+`searchParams` 읽기부터 prefetch 인자까지 함께 재작성해야 한다.
+`fetchSigunguNames()`가 반환하는 `SigunguEntry[]`에 `arcode`가 이미 포함되어 있으므로
+arcode → 엔트리 조회로 시도·시군구 이름을 역산하는 방식을 쓴다(접두 파싱 금지 — 코드 체계가 표준 행정코드와 어긋남).
+
+### 3. `apps/web/components/region/SidoChipList.tsx` — 타입 에러는 없으나 반드시 함께 수정
+
+87번 줄에서 `<RegionDaycareList sido={selectedSido} sigungu={selectedSigungu} />`를 렌더한다.
+위 1번에서 Props가 바뀌면 여기서 타입 에러가 발생한다(현재는 RegionDaycareList가 아직 옛 Props를 갖고 있어 조용함).
+- nuqs 파라미터를 `sigungu`(이름) → `arcode`(코드)로 교체 (33번 줄 `useQueryState('sigungu', ...)`).
+- 칩 렌더링(64-73번 줄)에서 표시 텍스트는 `sigungu` 이름 유지, `onClick`은 `setArcodeParam(arcode)`로 변경.
+- URL의 `arcode`로 선택 상태 역검증 (40번 줄의 이름 기반 검증 대체).
+
+### 함께 확인해야 할 링크 생성부 (architect 스펙 지적 사항)
+
+- `apps/web/components/daycare/detail/DaycareDetailView.tsx:206` — `?sido=&sigungu=` → `?arcode={detail.sigunguCode}` 단일 파라미터로 단순화. `DaycareDetail.sigunguCode`는 이미 존재한다.
+- `apps/web/components/rankings/RankingsPageView.tsx:137` — `?sido=` 단독 링크. 1단계 상태이므로 **무수정**으로 계속 동작한다.
+
+## typecheck 결과
+
+```
+> tsc --noEmit
+app/daycares/page.tsx(128,70): error TS2353: ... 'sido' does not exist in type 'DaycareRegionListParams'.
+components/region/RegionDaycareList.tsx(31,9): error TS2353: ... 'sido' does not exist in type 'DaycareRegionListParams'.
+```
+
+남은 에러 2건은 모두 `app/`과 `components/`에만 있다.
+**도메인 레이어(`apps/web/domain/**`)는 타입 에러 0건으로 깨끗하다.**
+두 에러는 Phase 3 작업 대상이며 예상된 상태다.
+
+## 범위 밖으로 남겨둔 것
+
+- `schema.sql`의 `idx_daycares_sido_sigungu_name` 인덱스 — 이번 교체로 앱 코드에서 미사용이 되지만 DDL 변경은 범위 밖이라 방치.
+- region 도메인의 `apis/query-keys/query-options/hooks/prefetch` 레이어 부재 — React Query를 쓰지 않는 순수 서버 유틸이라 의도된 설계로 판단, 손대지 않음.

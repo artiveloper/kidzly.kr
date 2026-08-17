@@ -1,57 +1,134 @@
-# 03_ui_changes.md — 시군구 SEO 허브 2차 구조 개선: UI/라우트 레이어 구현
+# Phase 3 — UI 레이어 변경 사항 (components/ + app/)
 
-`01_refactor_spec.md`의 작업 범위(`/region/[sido]` 인덱스 신설, `/rankings/[sido]` 칩 섹션 제거,
-`sitemap.ts` 확장, `/daycare/[id]` 역링크 카드 추가)를 구현. 신규 도메인 API 없이
-`02_domain_changes.md`가 이미 구현해 둔 `fetchSigunguListBySido`/`buildRegionPath`만 재사용.
-`npx tsc --noEmit` exit 0 확인 완료.
+확정된 URL 설계(`sido`와 `arcode` 배타 사용)에 맞춰 `/daycares` 지역별 탭의 선택 상태·prefetch·내부 링크를 전환했다.
+도메인 레이어(`apps/web/domain/**`)는 건드리지 않았다.
 
-## 신규 파일
-
-| 파일 | 내용 |
-|---|---|
-| `app/region/[sido]/page.tsx` | `generateStaticParams`(`SIDO_LIST` 17개) + `dynamicParams = false` + `resolveSido()`(`/rankings/[sido]/page.tsx`와 동일 패턴, decode+NFC+`isValidSido`) + `generateMetadata`(`buildRegionSidoMetadata`) + 본문은 `RegionSidoIndexView` 위임. |
-| `app/region/[sido]/loading.tsx` | 히어로(브레드크럼+타이틀)+시군구 칩 20개 skeleton. `app/region/[sido]/[sigungu]/loading.tsx`와 동일 톤. |
-| `components/region/RegionSidoIndexView.tsx` | 서버 async 컴포넌트. `getCachedSigunguList`(React `cache()`, `generateMetadata`↔본문 fetch dedup — `RegionHubPageView.getCachedRegionCount`와 동일 패턴)로 `fetchSigunguListBySido(sido)` 호출. 옛 `SigunguLinksSection.tsx`의 칩 그리드 렌더링 로직(스타일 그대로)을 페이지 본문으로 이사. `ItemList` + `BreadcrumbList` JSON-LD, `Breadcrumb`(홈 > OO 랭킹 > 지역별 전체 목록) 포함. 빈 상태(시군구 0개 — 방어용, 실질 발생 안 함)는 `notFound()` 대신 CLAUDE.md §12 원칙대로 "아직 등록된 시군구 정보가 없습니다" 안내 문구로 처리. |
-
-## 수정 파일
+## 변경 파일
 
 | 파일 | 변경 내용 |
-|---|---|
-| `components/region/region-meta.ts` | `buildRegionSidoMetadata(sido, sigunguCount)` 추가(기존 `buildRegionMetadata`와 동일 구조 — title/description/canonical/OG/Twitter). 스펙 예시 그대로 title에 시도 전체 명칭 사용(`서울특별시 어린이집 지역별 전체 목록 - 키즐리`). |
-| `components/rankings/RankingsPageView.tsx` | `SigunguLinksSection`/`SigunguLinksSectionSkeleton`/`ErrorBoundary` import 및 사용 블록 제거. `sido`가 있을 때만 렌더되는 "📍 {sido} 지역별 전체 목록 보기" CTA 카드 1개로 교체(`/daycare/[id]`의 🏆 카드와 동일 톤 — `rounded-xl bg-gray-50 p-4 hover:bg-gray-100`, `/region/${encodeURIComponent(sido)}`로 링크). `Link`, `ChevronRight` import 추가. |
-| `app/sitemap.ts` | `SIDO_LIST.map(...)` 블록 추가 — `/region/${encodeURIComponent(sido)}` 17개, `changeFrequency: "weekly"`, `priority: 0.68`. 기존 `sigunguDirectory.map` 블록(2단 `/region/[sido]/[sigungu]`) 바로 위에 배치. |
-| `components/daycare/detail/DaycareDetailView.tsx` | **범위 한정**: 기존 🏆 랭킹 카드를 감싸는 `<div className="border-t ... px-3 py-4">`에 `space-y-3`만 추가하고, 그 안에 `detail.sidoName && detail.sigunguName`일 때만 렌더되는 "📍 {sigunguName} 어린이집 전체보기" 카드 1개 추가(`href={buildRegionPath(detail.sidoName, detail.sigunguName)}`, 동일 카드 스타일 복제). `import { buildRegionPath } from '@/domain/region'` 추가. 그 외 로직·섹션(같은 지역 다른 어린이집 등)은 전혀 건드리지 않음. |
+|------|----------|
+| `apps/web/components/region/RegionDaycareList.tsx` | Props `{ sido, sigungu }` → `{ sigunguCode }`, 훅 호출 인자 교체 |
+| `apps/web/components/region/SidoChipList.tsx` | nuqs `sigungu`(이름) → `arcode`(코드) 교체, 선택 상태 판정 재작성 |
+| `apps/web/app/daycares/page.tsx` | `searchParams` 타입 교체, `RegionSection` 딥링크 검증·prefetch 재작성 |
+| `apps/web/components/daycare/detail/DaycareDetailView.tsx` | 지역 목록 링크를 `?arcode=` 단일 파라미터로 단순화 |
 
-## 삭제 파일
+변경 없음(확인만 완료) — `components/rankings/RankingsPageView.tsx`(`?sido=` 단독 링크, 1단계 상태라 무수정 동작),
+`components/common/SidoFilterChips.tsx`, `components/daycare/list/filters/DaycareFilters.tsx` 및 하위 필터,
+`components/region/RegionDaycareListSkeleton.tsx`, `RegionDaycareListError.tsx`, `app/rankings/[sido]`.
 
-- `components/rankings/SigunguLinksSection.tsx` (내용물은 `RegionSidoIndexView.tsx`로 이사)
-- `components/rankings/SigunguLinksSectionSkeleton.tsx` (더 이상 참조하는 곳 없음 — `app/region/[sido]/loading.tsx`에 자체 skeleton 인라인)
+## URL 파라미터 전 / 후
 
-삭제 후 `grep -r SigunguLinksSection apps/web` 확인 — 실제 import는 전부 제거됨, 남은 매치는
-`RegionSidoIndexView.tsx`의 이관 경위를 설명하는 주석 1건과 `_workspace/*.md` 이력 문서뿐.
+| 상태 | 전 | 후 |
+|------|-----|-----|
+| 1단계 — 시도만 선택 | `/daycares?sido=서울특별시` | `/daycares?sido=서울특별시` (동일) |
+| 2단계 — 시군구까지 선택 | `/daycares?sido=서울특별시&sigungu=강남구` | `/daycares?arcode=11680` |
 
-## Suspense 배치 요약
+두 파라미터는 배타적이다. 시군구 칩을 누르면 `setSidoParam(null)` + `setArcodeParam(arcode)`로
+`sido`를 URL에서 제거하고, 1단계에서 시도 칩을 누를 때도 남아 있을 수 있는 무효 `arcode`를 함께 정리한다.
 
-- `app/region/[sido]/page.tsx` → `app/region/[sido]/loading.tsx`가 세그먼트 자동 Suspense 담당(스트리밍 skeleton). `RegionSidoIndexView`는 React Query를 쓰지 않는 순수 서버 async 컴포넌트(도메인 문서와 동일 이유 — 빌드타임/SSR 전용 집계라 `useSuspenseQuery` 대상 아님)라 컴포넌트 레벨 `<Suspense>`는 불필요.
-- `components/rankings/RankingsPageView.tsx`의 신규 CTA 카드는 정적 링크(데이터 패칭 없음)라 `Suspense`/`ErrorBoundary` 불필요 — 제거된 `SigunguLinksSection`이 갖고 있던 것들(비동기 fetch + 에러 경계)을 그대로 걷어냄.
-- `DaycareDetailView.tsx`의 신규 카드도 이미 로드된 `useDaycareDetail` 데이터(`detail.sidoName`/`detail.sigunguName`)만 사용하는 정적 링크라 추가 경계 불필요.
+## 컴포넌트별 상세
 
-## 접근성 · 모바일
+### `RegionDaycareList.tsx`
 
-- 신규 카드/칩 전부 `min-h-11`(44px) 이상 터치 타겟 유지.
-- 신규 텍스트는 `text-gray-500` 이상만 사용(WCAG AA) — 기존 🏆 카드의 `text-gray-400` 서브텍스트는 스펙 지시대로 건드리지 않고 그대로 둠(범위 밖).
-- `Breadcrumb`는 기존 시맨틱 `<nav aria-label="breadcrumb">` 컴포넌트 재사용.
+`type Props = { sigunguCode: string }`, `useDaycareRegionList({ sigunguCode, vehicleOperation, services, ages })`.
+렌더링 로직(카드 마크업, 빈 상태 문구, totalCount 안내문, 필터 정책 주석)은 무수정 —
+이 컴포넌트는 sido/sigungu 이름을 화면에 표시한 적이 없다.
 
-## 깨진 import 경고
+### `SidoChipList.tsx`
 
-없음. `npx tsc --noEmit` exit 0. `domain/region`, `domain/daycare`의 기존 export(`fetchSigunguListBySido`, `buildRegionPath`, `SIDO_LIST`, `isValidSido`)만 그대로 소비.
+선택 상태 판정을 이름 대조에서 arcode 조회로 바꿨다.
+
+```ts
+const selectedEntry = useMemo(() => {
+    if (!arcodeParam) return null
+    for (const entries of Object.values(sigunguBySido)) {
+        const found = entries.find((entry) => entry.arcode === arcodeParam)
+        if (found) return found
+    }
+    return null
+}, [sigunguBySido, arcodeParam])
+
+const selectedSido = selectedEntry
+    ? selectedEntry.sido
+    : sidoParam && sigunguBySido[sidoParam]
+      ? sidoParam
+      : null
+```
+
+- **접두 파싱 없음** — arcode → 시도 역산은 전부 엔트리 조회다(코드 체계가 표준 행정코드와 어긋남: 목포시 12110, 광주 북구 29170).
+- **무효 URL 폴백 유지** — `arcode`가 목록에 없으면 `selectedEntry`가 null이 되어 `sido` 폴백을 거쳐 1단계 화면으로 떨어진다.
+  확정된 사각지대 4건(12110/12240/12300)이 이 경로를 탄다.
+- 칩 `key`를 `sigungu` → `arcode`로 바꿨다(같은 시도 안 이름 중복 위험 제거, 이제 arcode를 그대로 들고 있으므로).
+- 칩 표시 텍스트는 `sigungu` 이름 그대로.
+
+**뒤로가기(← 시도명) 버튼 — 기존 동작 유지로 판단했다.**
+지시에는 "시군구 선택 해제 시 그 시도의 칩 목록으로 돌아가야 하므로 `setArcode(null)` + `setSido(해당 시도)`"라는 안이 있었으나,
+현재 화면 구조에서는 시군구 칩 목록이 결과 목록 위에 **항상 함께 렌더**되고 있어(112번 줄 `selectedEntry &&` 블록은 칩 목록의 형제)
+"시군구 목록 화면으로 돌아간다"는 별도 상태가 존재하지 않는다. 또 그 안을 쓰면 시군구 미선택 상태(1단계에서 시도만 고른 화면)에서
+이 버튼이 같은 sido를 다시 세팅하는 no-op이 된다. 따라서 기존과 동일하게 두 파라미터를 모두 비워 1단계로 복귀시킨다 —
+UX 퇴행 없음(전/후 동작 동일), CLAUDE.md §3 외과적 변경 준수.
+
+### `app/daycares/page.tsx`
+
+```ts
+searchParams: Promise<{ tab?: string; sido?: string; arcode?: string }>
+```
+
+`sido`는 클라이언트(`SidoChipList`)에서만 소비하므로 서버에서 읽지 않는다(타입에는 허용 파라미터 문서화 목적으로 유지).
+`RegionSection`은 `arcode`만 받는다.
+
+```ts
+const selectedEntry = arcode ? entries.find((entry) => entry.arcode === arcode) : undefined
+if (selectedEntry) {
+    const state = await runPrefetch(daycarePrefetch.regionList({ sigunguCode: selectedEntry.arcode }))
+    ...
+}
+```
+
+`?sido=`만 들어온 1단계 진입은 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않고 `SidoChipList`만 렌더한다.
+`groupBySido` 헬퍼는 그대로 재사용.
+
+### `DaycareDetailView.tsx`
+
+```tsx
+{detail.sigunguCode && detail.sigunguName && (
+    <Link href={`/daycares?arcode=${detail.sigunguCode}`} ...>
+```
+
+가드를 `detail.sidoName && detail.sigunguName` → `detail.sigunguCode && detail.sigunguName`으로 조정했다
+(링크 값은 sigunguCode, 링크 텍스트 "{sigunguName} 어린이집 전체보기"는 sigunguName에 의존하므로 둘 다 필요).
+`encodeURIComponent` 2회 호출은 제거 — arcode는 숫자형 varchar 코드다.
+바로 위 랭킹 링크(`/rankings/{sidoName}`)는 무관하므로 그대로 뒀다.
+
+## Suspense / ErrorBoundary 배치 (변경 없음)
+
+`SidoChipList` 안의 배치를 그대로 유지했다.
+
+```
+DaycareFilters              ← Suspense 경계 밖(형제). 필터 변경으로 목록이 재-suspend돼도 필터 바는 유지
+ErrorBoundary(RegionDaycareListError)
+  └ Suspense(RegionDaycareListSkeleton)
+      └ RegionDaycareList   ← useSuspenseQuery
+```
+
+`page.tsx`의 `HydrationBoundary`(prefetch 성공 시에만 래핑)도 기존 구조 유지.
+
+## 깨진 import / 잔여 위험
+
+- 깨진 import 없음. `02_domain_changes.md`가 지목한 타입 에러 2건은 모두 해소됐다.
+- `?sido=&sigungu=` 형태의 기존 딥링크는 이제 `sigungu`가 무시되어 **1단계(시군구 칩 화면)로 폴백**된다.
+  결정 2 확정안이 명시적으로 수용한 비호환이며, 코드베이스 내부에 이 형태의 링크는 남아 있지 않다(grep 확인 완료).
+  `sitemap.xml`에도 지역별 탭 쿼리 URL은 포함되어 있지 않다.
 
 ## 검증 결과
 
-1. `npx tsc --noEmit` → exit 0, 에러 없음.
-2. `/region/서울특별시` (수동 브라우징 시 확인 필요 — dev 서버 미기동 상태로 curl 미실행): `RegionSidoIndexView`가 `fetchSigunguListBySido` 결과를 서버에서 `next/link`로 직접 렌더하므로 SSR HTML에 실제 `<a href>` 존재.
-3. `/rankings/서울특별시`: 칩 섹션 제거 확인, "📍 서울특별시 지역별 전체 목록 보기" 카드 1개만 남음.
-4. `/daycare/{id}`: `detail.sidoName`/`detail.sigunguName` 둘 다 있는 레코드에서 "OO 어린이집 전체보기" 카드 SSR 노출.
-5. `sitemap.ts`에 `SIDO_LIST.map` 17개 엔트리 추가 — `/region/[sido]/[sigungu]` 블록과 별개로 카운트되어 `/region/[^/]*"` 정규식 기준 17개 매치 예상.
+| 명령 | 결과 |
+|------|------|
+| `pnpm typecheck` | 통과 (에러 0건) |
+| `pnpm lint` | 에러 0건 / 경고 45건 — 전부 `next.config.mjs`, `public/vendor/naver-marker-clustering.js` 등 이번에 손대지 않은 기존 파일 |
+| `pnpm build` | 성공 (`/daycares` ƒ Dynamic로 정상 빌드) |
 
-> 3~5번은 로컬 dev 서버 기동이 필요한 런타임 curl 검증 항목 — 이번 세션은 코드 구현+정적 타입체크까지 완료. 실제 서버 기동 후 QA 단계에서 재확인 필요.
+## 접근성 / 반응형 (퇴행 없음)
+
+칩 터치 타겟 `h-10`(+`px-4`), 카드 `min-h-11`, `grid-cols-1 sm:grid-cols-2` mobile-first 그리드,
+탭 기반 인터랙션(hover-only 없음) 모두 기존 그대로다. 새 스타일 클래스를 추가하지 않았다.
