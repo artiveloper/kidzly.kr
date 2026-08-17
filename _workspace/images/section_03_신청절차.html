@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, height=1080">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo',
+                 'Malgun Gothic', '맑은 고딕', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    position: relative;
+    background: #FFFFFF;
+    padding: 76px 80px;
+  }
+
+  .step { display: flex; align-items: flex-start; gap: 30px; margin-bottom: 40px; }
+  .num {
+    width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 800; color: #fff;
+  }
+  .step-title { font-size: 32px; font-weight: 700; color: #1E293B; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .step-desc { font-size: 25px; font-weight: 500; color: #64748B; letter-spacing: -0.3px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div style="font-size: 26px; font-weight: 700; color: #2563EB; letter-spacing: -0.3px; margin-bottom: 14px;">
+      출석 인정 특례 신청 절차
+    </div>
+    <div style="font-size: 50px; font-weight: 800; color: #1E293B; letter-spacing: -1.5px; line-height: 1.28; margin-bottom: 56px;">
+      3단계면 충분합니다
+    </div>
+
+    <div class="step">
+      <div class="num" style="background:#3B82F6;">1</div>
+      <div>
+        <div class="step-title">결석 시작일 포함 3일 이내</div>
+        <div class="step-desc">어린이집에 결석 사유와 인정 결석<br>신청 의사를 알립니다</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num" style="background:#8B5CF6;">2</div>
+      <div>
+        <div class="step-title">등원 가능일에</div>
+        <div class="step-desc">증빙 서류를 어린이집에<br>제출합니다</div>
+      </div>
+    </div>
+
+    <div class="step" style="margin-bottom: 0;">
+      <div class="num" style="background:#14B8A6;">3</div>
+      <div>
+        <div class="step-title">어린이집이 처리</div>
+        <div class="step-desc">보육통합정보시스템에 인정 결석 처리,<br>서류는 원내 5년 보관</div>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 80px; right: 80px; bottom: 76px;
+                background: #FFF1F2; border: 1px solid #FFE4E6; border-radius: 24px;
+                padding: 32px 38px;">
+      <div style="font-size: 27px; font-weight: 800; color: #E11D48; letter-spacing: -0.5px; margin-bottom: 8px;">
+        📍 접수 창구는 재원 중인 어린이집입니다
+      </div>
+      <div style="font-size: 23px; font-weight: 500; color: #64748B; letter-spacing: -0.3px; line-height: 1.5;">
+        129나 시군구가 아니라, 아이가 다니는 어린이집에 먼저 알리세요
+      </div>
+    </div>
+
+    <div style="position: absolute; bottom: 30px; right: 80px;
+                font-size: 22px; font-weight: 700; color: #CBD5E1; letter-spacing: -0.3px;">
+      kidzly
+    </div>
+  </div>
+</body>
+</html>

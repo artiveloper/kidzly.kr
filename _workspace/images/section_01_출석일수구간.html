@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, height=1080">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo',
+                 'Malgun Gothic', '맑은 고딕', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    position: relative;
+    background: #FFFFFF;
+    padding: 76px 80px;
+  }
+
+  .row { margin-bottom: 26px; }
+  .row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .row-label { font-size: 32px; font-weight: 700; color: #1E293B; letter-spacing: -0.5px; }
+  .row-sub { font-size: 22px; font-weight: 500; color: #94A3B8; margin-left: 12px; }
+  .row-pct { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
+  .track { width: 920px; height: 30px; background: #EEF2F7; border-radius: 15px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 15px; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div style="font-size: 26px; font-weight: 700; color: #2563EB; letter-spacing: -0.3px; margin-bottom: 14px;">
+      보육료 지원 비율
+    </div>
+    <div style="font-size: 52px; font-weight: 800; color: #1E293B; letter-spacing: -1.5px; line-height: 1.28; margin-bottom: 44px;">
+      월 출석일수에 따라<br>지원 비율이 달라집니다
+    </div>
+
+    <div class="row">
+      <div class="row-head">
+        <span class="row-label">11일 이상<span class="row-sub">전액 지원</span></span>
+        <span class="row-pct" style="color:#1D4ED8;">100%</span>
+      </div>
+      <div class="track"><div class="fill" style="width:920px; background:#1D4ED8;"></div></div>
+    </div>
+
+    <div class="row">
+      <div class="row-head">
+        <span class="row-label">6~10일</span>
+        <span class="row-pct" style="color:#3B82F6;">50%</span>
+      </div>
+      <div class="track"><div class="fill" style="width:460px; background:#3B82F6;"></div></div>
+    </div>
+
+    <div class="row">
+      <div class="row-head">
+        <span class="row-label">1~5일</span>
+        <span class="row-pct" style="color:#60A5FA;">25%</span>
+      </div>
+      <div class="track"><div class="fill" style="width:230px; background:#60A5FA;"></div></div>
+    </div>
+
+    <div class="row" style="margin-bottom: 0;">
+      <div class="row-head">
+        <span class="row-label">0일</span>
+        <span class="row-pct" style="color:#94A3B8;">미지원</span>
+      </div>
+      <div class="track"><div class="fill" style="width:0px;"></div></div>
+    </div>
+
+    <div style="position: absolute; left: 80px; right: 80px; bottom: 76px;
+                background: linear-gradient(135deg, #EEF4FF 0%, #F5F0FF 100%);
+                border-radius: 24px; padding: 34px 40px; display: flex; align-items: center; gap: 24px;">
+      <div style="font-size: 56px; line-height: 1; flex-shrink: 0;">👶</div>
+      <div>
+        <div style="font-size: 28px; font-weight: 800; color: #4338CA; letter-spacing: -0.5px; margin-bottom: 6px;">
+          0세·1세(0~23개월)는 예외
+        </div>
+        <div style="font-size: 23px; font-weight: 500; color: #64748B; letter-spacing: -0.3px; line-height: 1.4;">
+          출석일수와 관계없이 항상 100% 지원됩니다
+        </div>
+      </div>
+    </div>
+
+    <div style="position: absolute; bottom: 30px; right: 80px;
+                font-size: 22px; font-weight: 700; color: #CBD5E1; letter-spacing: -0.3px;">
+      kidzly
+    </div>
+  </div>
+</body>
+</html>
