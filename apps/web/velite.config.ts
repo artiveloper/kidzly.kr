@@ -12,6 +12,8 @@ const blog = defineCollection({
             category: s.string(),
             tags: s.array(s.string()).default([]),
             publishedAt: s.string(),
+            // 제도·금액이 갱신될 때만 채운다. 비어 있으면 publishedAt을 최종 수정일로 본다
+            updatedAt: s.string().optional(),
             readingTime: s.number().default(3),
             thumbnail: s.string(),
             // s.path() yields the file path without extension, e.g. "blog/부모급여-총정리"

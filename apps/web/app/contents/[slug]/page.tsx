@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             type: 'article',
             url,
             publishedTime: post.publishedAt,
+            modifiedTime: post.updatedAt ?? post.publishedAt,
             images: post.thumbnail ? [{ url: post.thumbnail, width: 1080, height: 1080 }] : [],
         },
     }
@@ -55,6 +56,7 @@ export default async function BlogPostPage({ params }: Props) {
         description: post.description,
         url,
         publishedAt: post.publishedAt,
+        updatedAt: post.updatedAt,
         thumbnail: post.thumbnail,
     })
 
@@ -71,7 +73,11 @@ export default async function BlogPostPage({ params }: Props) {
                 <article className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
                     <div className="mb-2 flex flex-wrap items-center gap-3 text-sm text-gray-400">
                         <span className="font-medium text-blue-600">{post.category}</span>
-                        <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+                        <time dateTime={post.updatedAt ?? post.publishedAt}>
+                            {post.updatedAt
+                                ? `${formatDate(post.updatedAt)} 수정`
+                                : formatDate(post.publishedAt)}
+                        </time>
                         <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                             <span className="sr-only">소요시간</span>

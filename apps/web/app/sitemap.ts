@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const contentEntries: MetadataRoute.Sitemap = posts.map((post) => ({
         url: `${BASE_URL}/contents/${encodeURIComponent(post.slug)}`,
-        lastModified: new Date(post.publishedAt),
+        lastModified: new Date(post.updatedAt ?? post.publishedAt),
         changeFrequency: "monthly",
         priority: 0.6,
     }))

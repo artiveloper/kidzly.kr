@@ -4,13 +4,14 @@ export type ArticleJsonLdInput = {
     description: string;
     url: string;
     publishedAt: string;
+    updatedAt?: string;
     thumbnail?: string;
 };
 
 const BASE_URL = 'https://kidzly.kr';
 
 export function buildArticleJsonLd(input: ArticleJsonLdInput) {
-    const { title, description, url, publishedAt, thumbnail } = input;
+    const { title, description, url, publishedAt, updatedAt, thumbnail } = input;
 
     return {
         '@context': 'https://schema.org',
@@ -19,7 +20,7 @@ export function buildArticleJsonLd(input: ArticleJsonLdInput) {
         description,
         url,
         datePublished: publishedAt,
-        dateModified: publishedAt,
+        dateModified: updatedAt ?? publishedAt,
         author: {
             '@type': 'Organization',
             name: '키즐리',
