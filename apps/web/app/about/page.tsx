@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Header from "@/components/common/Header"
 import Footer from "@/components/common/Footer"
-import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink, Trophy, BookOpen } from "lucide-react"
+import { MapPin, SlidersHorizontal, LayoutList, Smartphone, ArrowRight, X, Check, MoveRight, Database, RefreshCw, ExternalLink, Trophy, BookOpen, CalendarClock } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 
 const DESCRIPTION =
@@ -44,6 +44,12 @@ const FEATURES = [
         title: "지도 기반 빠른 탐색",
         description:
             "내 주변 어린이집을 지도 위에서 바로 확인할 수 있습니다. 주소를 일일이 입력할 필요 없이, 지도를 움직이는 것만으로 원하는 지역을 탐색할 수 있습니다.",
+    },
+    {
+        icon: CalendarClock,
+        title: "지역별 전체 목록과 인허가예정 정보",
+        description:
+            "시·도에서 시·군·구까지 좁혀가며 그 지역 어린이집 전체 목록을 볼 수 있습니다. 아직 문을 열지 않았지만 곧 인가될 예정인 어린이집도 미리 확인할 수 있어, 이사나 입소 계획을 세울 때 참고할 수 있습니다.",
     },
     {
         icon: SlidersHorizontal,
