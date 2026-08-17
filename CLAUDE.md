@@ -294,6 +294,13 @@ apps/web/domain/{name}/
 
 **트리거:** 부모 대상 콘텐츠 작성, SEO 글쓰기, 이미지 기획 요청 시 `content-creator` 스킬을 사용하라. 단순 질문은 직접 응답 가능.
 
+**발행 관리:** 새 글을 기획하기 전에 `docs/content/`를 먼저 읽는다. 중복 주제 발행과 카테고리 난립을 막기 위해서다.
+- `docs/content/README.md` — 발행 워크플로, frontmatter 스키마, 카테고리 체계, 집필 규칙
+- `docs/content/발행-완료.md` — 발행된 글 인벤토리
+- `docs/content/발행-예정.md` — 후보 주제, 우선순위, 집필 전 검증 사항
+
+발행이 끝나면 해당 항목을 `발행-예정.md`에서 지우고 `발행-완료.md`로 옮긴다.
+
 **변경 이력:**
 | 날짜 | 변경 내용 | 대상 | 사유 |
 |------|----------|------|------|
@@ -306,6 +313,7 @@ apps/web/domain/{name}/
 | 2026-07-16 | 썸네일(유형 1) 디자인 변경 — 텍스트 기반 타이틀 카드 → 앱 아이콘 스타일(그라디언트 칩 + 대표 이모지, 텍스트 없음), 포인트 컬러 팔레트 8종 추가. 발행된 4개 아티클 썸네일 재생성 반영 | skills/content-creator/references/image-html-template.md, agents/image-director.md, apps/web/public/blog/*/thumbnail.png | 리스트 노출 크기(96~112px)에서 기존 텍스트 기반 썸네일이 안 읽히고 시선 집중력이 낮다는 사용자 피드백 |
 | 2026-07-23 | Phase 7(실제 발행) 신설 — `.mdx` 커밋 전 `npx velite build` 실행을 발행의 기계적 게이트로 명문화 | skills/content-creator/SKILL.md, agents/content-integrator.md | "육아기 근로시간 단축 제도" 글이 이스케이프 안 된 `~`(범위 표기)로 인해 velite 컴파일이 실패, 목록에서 조용히 누락된 사고 발생. `~` 이스케이프 규칙이 seo-writer.md·content-integrator.md 체크리스트에 이미 있었음에도 자가 점검만으로는 놓쳐 실제 빌드 검증이 없으면 재발 가능하다고 판단 |
 | 2026-08-17 | 구글 2026 랭킹 기준 4개 축 반영 — ①에버그린 주제 판정 + 갱신 데이터 층, ②제목 공식(`키워드 + 후킹 − 군더더기`, 한글 30~40자), ③해결형 프레임 강제·홍보형 금지·CTA를 "다음 행동 안내"로 재정의, ④완결성 우선(글 길이 상한 완화, 구체 수치·조건별 분해·예외 케이스 의무화) + 정보 이득 포인트 최소 2가지 | agents/content-researcher.md, agents/seo-writer.md, agents/content-integrator.md | 기존 기준에 에버그린·완결성 항목이 없었고, "1,500~2,500자" 상한과 필수 CTA가 오히려 완결성·해결형과 충돌. 2026 코어 업데이트 기조(정보 이득, 홍보성 톤 불리, 재검색 불필요한 완결성)를 확인해 반영 |
+| 2026-08-17 | 발행 관리 문서 `docs/content/` 신설(README·발행-완료·발행-예정) 및 하네스에 포인터 추가 | CLAUDE.md, docs/content/* | 발행 이력이 `.mdx` frontmatter에만 흩어져 있어 중복 주제 발행과 카테고리 난립 위험이 있었다. 어린이집 생활 클러스터(입학 전 준비·원 생활·결석 대응) 22편 로드맵을 정리하며 함께 구성 |
 
 ---
 
