@@ -279,9 +279,6 @@ create index idx_daycares_sido_certified
 create index idx_daycares_sido_name
     on daycares using btree (sido_name);
 
-create index idx_daycares_sido_sigungu_name
-    on daycares using btree (sido_name, sigungu_name, name) WHERE ((status)::text = '정상'::text);
-
 create index idx_daycares_sido_waiting
     on daycares using btree (sido_name, waiting_child_total DESC) WHERE (((status)::text = '정상'::text) AND (waiting_child_total > 0));
 
