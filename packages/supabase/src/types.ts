@@ -130,6 +130,77 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            // 어린이놀이시설정보 (safemap.go.kr IF_0007) — kidzly-sync V13 마이그레이션 기준
+            playgrounds: {
+                Row: {
+                    facility_id: string;
+                    facility_serial_no: string | null;
+                    sido_code: string | null;
+                    sigungu_code: string | null;
+                    emd_code: string | null;
+                    name: string;
+                    address: string | null;
+                    /** EPSG:3857 Web Mercator — 위경도가 아니다 */
+                    coord_x: number | null;
+                    coord_y: number | null;
+                    /** YYYYMMDD 문자열 */
+                    install_date: string | null;
+                    facility_code1: string | null;
+                    facility_code2: string | null;
+                    /** A001~A093 */
+                    install_place_code: string | null;
+                    /** C001=민간 C002=공공 */
+                    ownership_code: string | null;
+                    /** O001=실내 O002=실외 */
+                    indoor_outdoor_code: string | null;
+                    /** B001=운영 B003=이용금지 */
+                    operation_code: string | null;
+                    accident_yn: string | null;
+                    deleted_yn: string | null;
+                    synced_at: string;
+                };
+                Insert: {
+                    facility_id: string;
+                    name: string;
+                    facility_serial_no?: string | null;
+                    sido_code?: string | null;
+                    sigungu_code?: string | null;
+                    emd_code?: string | null;
+                    address?: string | null;
+                    coord_x?: number | null;
+                    coord_y?: number | null;
+                    install_date?: string | null;
+                    facility_code1?: string | null;
+                    facility_code2?: string | null;
+                    install_place_code?: string | null;
+                    ownership_code?: string | null;
+                    indoor_outdoor_code?: string | null;
+                    operation_code?: string | null;
+                    accident_yn?: string | null;
+                    deleted_yn?: string | null;
+                    synced_at?: string;
+                };
+                Update: {
+                    name?: string;
+                    facility_serial_no?: string | null;
+                    sido_code?: string | null;
+                    sigungu_code?: string | null;
+                    emd_code?: string | null;
+                    address?: string | null;
+                    coord_x?: number | null;
+                    coord_y?: number | null;
+                    install_date?: string | null;
+                    facility_code1?: string | null;
+                    facility_code2?: string | null;
+                    install_place_code?: string | null;
+                    ownership_code?: string | null;
+                    indoor_outdoor_code?: string | null;
+                    operation_code?: string | null;
+                    accident_yn?: string | null;
+                    deleted_yn?: string | null;
+                };
+                Relationships: [];
+            };
         };
         Views: {
             [_ in never]: never;
@@ -153,3 +224,6 @@ export type DaycareTypeNameRow = Database['public']['Tables']['daycare_type_name
 export type DaycareServiceTypeRow = Database['public']['Tables']['daycare_service_types']['Row'];
 export type DaycareIdRow = Pick<DaycareRow, 'daycare_code' | 'data_standard_date'>;
 export type ContentStatsRow = Database['public']['Tables']['content_stats']['Row'];
+export type PlaygroundRow = Database['public']['Tables']['playgrounds']['Row'];
+export type PlaygroundInsert = Database['public']['Tables']['playgrounds']['Insert'];
+export type PlaygroundUpdate = Database['public']['Tables']['playgrounds']['Update'];
