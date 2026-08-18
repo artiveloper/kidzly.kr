@@ -90,7 +90,7 @@
 체크리스트, 순서, 항목 나열에 사용한다.
 
 ```html
-<div class="canvas" style="background: #FFFFFF; padding: 80px;">
+<div class="canvas" style="background: #F9FAFB; padding: 80px;">
   <!-- 타이틀 -->
   <h2 style="font-size: 52px; font-weight: 800; color: #1E293B;
              letter-spacing: -1.5px; margin-bottom: 16px; line-height: 1.2;">
@@ -104,7 +104,7 @@
   <div style="display: flex; flex-direction: column; gap: 24px;">
     <!-- 아이템 반복 구조 -->
     <div style="display: flex; align-items: center; gap: 28px;
-                background: #F8FAFC; border-radius: 20px; padding: 28px 36px;">
+                background: #FFFFFF; border-radius: 20px; padding: 28px 36px;">
       <div style="width: 56px; height: 56px; background: #3B82F6; border-radius: 50%;
                   display: flex; align-items: center; justify-content: center;
                   font-size: 28px; font-weight: 800; color: #fff; flex-shrink: 0;">
@@ -175,7 +175,9 @@
 
 ## 색상 팔레트 권장
 
-- 배경 밝음: `#F8FAFC`, `#EEF4FF`
+- 배경 밝음(캔버스): `#F9FAFB` (gray-50) — **순백 `#FFFFFF`를 캔버스 배경으로 쓰지 않는다.** 아티클 본문 배경이 흰색이라 이미지 경계가 사라지고, 이미지 안쪽 여백이 글 여백에 겹쳐 표가 안으로 밀려 보인다
+- 밝은 캔버스 위의 카드·콜아웃: `#FFFFFF` — 캔버스가 gray-50이므로 카드를 흰색으로 두면 자연스럽게 떠 보인다. 반대로 하지 않는다
+- 배경 밝음(보조): `#EEF4FF`
 - 배경 어두움: `#1E293B`, `#0F172A`
 - 포인트(Blue): `#3B82F6`, `#60A5FA`
 - 텍스트 강: `#1E293B`
