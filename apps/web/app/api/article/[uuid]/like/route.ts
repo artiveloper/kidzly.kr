@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { createServerClient } from '@workspace/supabase/server';
 
 type Params = { params: Promise<{ uuid: string }> };
 

@@ -1,11 +1,11 @@
 import { isServer } from '@tanstack/react-query';
-import { createServerClient } from '@/lib/supabase/server';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { createServerClient } from '@workspace/supabase/server';
+import { createBrowserClient } from '@workspace/supabase/client';
 import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem, toDaycareNearbyItem, toDaycareRegionListItem } from '../parser/daycare.parser';
 import type { DaycareRankingRow, DaycareNearbyRow, DaycareRegionRow } from '../parser/daycare.parser';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, DaycareRegionListResult, MapBounds } from '../types';
 import { DEFAULT_REGION_LIST_LIMIT } from '../types';
-import type { DaycareRow, SigunguRow, DaycareTypeNameRow, DaycareServiceTypeRow, DaycareIdRow } from '@/lib/supabase/types';
+import type { DaycareRow, SigunguRow, DaycareTypeNameRow, DaycareServiceTypeRow, DaycareIdRow } from '@workspace/supabase/types';
 
 function createSupabaseClient() {
     return isServer ? createServerClient() : createBrowserClient();

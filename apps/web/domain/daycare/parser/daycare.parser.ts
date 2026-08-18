@@ -1,4 +1,4 @@
-import type { DaycareRow } from '@/lib/supabase/types';
+import type { DaycareRow } from '@workspace/supabase/types';
 import { haversineDistanceKm } from '@/lib/geo';
 import type { DaycareListItem, DaycareDetail, DaycareRankingItem, DaycareRecentItem, DaycareCapacityItem, DaycareNearbyItem, DaycareRegionListItem } from '../types';
 

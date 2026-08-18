@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    transpilePackages: ["@workspace/ui"],
+    transpilePackages: ["@workspace/ui", "@workspace/supabase"],
     async redirects() {
         // /region 인덱스는 /daycares(지역별 탭)로 완전히 대체됨 — /region/[sido] 이하는 그대로 유지
         return [

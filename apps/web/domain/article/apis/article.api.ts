@@ -1,6 +1,6 @@
 import { isServer } from '@tanstack/react-query';
-import { createServerClient } from '@/lib/supabase/server';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { createServerClient } from '@workspace/supabase/server';
+import { createBrowserClient } from '@workspace/supabase/client';
 import type { ContentStats } from '../types';
 
 function createSupabaseClient() {
