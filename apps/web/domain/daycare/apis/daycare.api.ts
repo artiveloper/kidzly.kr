@@ -302,7 +302,9 @@ export async function fetchDaycareRegionSummary(sido?: string): Promise<{ totalC
     return { totalCount: count ?? 0, avgWaiting };
 }
 
-export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<{ id: string; lastModified: string | null }[]> {
+// sido_name은 sitemap이 /rankings/[sido]의 lastmod(시도별 data_standard_date 최대값)를
+// 추가 쿼리 없이 계산하기 위해 함께 받는다
+export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<{ id: string; lastModified: string | null; sidoName: string | null }[]> {
     const { offset, limit } = options;
     const supabase = createServerClient();
 
@@ -310,19 +312,21 @@ export async function fetchDaycareIdsPaginated(options: { offset: number; limit:
     // (sitemap URL 누락/중복 원인) — daycare_code로 정렬해 페이지네이션을 고정한다
     const { data, error } = await supabase
         .from('daycares')
-        .select('daycare_code, data_standard_date')
+        .select('daycare_code, data_standard_date, sido_name')
         .eq('status', '정상')
         .order('daycare_code', { ascending: true })
         .range(offset, offset + limit - 1);
 
+    // 빈 배열을 반환하면 호출부(sitemap)가 "마지막 페이지"로 오인해 이후 배치를 통째로 잃는다 —
+    // 실제로 빌드 중 statement timeout 한 번에 URL 8,500여 개가 조용히 누락됐다. 반드시 throw한다.
     if (error) {
-        console.error('[fetchDaycareIdsPaginated]', error.message);
-        return [];
+        throw new Error(`[fetchDaycareIdsPaginated] offset=${offset} ${error.message}`);
     }
 
     return ((data ?? []) as DaycareIdRow[]).map((r) => ({
         id: r.daycare_code,
         lastModified: r.data_standard_date ?? null,
+        sidoName: r.sido_name ?? null,
     }));
 }
 
