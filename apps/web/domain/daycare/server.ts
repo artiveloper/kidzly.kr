@@ -12,6 +12,8 @@ export { fetchDaycareCount } from './apis/daycare.api'
 export { fetchDaycareRegionSummary } from './apis/daycare.api'
 // 홈페이지 "지역별 오픈 예정 어린이집" 섹션에 사용
 export { fetchDaycareRankingUpcoming } from './apis/daycare.api'
+// /rankings·/rankings/[sido]의 ItemList 구조화 데이터에 사용 — dehydrate 상태가 아니라 실제 배열이 필요하다
+export { fetchDaycareRankingWaiting } from './apis/daycare.api'
 // domain/region의 fetchSigunguNames가 정적 sigungus 참조 테이블 조회에 사용
 export { fetchSigungus } from './apis/daycare.api'
 // /daycares 지역별 탭이 딥링크의 필터를 클라이언트와 같은 파서로 읽어 prefetch에 반영할 때 사용

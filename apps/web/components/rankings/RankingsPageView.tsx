@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Flame, Clock, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { runPrefetch } from '@/lib/react-query/prefetch';
-import { daycarePrefetch, fetchDaycareRegionSummary } from '@/domain/daycare/server';
+import { daycarePrefetch, fetchDaycareRegionSummary, fetchDaycareRankingWaiting } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsLists from '@/components/rankings/RankingsLists';
 import { RankingsListsSkeleton } from '@/components/rankings/RankingsSkeleton';
@@ -11,6 +11,9 @@ import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 
 const BASE_URL = 'https://kidzly.kr';
+
+// ItemList 구조화 데이터에 넣을 항목 수 — 화면의 대기 많은 순 목록(기본 10건)과 일치시킨다
+const ITEM_LIST_SIZE = 10;
 
 const SECTION_CARDS = [
     {
@@ -47,14 +50,6 @@ export default async function RankingsPageView({ sido }: Props) {
         ? `${BASE_URL}/rankings/${encodeURIComponent(sido)}`
         : `${BASE_URL}/rankings`;
 
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: `${regionLabel} 어린이집 랭킹 | 키즐리`,
-        description: `${regionLabel} 입소 대기·정원·역사 기준 어린이집 순위`,
-        url: pageUrl,
-    };
-
     const breadcrumbLd = {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
@@ -64,21 +59,46 @@ export default async function RankingsPageView({ sido }: Props) {
         ],
     };
 
-    const [state, regionSummary] = await Promise.all([
+    const [state, regionSummary, waitingRanking] = await Promise.all([
         runPrefetch(
             daycarePrefetch.rankingWaiting({ sido }),
             daycarePrefetch.rankingCapacity({ sido }),
             daycarePrefetch.rankingOldest({ sido }),
         ),
         fetchDaycareRegionSummary(sido),
+        // prefetch와 같은 데이터를 한 번 더 조회한다 — ItemList는 dehydrate된 상태가 아니라 실제 배열이
+        // 필요하고, dedup하려면 클라이언트에서도 쓰는 API 함수에 cache()를 씌워 경계가 흐려진다.
+        // revalidate 3600 ISR 페이지(전국 1 + 시도 17)라 중복 1회 비용이 무시할 수준이다.
+        fetchDaycareRankingWaiting(ITEM_LIST_SIZE, sido),
     ]);
+
+    // 페이지의 주 목록 하나만 마크업한다 — 세 랭킹을 모두 ItemList로 내면 주 콘텐츠가 모호해진다.
+    // 구글은 ListItem 2개 이상을 요구하므로 그 미만이면 마크업 자체를 내보내지 않는다.
+    const itemListLd =
+        waitingRanking.length >= 2
+            ? {
+                '@context': 'https://schema.org',
+                '@type': 'ItemList',
+                name: `${regionLabel} 어린이집 랭킹 | 키즐리`,
+                description: `${regionLabel} 입소 대기가 많은 어린이집 순위`,
+                url: pageUrl,
+                itemListElement: waitingRanking.map((item, index) => ({
+                    '@type': 'ListItem',
+                    position: index + 1,
+                    name: item.name,
+                    url: `${BASE_URL}/daycare/${item.id}`,
+                })),
+            }
+            : null;
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
+            {itemListLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+                />
+            )}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
