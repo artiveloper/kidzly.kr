@@ -2,8 +2,14 @@
 import { redirect } from 'next/navigation'
 import { createAdminServerClient } from '@/lib/supabase/server'
 import { isAdminUser } from '@/lib/auth/admin-role'
-import AdminSidebar from '@/components/admin-sidebar'
-import AdminHeader from '@/components/admin-header'
+import { Separator } from '@workspace/ui/components/separator'
+import {
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
+} from '@workspace/ui/components/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import AdminBreadcrumb from '@/components/admin-breadcrumb'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const supabase = await createAdminServerClient()
@@ -14,12 +20,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
 
     return (
-        <div className="flex min-h-dvh flex-col md:flex-row">
-            <AdminSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-                <AdminHeader email={data.user.email ?? '계정 정보 없음'} />
-                <main className="flex-1 px-4 py-6 md:px-6">{children}</main>
-            </div>
-        </div>
+        <SidebarProvider>
+            <AppSidebar email={data.user.email ?? '계정 정보 없음'} />
+            <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2">
+                    <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator
+                            orientation="vertical"
+                            className="mr-2 data-vertical:h-4 data-vertical:self-auto"
+                        />
+                        <AdminBreadcrumb />
+                    </div>
+                </header>
+                <main className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</main>
+            </SidebarInset>
+        </SidebarProvider>
     )
 }
