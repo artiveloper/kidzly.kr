@@ -99,9 +99,7 @@ export default function PlaygroundDetailDialog({
                     <>
                         <DialogHeader>
                             <DialogTitle>{playground.name}</DialogTitle>
-                            <DialogDescription>
-                                safemap 동기화 데이터라 여기서는 수정하지 않는다.
-                            </DialogDescription>
+                            <DialogDescription/>
                         </DialogHeader>
 
                         <div className="space-y-5">

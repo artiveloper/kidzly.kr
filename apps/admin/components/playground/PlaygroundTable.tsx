@@ -15,12 +15,12 @@ import {
 import {
     INDOOR_OUTDOOR_LABEL,
     OPERATION_LABEL,
+    OWNERSHIP_LABEL,
     PLAYGROUND_PAGE_SIZE,
     formatCode,
     usePlaygroundList,
     type Playground,
 } from '@/domain/playground'
-import { formatDate } from '@/lib/format'
 import PlaygroundDetailDialog from '@/components/playground/PlaygroundDetailDialog'
 
 export default function PlaygroundTable({
@@ -53,20 +53,17 @@ export default function PlaygroundTable({
 
     return (
         <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-                총 {data.totalCount.toLocaleString('ko-KR')}건
-            </p>
-
             <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="whitespace-nowrap">시설명</TableHead>
+                            <TableHead className="whitespace-nowrap">
+                                시설 · {data.totalCount.toLocaleString('ko-KR')}건
+                            </TableHead>
                             <TableHead className="whitespace-nowrap">주소</TableHead>
-                            <TableHead className="whitespace-nowrap">시군구코드</TableHead>
-                            <TableHead className="whitespace-nowrap">설치일</TableHead>
+                            <TableHead className="whitespace-nowrap">민간/공공구분</TableHead>
                             <TableHead className="whitespace-nowrap">실내외</TableHead>
-                            <TableHead className="whitespace-nowrap">운영</TableHead>
+                            <TableHead className="whitespace-nowrap">운영구분</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -85,10 +82,7 @@ export default function PlaygroundTable({
                                     {item.address ?? '-'}
                                 </TableCell>
                                 <TableCell className="whitespace-nowrap">
-                                    {item.sigunguCode ?? '-'}
-                                </TableCell>
-                                <TableCell className="whitespace-nowrap">
-                                    {formatDate(item.installDate)}
+                                    {formatCode(OWNERSHIP_LABEL, item.ownershipCode)}
                                 </TableCell>
                                 <TableCell className="whitespace-nowrap">
                                     {formatCode(INDOOR_OUTDOOR_LABEL, item.indoorOutdoorCode)}

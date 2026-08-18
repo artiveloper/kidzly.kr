@@ -7,14 +7,17 @@ const ROWS = Array.from({ length: PLAYGROUND_PAGE_SIZE }, (_, index) => index)
 export default function PlaygroundTableSkeleton() {
     return (
         <div className="space-y-4">
-            <Skeleton className="h-5 w-24" />
             <div className="space-y-2">
                 <Skeleton className="h-10 w-full" />
                 {ROWS.map((row) => (
                     <Skeleton key={row} className="h-12 w-full" />
                 ))}
             </div>
-            <Skeleton className="h-11 w-full" />
+            <div className="flex items-center justify-between gap-3">
+                <Skeleton className="h-11 w-20" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-11 w-20" />
+            </div>
         </div>
     )
 }

@@ -22,8 +22,7 @@ export default async function PlaygroundsPage({
             <div>
                 <h1 className="text-xl font-semibold">놀이시설 목록</h1>
                 <p className="text-muted-foreground mt-1 text-sm">
-                    safemap 어린이놀이시설 데이터를 조회한다. 동기화 배치가 소유하는 데이터라
-                    여기서는 수정하지 않는다.
+                    동기화 배치가 소유하는 데이터라 여기서는 수정하지 않는다.
                 </p>
             </div>
             <HydrationBoundary state={state}>

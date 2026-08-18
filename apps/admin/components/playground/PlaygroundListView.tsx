@@ -18,12 +18,14 @@ export default function PlaygroundListView() {
     return (
         <div className="space-y-4">
             <div className="w-full sm:max-w-sm">
-                <Label htmlFor="playground-keyword">시설명·주소 검색</Label>
+                <Label htmlFor="playground-keyword" className="sr-only">
+                    시설명·주소 검색
+                </Label>
                 <Input
                     id="playground-keyword"
                     type="search"
                     className="mt-1.5 h-11"
-                    placeholder="예: 덕암초등학교, 경기 파주시"
+                    placeholder="시설명 또는 주소로 검색"
                     defaultValue={q}
                     onChange={(event) =>
                         setParams(
