@@ -1,8 +1,10 @@
 # 네이버·다음·구글 SEO 가이드 (2026)
 
-최종 갱신일: 2026-08-16 (WebSearch 리서치 기준). 6개월 이상 경과했으면 `seo-auditor` 실행 전 핵심 항목(코어 업데이트, 스팸 정책 변경 여부)만 재검색해서 갱신할 것.
+최종 갱신일: 2026-08-19 (§1.4·§1.5·§1.7은 구글 공식 문서 원문 대조 기준, 나머지는 2026-08-16 WebSearch 리서치 기준). 6개월 이상 경과했으면 `seo-auditor` 실행 전 핵심 항목(코어 업데이트, 스팸 정책 변경 여부)만 재검색해서 갱신할 것.
 
 이 문서는 `seo-auditor`, `seo-engineer`가 판단 근거로 인용하는 고정 참고 자료다. 키즐리는 네이버 블로그가 아니라 Next.js 독립 웹사이트이므로, 네이버 항목은 "일반 웹사이트(문서) 기준"과 "블로그/카페(UGC) 알고리즘 — 참고용"을 분리해서 읽는다.
+
+**출처 등급을 구분해서 읽는다.** §1.7은 구글 공식 문서 원문에서 직접 확인한 규정이라 감사에서 그대로 근거로 쓸 수 있다. 나머지 절은 상당 부분 3자 분석 기반이므로 경향으로만 다루고, 코드 변경 근거로 쓰기 전에 공식 문서를 확인한다.
 
 ---
 
@@ -34,20 +36,67 @@
 
 - 구글이 명시적으로 **JSON-LD를 권장 포맷**으로 지정.
 - 우선순위 5종이 대부분의 요구를 커버: **LocalBusiness, FAQPage, Review, Article, Product**.
-- `LocalBusiness`는 가능한 가장 구체적인 서브타입 사용 권장. schema.org에 어린이집 전용 타입은 없어 `LocalBusiness` + 필요 시 `additionalType`으로 보완하는 방식이 실무에서 쓰인다.
+- 공식 문서 원문: "가능하면 가장 구체적인 `LocalBusiness` 하위 유형을 사용하세요." **어린이집은 `ChildCare`(schema.org의 `LocalBusiness` 하위 타입)를 쓴다.**
+- 유형을 여러 개 지정할 때는 **배열**로 쓴다 — 공식 문서가 "`additionalType`는 지원되지 않음"이라고 명시한다. 예: `"@type": ["ChildCare", "LocalBusiness"]`.
+- `LocalBusiness`의 **필수 속성은 `name`과 `address` 둘뿐**이다. `image`는 필수가 아니고, 넣을 경우 "이미지는 마크업된 콘텐츠를 나타내야" 하므로 **전 페이지 공통 로고·OG 이미지를 개별 업체 이미지로 쓰면 안 된다**(2026-08-19 제거).
 - **경고**: FAQPage 스키마를 실제 FAQ가 아닌 마케팅 문구에 씌운 페이지들이 2026년 3월 업데이트에서 대규모 강등당함. **페이지에 눈에 보이는 내용과 구조화 데이터가 반드시 일치**해야 한다 — 안 보이는 FAQ를 스키마에만 넣는 것은 위반.
+- schema.org에 정의되지 않은 속성은 구글이 무시한다. 예를 들어 `dateModified`/`datePublished`는 `CreativeWork` 속성이라 `LocalBusiness`에 넣어도 신선도 신호로 작동하지 않는다.
 
-### 1.5 AI Overview / AI Mode
+### 1.5 AI Overview / AI Mode (공식 문서 기준)
 
-- 구글은 "AI Overview 전용 랭킹 팩터"를 공식적으로 발표한 적 없음 — 기존 SEO 원칙이 그대로 적용된다는 입장.
-- 관찰된 상관관계: 시맨틱 완결성(질문에 대한 답을 페이지 안에서 완결적으로 제공), 멀티모달 요소(이미지·표·영상 동반), E-E-A-T, 엔터티 명확성, 구조화 데이터.
-- AI Overview 인용의 47%가 검색 결과 5위 밖 페이지에서 나옴 — 전통적 순위와 AI 인용은 다른 게임.
+구글은 `검색엔진 최적화 기초 > 생성형 AI 검색을 위한 최적화` 공식 문서를 운영한다. 아래는 그 원문 기준이다.
+
+- **별도 랭킹 팩터는 없다.** AI 기능은 "핵심 Google 검색 순위 및 품질 시스템에 기반"하며 기존 SEO 권장사항이 그대로 적용된다.
+- **구조화 데이터는 필수가 아니다** — "생성형 AI 검색에는 구조화된 데이터가 필요하지 않으며 추가해야 하는 특별한 schema.org 마크업도 없습니다." 리치 결과 목적으로는 계속 쓰는 게 좋다.
+- 구글이 **명시적으로 부정한 전술** — `llms.txt` 등 AI 전용 파일 생성(구글 검색이 사용하지 않음), AI가 이해하기 쉽게 콘텐츠를 잘게 쪼개는 청킹, 그리고 **"사람들이 검색할 수 있는 모든 변형에 대해 별도의 콘텐츠를 만드는 것"(= 대규모 콘텐츠 악용 스팸 정책 위반)**. 세 번째 항목은 지역×조건 조합 페이지 확장을 검토할 때 직접 적용된다.
+- 차별화 기준은 고유성이다 — "인터넷의 다른 사용자가 이미 말했거나 생성형 AI 모델에서 쉽게 생성할 수 있는 내용을 재활용하지 마세요."
+- 측정은 **Search Console 생성형 AI 실적 보고서**가 유일한 공식 창구다.
+- (3자 관측) 시맨틱 완결성·멀티모달 요소·엔터티 명확성이 인용과 상관있다는 분석, "AI Overview 인용의 47%가 5위 밖 페이지"라는 통계가 있으나 **공식 확인된 수치가 아니다.**
 
 ### 1.6 E-E-A-T / Helpful Content
 
 - Helpful Content가 주기적 업데이트가 아니라 코어 랭킹 알고리즘에 상시 통합된 상태.
 - **사이트 전체(도메인 단위) 신호**로 작동 — 특정 페이지가 아니라 사이트 전반의 일관성·진정성을 본다.
 - 저자 전문성의 "검증 가능한 이력"이 2026년 3월 업데이트에서 특히 강조됨.
+
+### 1.7 구글 공식 규정 (원문 대조 확인, 2026-08-19)
+
+Search Central 문서 원문에서 직접 확인한 규정이다. **감사에서 이 절은 근거로 그대로 인용해도 된다.** 각 항목 끝 괄호는 출처 문서다.
+
+**사이트맵**
+- 1개당 **50MB(비압축) 또는 URL 50,000개** 한도. 초과 시 분할하고 사이트맵 색인 파일을 제출한다. (사이트맵 제작 및 제출)
+- "Google에서는 `<priority>` 및 `<changefreq>` 값을 **무시합니다**." (같은 문서)
+- "`lastmod` 값이 일관되고 **정확성을 검증할 수 있는 경우에** 이 값을 사용합니다", "마지막으로 **중요한 업데이트**가 이루어진 날짜와 시간을 반영해야 합니다." → 근거 없는 값을 넣느니 **생략하는 편이 안전하다.** 부정확한 값이 섞이면 사이트 전체의 lastmod 신뢰도가 떨어진다. (같은 문서)
+
+**숨겨진 텍스트 / 클로킹**
+- 숨겨진 텍스트는 스팸 정책 위반이다(흰 배경 흰 글씨, CSS로 화면 밖 배치 등).
+- **예외는 "스크린 리더에서만 액세스할 수 있으며 스크린 리더 사용자의 환경을 개선하기 위한 텍스트"뿐이다.** `sr-only` + `aria-hidden="true"` 조합은 스크린 리더에서도 제거되므로 **예외에 해당하지 않는다** — 크롤러만 읽는 텍스트가 된다. (스팸 정책)
+- 구조화 데이터도 같다 — "페이지 독자에게 표시되지 않는 콘텐츠를 마크업하지 않습니다." (구조화된 데이터 일반 가이드라인)
+
+**표준화(canonical)**
+- 자체 참조 canonical 권장, **절대 경로** 사용. (rel="canonical" 지정 방법)
+- `robots.txt`나 `noindex`를 표준화 수단으로 쓰지 않는다. 모든 페이지를 홈으로 canonical 지정하지 않는다. (같은 문서)
+
+**메타 태그**
+- "메타 키워드 태그는 Google 검색에서 사용되지 않으며 색인 생성 및 순위 지정에 **전혀 영향을 미치지 않습니다**." 구글은 `lang` 속성, `rel=next/prev`도 무시한다. (지원 메타 태그)
+- `index, follow` 같은 **기본값 명시는 효과가 없다.** 반면 `max-snippet`·`max-image-preview`는 유효한 지시어다. (로봇 메타 태그)
+
+**제목·표시**
+- "각 페이지마다 고유한 텍스트"가 있어야 하고, 사이트 이름을 "모든 페이지에 표시하는 것은 반복적으로 보인다". 키워드 반복은 "스팸으로 오인" 소지가 있다. 부적합하면 구글이 제목 링크를 자체 교체한다. (제목 링크)
+- **`WebSite` 구조화 데이터는 홈페이지(도메인·서브도메인 루트)에만** 둔다. 하위 디렉터리는 지원되지 않는다. (사이트 이름)
+- 파비콘은 정사각형·8px 이상(48px 초과 권장), 홈페이지에서 크롤 가능해야 한다. (파비콘)
+
+**목록 마크업**
+- `ItemList`는 **`ListItem` 2개 이상**을 포함해야 한다. 요약 페이지 방식이면 `position`과 `url`(동일 도메인의 표준 URL)만으로 충족된다. (캐러셀)
+- **인기 장소 목록** 기능은 "데이터 또는 자동화된 측정항목으로 만들어진 템플릿 문장" 목록을 배제한다 → **정원·대기 수치로 자동 생성되는 키즐리 랭킹은 이 기능의 대상이 아니다.** (인기 장소 목록)
+
+**URL·링크·JS**
+- 비ASCII 문자는 **퍼센트 인코딩**한다. 하이픈으로 단어를 구분하고, URL은 대소문자를 구분한다. (URL 구조)
+- "링크가 `href` 속성이 있는 `<a>` HTML 요소인 경우에만 Google에서 링크를 발견할 수 있습니다." robots.txt로 차단된 리소스는 렌더링되지 않는다. (자바스크립트 SEO 기본사항)
+
+**성능·광고**
+- LCP 2.5초 / INP 200ms / CLS 0.1 미만이 "좋음" 기준이다. (Core Web Vitals)
+- 문제가 되는 것은 "페이지 전체에 오버레이"되는 전면 광고이며, "화면의 작은 부분만 차지하는 배너"는 권장 대안이다. (전면 광고 및 대화상자)
 
 ---
 
@@ -105,6 +154,30 @@
 ---
 
 ## 5. 출처
+
+### 5.1 구글 공식 문서 (§1.4·§1.5·§1.7의 근거)
+
+- [검색 Essentials — 스팸 정책](https://developers.google.com/search/docs/essentials/spam-policies?hl=ko)
+- [생성형 AI 검색을 위한 최적화](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide?hl=ko)
+- [사이트맵 제작 및 제출](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap?hl=ko)
+- [URL 구조](https://developers.google.com/search/docs/crawling-indexing/url-structure?hl=ko)
+- [rel="canonical" 및 다른 메서드로 표준 URL 지정](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls?hl=ko)
+- [Google에서 지원하는 메타 태그 및 HTML 속성](https://developers.google.com/search/docs/crawling-indexing/special-tags?hl=ko)
+- [로봇 메타 태그, data-nosnippet, X-Robots-Tag](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag?hl=ko)
+- [자바스크립트 검색엔진 최적화의 기본사항](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics?hl=ko)
+- [제목 링크](https://developers.google.com/search/docs/appearance/title-link?hl=ko)
+- [사이트 이름](https://developers.google.com/search/docs/appearance/site-names?hl=ko)
+- [파비콘](https://developers.google.com/search/docs/appearance/favicon-in-search?hl=ko)
+- [이미지 SEO 권장사항](https://developers.google.com/search/docs/appearance/google-images?hl=ko)
+- [Core Web Vitals](https://developers.google.com/search/docs/appearance/core-web-vitals?hl=ko)
+- [전면 광고 및 대화상자](https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials?hl=ko)
+- [인기 장소 목록](https://developers.google.com/search/docs/appearance/top-places-list?hl=ko)
+- [구조화된 데이터 일반 가이드라인](https://developers.google.com/search/docs/appearance/structured-data/sd-policies?hl=ko)
+- [현지 업체(LocalBusiness)](https://developers.google.com/search/docs/appearance/structured-data/local-business?hl=ko)
+- [기사(Article)](https://developers.google.com/search/docs/appearance/structured-data/article?hl=ko)
+- [캐러셀(ItemList)](https://developers.google.com/search/docs/appearance/structured-data/carousel?hl=ko)
+
+### 5.2 3자 분석 (§1.1~§1.3, §1.6, §2, §3의 근거 — 경향 참고용)
 
 - [Naver SEO 2026: The Complete Guide for Marketers](https://www.theegg.com/seo/korea/naver-seo-guide-understanding-the-korean-search-engine/)
 - [2026년 6월 네이버 검색 시장 리포트 - SEO NEWS](https://seonews.co.kr/naver-search-report-june-2026/)
