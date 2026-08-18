@@ -1,7 +1,7 @@
 'use client'
 // admin 앱 전역 React Query 컨텍스트를 제공한다
 
-import { QueryClientProvider } from '@tanstack/react-query'
+import { HydrationBoundary, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getQueryClient } from '@/lib/react-query/query-client'
 
@@ -9,3 +9,5 @@ export default function ReactQueryProvider({ children }: { children: React.React
     const [queryClient] = useState(() => getQueryClient())
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
+
+export { HydrationBoundary }

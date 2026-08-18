@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from 'next'
 import '@workspace/ui/globals.css'
 import ReactQueryProvider from '@/components/providers/ReactQueryProvider'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 const FONT_STACK =
     'Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif'
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             style={{ '--font-sans': FONT_STACK } as React.CSSProperties}
         >
             <body className="bg-background text-foreground min-h-dvh">
-                <ReactQueryProvider>{children}</ReactQueryProvider>
+                <NuqsAdapter>
+                    <ReactQueryProvider>{children}</ReactQueryProvider>
+                </NuqsAdapter>
             </body>
         </html>
     )
