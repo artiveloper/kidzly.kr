@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080, height=1080">
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo',
+                 'Malgun Gothic', '맑은 고딕', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .canvas {
+    width: 1080px;
+    height: 1080px;
+    position: relative;
+    background: #1E293B;
+  }
+
+  .card {
+    flex: 1;
+    background: #0F172A;
+    border-radius: 24px;
+    padding: 52px 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .badge {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+
+  .target {
+    font-size: 32px;
+    font-weight: 800;
+    color: #F1F5F9;
+    letter-spacing: -0.6px;
+  }
+
+  .law {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.45;
+  }
+
+  .quote {
+    font-size: 20px;
+    color: #CBD5E1;
+    letter-spacing: -0.2px;
+    line-height: 1.65;
+    background: #1E293B;
+    border-radius: 14px;
+    padding: 24px 24px;
+  }
+</style>
+</head>
+<body>
+  <div class="canvas" style="padding: 64px 72px;">
+
+    <div style="font-size: 23px; font-weight: 700; color: #FB7185; letter-spacing: -0.3px; margin-bottom: 12px;">
+      등원중지, 법에 근거가 있습니다
+    </div>
+    <h2 style="font-size: 42px; font-weight: 800; color: #F1F5F9; letter-spacing: -1.2px; line-height: 1.3; margin-bottom: 48px;">
+      원장 마음대로가 아니라<br>법이 정한 권한입니다
+    </h2>
+
+    <div style="display: flex; gap: 24px;">
+      <div class="card">
+        <div class="badge" style="background: #F43F5E22;">🏫</div>
+        <div class="target">어린이집</div>
+        <div class="law" style="color: #FB7185;">영유아보육법<br>제32조 제2항</div>
+        <div class="quote">
+          원장은 보건복지부령으로 정하는 바에 따라 어린이집으로부터
+          <span style="color:#F1F5F9; font-weight:700;">격리시키는 등 필요한 조치</span>를 할 수 있다
+        </div>
+      </div>
+      <div class="card">
+        <div class="badge" style="background: #60A5FA22;">🎒</div>
+        <div class="target">학교·유치원</div>
+        <div class="law" style="color: #60A5FA;">학교보건법<br>제8조 · 시행령 제22조</div>
+        <div class="quote">
+          학교장은 감염병환자 등에 대해
+          <span style="color:#F1F5F9; font-weight:700;">등교중지를 명할 수 있다</span>
+          (법정감염병 아니어도 재량 가능)
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; background: #F43F5E14; border: 1px solid #F43F5E33;
+                border-radius: 16px; padding: 38px 36px;">
+      <div style="font-size: 22px; color: #E2E8F0; letter-spacing: -0.3px; line-height: 1.7;">
+        질병관리청 수족구병·A형간염 지침(2026년판)은 두 법을 <span style="color:#FDA4AF; font-weight:700;">나란히</span> 명시합니다.
+        어린이집이 학교보다 느슨한 근거로 등원을 막는 게 아닙니다.
+      </div>
+    </div>
+
+    <div style="position: absolute; bottom: 56px; right: 72px;
+                font-size: 24px; font-weight: 700; color: #475569; letter-spacing: -0.3px;">
+      kidzly
+    </div>
+
+  </div>
+</body>
+</html>
