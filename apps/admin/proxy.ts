@@ -1,19 +1,31 @@
-// 모든 admin 경로에서 Supabase 세션을 갱신하고 미인증·비권한 접근을 /login 으로 돌려보낸다
+// 모든 admin 경로에서 Supabase 세션을 갱신하고, 미인증·비권한 접근과 초기 비밀번호 미변경 계정을 걸러낸다
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/session';
-import { isAdminUser } from '@/lib/auth/admin-role';
+import { isAdminUser, mustChangePassword } from '@/lib/auth/admin-role';
 
 const LOGIN_PATH = '/login';
+const CHANGE_PASSWORD_PATH = '/change-password';
 
 export async function proxy(request: NextRequest) {
     const { response, user } = await updateSession(request);
 
-    const isLoginPage = request.nextUrl.pathname === LOGIN_PATH;
+    const { pathname } = request.nextUrl;
+
+    // API 는 리다이렉트 대신 각 Route Handler 의 requireAdmin 이 JSON 으로 응답하게 둔다
+    if (pathname.startsWith('/api/')) return response;
+
+    const isLoginPage = pathname === LOGIN_PATH;
+    const isChangePasswordPage = pathname === CHANGE_PASSWORD_PATH;
     const isAdmin = isAdminUser(user);
 
     if (isAdmin) {
-        if (!isLoginPage) return response;
-        return redirectTo(request, '/', response);
+        // 초기 비밀번호를 아직 바꾸지 않은 계정은 변경 화면 밖으로 나가지 못하게 한다
+        if (mustChangePassword(user)) {
+            if (isChangePasswordPage) return response;
+            return redirectTo(request, CHANGE_PASSWORD_PATH, response);
+        }
+        if (isLoginPage || isChangePasswordPage) return redirectTo(request, '/', response);
+        return response;
     }
 
     if (isLoginPage) return response;

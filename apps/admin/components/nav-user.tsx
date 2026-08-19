@@ -1,6 +1,7 @@
 'use client'
-// 사이드바 하단 계정 영역 — 로그인 계정 표시와 로그아웃을 제공한다
+// 사이드바 하단 계정 영역 — 로그인 계정 표시와 프로필 이동·로그아웃을 제공한다
 
+import Link from 'next/link'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -56,6 +57,12 @@ export function NavUser({ email }: { email: string }) {
                             {email}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile">
+                                <HugeiconsIcon icon={UserIcon} strokeWidth={2} />
+                                프로필
+                            </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem disabled={isPending} onSelect={() => mutate()}>
                             <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} />
                             로그아웃

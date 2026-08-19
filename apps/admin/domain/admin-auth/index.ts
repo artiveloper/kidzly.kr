@@ -1,4 +1,4 @@
 // admin 인증 도메인의 클라이언트 공개 API
-export type { SignInInput } from './types';
-export { NotAdminError } from './apis/admin-auth.api';
-export { useSignIn, useSignOut } from './hooks/admin-auth.hooks';
+export type { ChangePasswordInput, SignInInput } from './types';
+export { InvalidCurrentPasswordError, NotAdminError } from './apis/admin-auth.api';
+export { useChangePassword, useSignIn, useSignOut } from './hooks/admin-auth.hooks';

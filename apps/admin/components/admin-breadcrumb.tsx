@@ -8,11 +8,11 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
 } from '@workspace/ui/components/breadcrumb'
-import { NAV_MAIN, isNavActive } from '@/lib/nav/admin-nav'
+import { NAV_EXTRA, NAV_MAIN, isNavActive } from '@/lib/nav/admin-nav'
 
 export default function AdminBreadcrumb() {
     const pathname = usePathname()
-    const current = NAV_MAIN.find((item) => isNavActive(pathname, item.url))
+    const current = [...NAV_MAIN, ...NAV_EXTRA].find((item) => isNavActive(pathname, item.url))
 
     return (
         <Breadcrumb>
