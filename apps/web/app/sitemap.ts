@@ -11,6 +11,10 @@ const BATCH_SIZE = 1_000
 // lastModified 규칙 — 실제 수정 시각의 근거가 있는 URL에만 넣고, 없으면 생략한다.
 // 구글은 lastmod를 "일관되고 정확성을 검증할 수 있는 경우에만" 사용하므로, 빌드 시각 같은
 // 부정확한 값이 섞이면 어린이집 상세 24,000여 건의 정확한 lastmod까지 함께 무시될 수 있다.
+//
+// priority·changefreq는 쓰지 않는다 — 구글이 두 값을 명시적으로 무시하고, sitemaps.org 규격도
+// priority가 "검색 엔진의 결과 페이지에서 URL의 순위에 별 영향을 미치지 않는다", changefreq는
+// "힌트이지 명령이 아니다"라고 못박는다. 네이버·다음이 사용한다는 근거도 찾지 못했다(2026-08-19).
 
 type DaycareSitemapEntry = { id: string; lastModified: string | null; sidoName: string | null }
 
@@ -75,39 +79,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const daycareEntries: MetadataRoute.Sitemap = entries.map(({ id, lastModified }) => ({
         url: `${BASE_URL}/daycare/${id}`,
         lastModified: lastModified ? new Date(lastModified) : undefined,
-        changeFrequency: "daily",
-        priority: 0.7,
     }))
 
     const contentEntries: MetadataRoute.Sitemap = posts.map((post) => ({
         url: `${BASE_URL}/contents/${encodeURIComponent(post.slug)}`,
         lastModified: new Date(post.updatedAt ?? post.publishedAt),
-        changeFrequency: "monthly",
-        priority: 0.6,
     }))
 
     return [
         {
             // 홈·지도·목록은 레이아웃이 바뀔 때만 갱신되므로 근거가 될 수정 시각이 없다 — lastModified 생략
             url: BASE_URL,
-            changeFrequency: "daily",
-            priority: 1,
         },
         {
             url: `${BASE_URL}/map`,
-            changeFrequency: "daily",
-            priority: 0.9,
         },
         {
             url: `${BASE_URL}/daycares`,
-            changeFrequency: "daily",
-            priority: 0.8,
         },
         {
             url: `${BASE_URL}/rankings`,
             lastModified: latestDataDate ? new Date(latestDataDate) : undefined,
-            changeFrequency: "daily",
-            priority: 0.8,
         },
         // 경로형 지역 랭킹 — 쿼리파라미터 대신 색인 가능한 개별 URL
         ...sidoNames.map((sido) => {
@@ -116,34 +108,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             return {
                 url: `${BASE_URL}/rankings/${encodeURIComponent(sido)}`,
                 lastModified: sidoDataDate ? new Date(sidoDataDate) : undefined,
-                changeFrequency: "daily" as const,
-                priority: 0.7,
             }
         }),
         {
             // 최신 글 발행일 기준 — 목록 페이지가 실제로 언제 바뀌었는지 반영
             url: `${BASE_URL}/contents`,
             lastModified: posts[0] ? new Date(posts[0].publishedAt) : undefined,
-            changeFrequency: "weekly",
-            priority: 0.6,
         },
         ...contentEntries,
         {
             url: `${BASE_URL}/about`,
-            changeFrequency: "monthly",
-            priority: 0.5,
         },
         {
             url: `${BASE_URL}/privacy-policy`,
             lastModified: PRIVACY_POLICY_UPDATED,
-            changeFrequency: "monthly",
-            priority: 0.3,
         },
         {
             url: `${BASE_URL}/terms`,
             lastModified: TERMS_UPDATED,
-            changeFrequency: "monthly",
-            priority: 0.3,
         },
         ...daycareEntries,
     ]
