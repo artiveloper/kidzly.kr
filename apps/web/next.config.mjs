@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     transpilePackages: ["@workspace/ui", "@workspace/supabase"],
+    async headers() {
+        // public/ 자산은 Vercel이 max-age=0, must-revalidate로 내보내 방문마다 재검증 왕복이 생긴다.
+        // 폰트 서브셋은 파일명이 버전 고정이라 immutable로 못 박는다
+        return [
+            {
+                source: "/fonts/:path*",
+                headers: [
+                    { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+                ],
+            },
+        ]
+    },
     async redirects() {
         // /region 인덱스는 /daycares(지역별 탭)로 완전히 대체됨 — /region/[sido] 이하는 그대로 유지
         return [

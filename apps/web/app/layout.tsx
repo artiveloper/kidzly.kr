@@ -1,19 +1,11 @@
 import type { Metadata, Viewport } from "next"
-import localFont from "next/font/local"
 import Script from "next/script"
 import "@workspace/ui/globals.css"
+import "./fonts.css"
 import ThemeProvider from "@/components/theme-provider"
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
-import { cn } from "@workspace/ui/lib/utils"
 import { GoogleAnalytics } from "@next/third-parties/google"
-
-const pretendard = localFont({
-    src: "../public/fonts/PretendardVariable.woff2",
-    variable: "--font-sans",
-    display: "swap",
-    weight: "45 920",
-})
 
 const BASE_URL = "https://kidzly.kr"
 
@@ -85,7 +77,7 @@ export default function RootLayout({
         <html
             lang="ko"
             suppressHydrationWarning
-            className={cn("font-sans antialiased", pretendard.variable)}
+            className="font-sans antialiased"
         >
             <body>
                 <Script
