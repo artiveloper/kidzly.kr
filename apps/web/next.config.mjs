@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     transpilePackages: ["@workspace/ui", "@workspace/supabase"],
+    images: {
+        // 기본값은 webp만 생성한다 — 블로그 썸네일에 더 작은 avif를 먼저 시도하게 한다
+        formats: ["image/avif", "image/webp"],
+        // 썸네일·로고는 거의 바뀌지 않는다. 최적화 결과를 31일간 재사용한다
+        minimumCacheTTL: 2678400,
+    },
+    experimental: {
+        // lucide-react는 Next 기본 목록에 포함되어 있어 넣지 않는다
+        optimizePackageImports: ["@workspace/ui"],
+    },
     async headers() {
         // public/ 자산은 Vercel이 max-age=0, must-revalidate로 내보내 방문마다 재검증 왕복이 생긴다.
         // 폰트 서브셋은 파일명이 버전 고정이라 immutable로 못 박는다
