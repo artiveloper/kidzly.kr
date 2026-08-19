@@ -55,8 +55,30 @@ P1-1 검증으로 사이트맵 XML을 실제로 세어보다 발견했다.
 
 ---
 
+---
+
+## 2차 반영 — P2 4건 (2026-08-19)
+
+`app/layout.tsx` 한 파일에 P2-3~P2-6이 모두 걸쳐 있어 한 커밋으로 처리했다.
+
+| 이슈 | 내용 |
+|---|---|
+| P2-3 | `keywords` 23개 제거 — 구글이 색인·순위에 전혀 쓰지 않는다 |
+| P2-4 | `robots`의 `index`/`follow` 제거(기본값이라 무효). `max-image-preview`·`max-snippet`만 유지. `privacy-policy`·`terms`의 동일 명시도 제거 |
+| P2-5 | `WebSite` JSON-LD를 루트 레이아웃 → `app/page.tsx`로 이동, `alternateName: 'Kidzly'` 추가 |
+| P2-6 | 루트 `alternates.canonical` 제거 — 신규 라우트가 canonical을 빠뜨리면 홈으로 canonical 되던 함정 |
+| P2-8 | 홈에 `Organization` 독립 마크업 추가(`logo` 716×300 포함). 운영 소셜 채널이 없어 `sameAs`는 생략 |
+
+**검증:** typecheck ✅ / lint ✅(0 errors) / build ✅ 54개 라우트. 프리렌더 페이지 전부가 자체 canonical 보유(`_global-error` 제외), `keywords` 메타 소멸, `googlebot` 메타는 두 지시어만, `index.html`에 `WebSite`·`Organization` 존재, `about.html`에서 `WebSite` 소멸 확인.
+
+**P2-2**(`/about` lastmod)는 P1-1에서 "근거 없으면 생략" 규칙을 세우며 의도된 상태가 되어 해소됐다.
+
+---
+
 ## 남은 항목
 
-- **P2 8건** — `keywords` 제거, `index/follow` 정리, `WebSite` JSON-LD 홈 이동, 루트 canonical 제거, 제목 반복 정리, `Organization` 마크업, `/about` lastmod, 이미지 사이트맵. `03_google_docs_crosscheck.md` §3 참고.
+- **P2-7 제목 반복** — 사이트명이 모든 제목에 붙고 홈 제목에 "어린이집"이 3회. 카피 결정이 필요해 미반영.
+- **P2-1 `priority`/`changeFrequency`** — 구글은 무시한다. 네이버·다음 대응 의도를 정한 뒤 유지/제거 판단.
+- **이미지 사이트맵** — 블로그 썸네일 21개 미포함. 우선순위 낮음.
 - **수동 조치** — Search Console 생성형 AI 실적 보고서 확인, 사이트맵 처리 상태 재확인(URL 수가 24,000대로 잡히는지), AdSense 지면 확인, CWV 필드 데이터 확인.
 - 사이트맵 생성이 배치 25회 순차 조회로 60초 이상 걸린다. 지금은 재시도로 방어했지만, 어린이집 수가 더 늘면 배치 크기·병렬화 재검토가 필요하다.
