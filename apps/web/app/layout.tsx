@@ -32,40 +32,12 @@ export const metadata: Metadata = {
     },
     description:
         "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능",
-    keywords: [
-        "어린이집 찾기",
-        "어린이집 검색",
-        "국공립 어린이집",
-        "민간 어린이집",
-        "가정 어린이집",
-        "어린이집 비교",
-        "서울 어린이집",
-        "어린이집 추천",
-        "어린이집 위치",
-        "어린이집 대기",
-        "보육시설 검색",
-        "유치원 어린이집 차이",
-        "전국 어린이집 정보",
-        "어린이집 지도",
-        "입소 대기",
-        "어린이집 대기",
-        "어린이집 대기신청",
-        "어린이집 대기현황",
-        "국공립 어린이집 대기",
-        "입소대기 신청",
-        "임신육아종합포털",
-        "임신육아종합포털 아이사랑",
-        "아이사랑",
-    ],
     authors: [{ name: "키즐리" }],
     creator: "키즐리",
     publisher: "키즐리",
+    // index·follow는 기본값이라 명시해도 효과가 없다 — 실제로 동작하는 지시어만 남긴다
     robots: {
-        index: true,
-        follow: true,
         googleBot: {
-            index: true,
-            follow: true,
             "max-image-preview": "large",
             "max-snippet": -1,
         },
@@ -93,27 +65,12 @@ export const metadata: Metadata = {
         description: "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능",
         images: ["/og-image.png"],
     },
-    alternates: {
-        canonical: BASE_URL,
-    },
+    // canonical은 각 page.tsx에서만 지정한다 — 루트에 두면 canonical을 빠뜨린 신규 라우트가
+    // 조용히 홈으로 canonical 되어 색인에서 빠진다
     verification: {
         other: {
             "naver-site-verification": "259e0ccfc1c2b8e2e7dc0cef278a80e00f4a3f51"
         },
-    },
-}
-
-const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "키즐리",
-    url: BASE_URL,
-    description:
-        "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능",
-    publisher: {
-        "@type": "Organization",
-        name: "키즐리",
-        url: BASE_URL,
     },
 }
 
@@ -130,12 +87,6 @@ export default function RootLayout({
             suppressHydrationWarning
             className={cn("font-sans antialiased", pretendard.variable)}
         >
-            <head>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-            </head>
             <body>
                 <Script
                     async

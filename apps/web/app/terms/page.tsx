@@ -8,7 +8,6 @@ const LAST_UPDATED = "2026년 7월 3일"
 export const metadata: Metadata = {
     title: "이용약관",
     description: "키즐리 이용약관입니다. 서비스 이용 조건 및 규정을 안내합니다.",
-    robots: { index: true, follow: true },
     alternates: {
         canonical: "https://kidzly.kr/terms",
     },

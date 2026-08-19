@@ -58,6 +58,30 @@ const SHORTCUTS = [
     },
 ]
 
+// WebSite·Organization은 홈페이지에만 둔다 — 구글은 "WebSite 구조화 데이터가 사이트의
+// 홈페이지에 있어야" 한다고 요구하며 하위 디렉터리는 지원하지 않는다
+const websiteLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: '키즐리',
+    alternateName: 'Kidzly',
+    url: 'https://kidzly.kr',
+    description: DESCRIPTION,
+}
+
+const organizationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: '키즐리',
+    url: 'https://kidzly.kr',
+    logo: {
+        '@type': 'ImageObject',
+        url: 'https://kidzly.kr/logo.png',
+        width: 716,
+        height: 300,
+    },
+}
+
 export default async function Page() {
     const latestPosts = getLatestPosts(8)
     const daycareCount = await fetchDaycareCount()
@@ -71,6 +95,14 @@ export default async function Page() {
 
     return (
         <div className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+            />
             <div className="daum-wm-title hidden">{TITLE}</div>
             <div className="daum-wm-content hidden">{DESCRIPTION}</div>
             <Header />

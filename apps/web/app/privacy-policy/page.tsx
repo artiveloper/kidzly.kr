@@ -8,7 +8,6 @@ const LAST_UPDATED = "2026년 6월 20일"
 export const metadata: Metadata = {
     title: "개인정보처리방침",
     description: "키즐리 개인정보처리방침입니다. 수집하는 개인정보 항목, 이용 목적, 보유 기간 등을 안내합니다.",
-    robots: { index: true, follow: true },
     alternates: {
         canonical: "https://kidzly.kr/privacy-policy",
     },
