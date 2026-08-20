@@ -130,7 +130,7 @@ export default function EditorialPolicyPage() {
                                 무엇이 헷갈리는 지점인지를 기준으로 글을 고릅니다.
                             </p>
                             <p>
-                                다만 <span className="font-medium text-gray-800">의사·변호사·보육교사 자격을 가진 전문가는 아닙니다.</span>
+                                다만 <span className="font-medium text-gray-800">의사·변호사·보육교사 자격을 가진 전문가는 아닙니다.</span>{" "}
                                 그래서 개인적인 판단이나 경험담을 근거로 삼지 않고,
                                 정부가 공표한 원문에 적힌 것만 사실로 씁니다.
                                 글에 나오는 모든 수치와 제도 내용에는 어디서 나온 것인지를 함께 적습니다.
