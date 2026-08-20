@@ -68,6 +68,7 @@ function collectLatestDataDates(entries: DaycareSitemapEntry[]) {
 // 정적 페이지 시행일 — 각 page.tsx의 LAST_UPDATED 표시 문구와 동기화 필요
 const PRIVACY_POLICY_UPDATED = new Date("2026-06-20")
 const TERMS_UPDATED = new Date("2026-07-03")
+const EDITORIAL_POLICY_UPDATED = new Date("2026-08-20")
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entries = await fetchAllDaycareEntries()
@@ -118,6 +119,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...contentEntries,
         {
             url: `${BASE_URL}/about`,
+        },
+        {
+            url: `${BASE_URL}/about/editorial`,
+            lastModified: EDITORIAL_POLICY_UPDATED,
         },
         {
             url: `${BASE_URL}/privacy-policy`,

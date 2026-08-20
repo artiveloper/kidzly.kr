@@ -90,7 +90,22 @@ export default async function BlogPostPage({ params }: Props) {
                         {post.title}
                     </h1>
 
-                    <p className="mb-6 text-base text-gray-500">{post.description}</p>
+                    <p className="mb-4 text-base text-gray-500">{post.description}</p>
+
+                    <div className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-gray-100 py-2 text-sm text-gray-500">
+                        <span>
+                            글 <span className="font-medium text-gray-700">키즐리 편집팀</span>
+                        </span>
+                        <span className="text-gray-300" aria-hidden="true">
+                            ·
+                        </span>
+                        <Link
+                            href="/about/editorial"
+                            className="inline-flex min-h-11 items-center text-gray-500 underline underline-offset-4 transition-colors hover:text-gray-900"
+                        >
+                            어떻게 쓰고 검증하나
+                        </Link>
+                    </div>
 
                     <div className="prose-sm prose-gray max-w-none">
                         <MDXContent code={post.code} />

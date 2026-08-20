@@ -9,6 +9,10 @@ export default function Footer() {
                         서비스 소개
                     </Link>
                     <span className="w-px h-3 bg-gray-200" />
+                    <Link href="/about/editorial" className="hover:text-gray-900 transition-colors">
+                        편집·검증 정책
+                    </Link>
+                    <span className="w-px h-3 bg-gray-200" />
                     <Link href="/about#contact" className="hover:text-gray-900 transition-colors">
                         문의
                     </Link>
