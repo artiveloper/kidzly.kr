@@ -41,7 +41,7 @@ export default function TermsPage() {
             </header>
 
             <main className="pt-14">
-                <div className="max-w-lg mx-auto px-5">
+                <div className="max-w-2xl mx-auto px-4">
                     <div className="pt-10 pb-4">
                         <h1 className="text-xl font-bold text-gray-900 mb-1">이용약관</h1>
                         <p className="text-xs text-gray-400">시행일: {LAST_UPDATED}</p>
