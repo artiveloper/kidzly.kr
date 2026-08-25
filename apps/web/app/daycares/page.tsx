@@ -16,7 +16,6 @@ import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import SidoChipList from '@/components/region/SidoChipList'
-import RegionDirectory from '@/components/region/RegionDirectory'
 import UpcomingDaycareList from '@/components/home/UpcomingDaycareList'
 
 const BASE_URL = 'https://kidzly.kr'
@@ -148,7 +147,7 @@ export default async function DaycaresPage({ searchParams }: Props) {
 
                 <div className="mx-auto max-w-2xl px-4 pt-6 pb-12">
                     {activeTab === 'region' ? (
-                        <RegionSection arcode={arcode} searchParams={params} />
+                        <RegionSection sido={params.sido} arcode={arcode} searchParams={params} />
                     ) : (
                         <UpcomingSection />
                     )}
@@ -169,10 +168,25 @@ function groupBySido(entries: SigunguEntry[]): Record<string, SigunguEntry[]> {
     return map
 }
 
+// 지역을 옮겨도 살아남아야 하는 필터들 — 지역 칩 링크에 그대로 이어 붙인다.
+// (nuqs는 배열 필터도 콤마로 이어 붙인 단일 문자열로 직렬화하므로 문자열만 통과시키면 된다)
+const FILTER_KEYS = ['type', 'vehicle', 'services', 'age'] as const
+
+function buildFilterQuery(searchParams: Record<string, string | string[] | undefined>) {
+    const query = new URLSearchParams()
+    for (const key of FILTER_KEYS) {
+        const value = searchParams[key]
+        if (typeof value === 'string' && value !== '') query.set(key, value)
+    }
+    return query.toString()
+}
+
 async function RegionSection({
+    sido,
     arcode,
     searchParams,
 }: {
+    sido?: string
     arcode?: string
     searchParams: Record<string, string | string[] | undefined>
 }) {
@@ -195,19 +209,16 @@ async function RegionSection({
           )
         : null
 
-    return (
-        <>
-            {state ? (
-                <HydrationBoundary state={state}>
-                    <SidoChipList sigunguBySido={sigunguBySido} />
-                </HydrationBoundary>
-            ) : (
-                <SidoChipList sigunguBySido={sigunguBySido} />
-            )}
-            {/* 칩은 클라이언트 상태 전환이라 크롤러가 따라갈 링크가 없다 — 지역 페이지 진입 경로를 여기서 만든다 */}
-            <RegionDirectory sigunguBySido={sigunguBySido} />
-        </>
+    const chips = (
+        <SidoChipList
+            sigunguBySido={sigunguBySido}
+            sido={sido}
+            arcode={arcode}
+            filterQuery={buildFilterQuery(searchParams)}
+        />
     )
+
+    return state ? <HydrationBoundary state={state}>{chips}</HydrationBoundary> : chips
 }
 
 // 현재 전국 6건 수준이라 사실상 전수 노출 — 데이터 이상 유입 대비 안전장치로만 상한을 둔다
