@@ -9,6 +9,17 @@ import {
 } from '@/components/daycare/detail/DaycareDetailSSR';
 import DaycareDetailLoading from '@/components/daycare/detail/DaycareDetailLoading';
 
+// 어린이집 데이터는 하루 한 번(새벽 3시경) 동기화되므로 요청마다 조회할 이유가 없다.
+// 캐시가 없으면 크롤러가 상세 24,000여 건을 훑을 때 그 수만큼 DB 조회가 나가고,
+// 그중 하나라도 실패하면 그 페이지가 색인에서 빠졌다. ISR이면 실패 시 직전 캐시가 대신 나간다.
+export const revalidate = 3600;
+
+// 빈 배열이면 빌드 시 사전 생성은 없고, 요청이 들어온 상세만 캐시에 채워진다(on-demand ISR).
+// 이 선언이 없으면 revalidate를 줘도 Next가 라우트를 매 요청 렌더로 취급한다.
+export async function generateStaticParams() {
+    return [];
+}
+
 type Props = {
     params: Promise<{ id: string }>;
 };
