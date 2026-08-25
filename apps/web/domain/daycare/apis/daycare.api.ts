@@ -97,18 +97,31 @@ export async function fetchDaycaresInBounds(
     return (data ?? []).map((row) => toDaycareListItem(row as DaycareRow));
 }
 
+/** daycare_code에 해당하는 행이 없는 경우 — 조회 자체가 실패한 경우(일시 장애)와 구분해 404 처리에만 쓴다 */
+export class DaycareNotFoundError extends Error {
+    constructor(id: string) {
+        super(`daycare not found: ${id}`);
+        this.name = 'DaycareNotFoundError';
+    }
+}
+
 export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
     const supabase = createSupabaseClient();
 
+    // single()은 "행 없음"도 error로 돌려줘 DB 장애와 구분되지 않는다 — maybeSingle()로 나눠 받는다
     const { data, error } = await supabase
         .from('daycares')
         .select(DETAIL_COLUMNS)
         .eq('daycare_code', id)
-        .single();
+        .maybeSingle();
 
     if (error) {
         console.error('[fetchDaycareDetail]', error.message);
         throw new Error(error.message);
+    }
+
+    if (!data) {
+        throw new DaycareNotFoundError(id);
     }
 
     return toDaycareDetail(data as DaycareRow);

@@ -3,7 +3,8 @@ export { daycarePrefetch } from './prefetch/daycare.prefetch'
 // sitemap.ts는 React Query 사용 불가 환경이므로 직접 fetch 필요
 export { fetchDaycareIdsPaginated } from './apis/daycare.api'
 // DaycareDetailSSR에서 cache() memoization과 함께 사용 (generateMetadata 전용)
-export { fetchDaycareDetail } from './apis/daycare.api'
+// DaycareNotFoundError는 상세 페이지가 "행 없음(404)"과 "조회 실패(500)"를 갈라 처리하는 데 쓴다
+export { fetchDaycareDetail, DaycareNotFoundError } from './apis/daycare.api'
 // daycareQueryOptions.regionList(useDaycareRegionList)의 queryFn에서 사용 — /daycares 지역별 탭
 export { fetchDaycaresBySigungu } from './apis/daycare.api'
 // 홈페이지 통계 섹션의 등록 어린이집 수 표시에 사용

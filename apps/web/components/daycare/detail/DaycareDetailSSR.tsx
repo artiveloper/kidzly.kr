@@ -1,5 +1,4 @@
 import { cache } from 'react';
-import { notFound } from 'next/navigation';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch, fetchDaycareDetail } from '@/domain/daycare/server';
 import { formatDate } from '@/lib/format';
@@ -53,10 +52,12 @@ export function buildDaycareMetaStrings(daycare: DaycareDetail) {
 }
 
 export async function DaycareDetailSSR({ id }: { id: string }) {
+    // 존재하지 않는 id는 Page에서 이미 404로 걸러졌다. 여기서 실패하면 DB 조회 실패이므로
+    // 404로 뭉개지 않고 그대로 던져 5xx로 응답한다 — 검색로봇이 나중에 재수집한다.
     const [state, daycare] = await Promise.all([
         runPrefetch(daycarePrefetch.detail(id)),
         getCachedDaycareDetail(id),
-    ]).catch(() => notFound());
+    ]);
 
     // "주변 다른 어린이집"은 보조 섹션 — 실패해도 페이지 전체를 404 처리하지 않음
     const nearbyState = await runPrefetch(
