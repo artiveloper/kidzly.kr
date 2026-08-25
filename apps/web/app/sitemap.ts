@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
-import { fetchSidoNames } from "@/domain/region/server"
+import { fetchSidoNames, fetchSigunguNames } from "@/domain/region/server"
 import { getAllPosts } from "@/lib/blog"
 
 export const revalidate = 86400 // 24시간 캐시
@@ -73,6 +73,7 @@ const EDITORIAL_POLICY_UPDATED = new Date("2026-08-20")
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entries = await fetchAllDaycareEntries()
     const sidoNames = await fetchSidoNames()
+    const sigunguEntries = await fetchSigunguNames()
     const posts = getAllPosts()
 
     const { bySido: latestDataDateBySido, overall: latestDataDate } = collectLatestDataDates(entries)
@@ -98,6 +99,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${BASE_URL}/daycares`,
         },
+        // 시군구 지역별 목록 — 어린이집 상세로 가는 내부 링크 허브이자 "OO구 어린이집" 검색의 착지점.
+        // 경로형이 아닌 쿼리 파라미터 URL이지만 지역마다 제목·설명·canonical이 갈라져 있어 개별 색인 대상이다.
+        ...sigunguEntries.map(({ sido, arcode }) => {
+            const sidoDataDate = latestDataDateBySido.get(sido)
+
+            return {
+                url: `${BASE_URL}/daycares?arcode=${arcode}`,
+                lastModified: sidoDataDate ? new Date(sidoDataDate) : undefined,
+            }
+        }),
         {
             url: `${BASE_URL}/rankings`,
             lastModified: latestDataDate ? new Date(latestDataDate) : undefined,

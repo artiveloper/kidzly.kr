@@ -28,8 +28,10 @@ export const fetchSidoNames = cache(async (): Promise<string[]> => {
  * (0.0066%)뿐이며 전남광주통합특별시 관련 데이터 오염이다. 데이터 수정 없이 무시하기로 확정했다.
  *
  * /daycares 지역별 탭 전용.
+ * 한 요청 안에서 generateMetadata·h1·지역 디렉터리·목록 섹션이 모두 이 목록을 필요로 하므로
+ * cache()로 감싸 조회를 한 번으로 묶는다.
  */
-export async function fetchSigunguNames(): Promise<SigunguEntry[]> {
+export const fetchSigunguNames = cache(async (): Promise<SigunguEntry[]> => {
     const rows = await fetchSigungus()
     return rows
         .map((row) => ({ sido: row.sidoname, sigungu: row.sigunname, arcode: row.arcode }))
@@ -37,4 +39,4 @@ export async function fetchSigunguNames(): Promise<SigunguEntry[]> {
             if (a.sido !== b.sido) return a.sido.localeCompare(b.sido, 'ko')
             return a.sigungu.localeCompare(b.sigungu, 'ko')
         })
-}
+})

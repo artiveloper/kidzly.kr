@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
-import { getSidoShort } from '@/domain/region'
+import { formatLocation, getSidoShort } from '@/domain/region'
 import { fetchSidoNames, fetchSigunguNames } from '@/domain/region/server'
 import type { SigunguEntry } from '@/domain/region'
 import {
@@ -16,6 +16,7 @@ import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import SidoChipList from '@/components/region/SidoChipList'
+import RegionDirectory from '@/components/region/RegionDirectory'
 import UpcomingDaycareList from '@/components/home/UpcomingDaycareList'
 
 const BASE_URL = 'https://kidzly.kr'
@@ -24,25 +25,57 @@ const DESCRIPTION = '지역별 어린이집 목록과 인허가 예정 어린이
 
 export const revalidate = 3600
 
-export const metadata: Metadata = {
-    title: { absolute: TITLE },
-    description: DESCRIPTION,
-    alternates: { canonical: `${BASE_URL}/daycares` },
-    openGraph: {
-        type: 'website',
-        locale: 'ko_KR',
-        siteName: '키즐리',
-        url: `${BASE_URL}/daycares`,
-        title: TITLE,
-        description: DESCRIPTION,
-        images: [{ url: '/og-image.png', width: 1200, height: 630, alt: '어린이집 목록 키즐리' }],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: TITLE,
-        description: DESCRIPTION,
-        images: ['/og-image.png'],
-    },
+// arcode로 시군구가 특정된 화면은 지역마다 목록이 다른 별개의 페이지다. 지금까지는 제목·설명·
+// canonical이 전 지역 동일해 구글이 전부 /daycares 하나로 합쳐버렸고, 250여 개 지역 페이지가
+// 통째로 색인에서 빠져 있었다. 지역이 특정되면 세 값을 모두 그 지역 것으로 바꾼다.
+async function findSigunguEntry(arcode: string | undefined): Promise<SigunguEntry | null> {
+    if (!arcode) return null
+    const entries = await fetchSigunguNames()
+    return entries.find((entry) => entry.arcode === arcode) ?? null
+}
+
+function buildRegionStrings(entry: SigunguEntry) {
+    // 세종처럼 시도와 시군구 이름이 같은 경우 formatLocation이 중복을 걷어낸다
+    const location = formatLocation(entry.sido, entry.sigungu)
+
+    return {
+        location,
+        heading: `${location} 어린이집`,
+        title: `${location} 어린이집 | 국공립·민간·가정 목록 - 키즐리`,
+        description: `${location}에 있는 어린이집을 유형·연령·지원서비스로 걸러 확인하세요. 정원과 현원, 주소까지 한 화면에서 비교할 수 있습니다.`,
+        url: `${BASE_URL}/daycares?arcode=${entry.arcode}`,
+    }
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+    const { arcode } = await searchParams
+    const entry = await findSigunguEntry(arcode)
+    // 유형·연령·지원서비스 필터는 같은 지역 목록의 부분집합이라 canonical에 싣지 않는다 —
+    // 실으면 필터 조합만큼 URL이 늘어 색인이 잘게 쪼개진다
+    const { title, description, url } = entry
+        ? buildRegionStrings(entry)
+        : { title: TITLE, description: DESCRIPTION, url: `${BASE_URL}/daycares` }
+
+    return {
+        title: { absolute: title },
+        description,
+        alternates: { canonical: url },
+        openGraph: {
+            type: 'website',
+            locale: 'ko_KR',
+            siteName: '키즐리',
+            url,
+            title,
+            description,
+            images: [{ url: '/og-image.png', width: 1200, height: 630, alt: '어린이집 목록 키즐리' }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: ['/og-image.png'],
+        },
+    }
 }
 
 const TABS = [
@@ -59,15 +92,18 @@ type Props = {
     >
 }
 
-const breadcrumbLd = buildBreadcrumbJsonLd([
-    { name: '키즐리', url: BASE_URL },
-    { name: '어린이집 목록', url: `${BASE_URL}/daycares` },
-])
-
 export default async function DaycaresPage({ searchParams }: Props) {
     const params = await searchParams
     const { tab, arcode } = params
     const activeTab = tab === 'upcoming' ? 'upcoming' : 'region'
+    // arcode는 지역별 탭에서만 의미를 가진다 (fetchSigunguNames는 cache()라 조회가 늘지 않는다)
+    const region = activeTab === 'region' ? await findSigunguEntry(arcode).then((entry) => (entry ? buildRegionStrings(entry) : null)) : null
+
+    const breadcrumbLd = buildBreadcrumbJsonLd([
+        { name: '키즐리', url: BASE_URL },
+        { name: '어린이집 목록', url: `${BASE_URL}/daycares` },
+        ...(region ? [{ name: region.heading, url: region.url }] : []),
+    ])
 
     return (
         <div className="min-h-screen bg-white">
@@ -75,16 +111,20 @@ export default async function DaycaresPage({ searchParams }: Props) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
-            <div className="daum-wm-title hidden">{TITLE}</div>
-            <div className="daum-wm-content hidden">{DESCRIPTION}</div>
+            <div className="daum-wm-title hidden">{region ? region.title : TITLE}</div>
+            <div className="daum-wm-content hidden">{region ? region.description : DESCRIPTION}</div>
             <Header />
 
             <main className="pt-14">
                 <div className="bg-white border-b border-gray-100">
                     <div className="mx-auto max-w-2xl px-4 pt-7 pb-6">
-                        <h1 className="mb-1 text-xl font-bold text-gray-900">어린이집 목록</h1>
+                        <h1 className="mb-1 text-xl font-bold text-gray-900">
+                            {region ? region.heading : '어린이집 목록'}
+                        </h1>
                         <p className="text-sm text-gray-400">
-                            지역별로 찾아보거나, 곧 인허가될 어린이집을 미리 확인하세요.
+                            {region
+                                ? `${region.location} 지역의 국공립·민간·가정 어린이집을 한 번에 확인하세요.`
+                                : '지역별로 찾아보거나, 곧 인허가될 어린이집을 미리 확인하세요.'}
                         </p>
                     </div>
                 </div>
@@ -143,21 +183,31 @@ async function RegionSection({
     // 엔트리 목록에 실재하는 코드일 때만 (SidoChipList의 클라이언트 검증과 동일 기준).
     // sido=만 들어온 1단계 상태는 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않는다.
     const selectedEntry = arcode ? entries.find((entry) => entry.arcode === arcode) : undefined
-    if (selectedEntry) {
-        // 필터가 URL에 함께 실려 있으면 prefetch에도 반영해야 한다 — 반영하지 않으면
-        // queryKey가 클라이언트 hook과 어긋나 목록이 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
-        const filters = toDaycareFilterParams(loadDaycareFilters(searchParams))
-        const state = await runPrefetch(
-            daycarePrefetch.regionList({ sigunguCode: selectedEntry.arcode, ...filters })
-        )
-        return (
-            <HydrationBoundary state={state}>
-                <SidoChipList sigunguBySido={sigunguBySido} />
-            </HydrationBoundary>
-        )
-    }
 
-    return <SidoChipList sigunguBySido={sigunguBySido} />
+    // 필터가 URL에 함께 실려 있으면 prefetch에도 반영해야 한다 — 반영하지 않으면
+    // queryKey가 클라이언트 hook과 어긋나 목록이 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
+    const state = selectedEntry
+        ? await runPrefetch(
+              daycarePrefetch.regionList({
+                  sigunguCode: selectedEntry.arcode,
+                  ...toDaycareFilterParams(loadDaycareFilters(searchParams)),
+              })
+          )
+        : null
+
+    return (
+        <>
+            {state ? (
+                <HydrationBoundary state={state}>
+                    <SidoChipList sigunguBySido={sigunguBySido} />
+                </HydrationBoundary>
+            ) : (
+                <SidoChipList sigunguBySido={sigunguBySido} />
+            )}
+            {/* 칩은 클라이언트 상태 전환이라 크롤러가 따라갈 링크가 없다 — 지역 페이지 진입 경로를 여기서 만든다 */}
+            <RegionDirectory sigunguBySido={sigunguBySido} />
+        </>
+    )
 }
 
 // 현재 전국 6건 수준이라 사실상 전수 노출 — 데이터 이상 유입 대비 안전장치로만 상한을 둔다
