@@ -133,7 +133,7 @@ export default async function Page() {
                                     type="text"
                                     name="q"
                                     placeholder="어린이집 이름, 주소로 검색"
-                                    className="w-full h-12 md:h-14 pl-9 pr-4 rounded-xl border border-gray-200 bg-white text-sm md:text-base focus:border-emerald-400 focus:outline-none transition-colors"
+                                    className="w-full h-12 md:h-14 pl-9 pr-4 rounded-xl border border-gray-200 bg-white text-base focus:border-emerald-400 focus:outline-none transition-colors"
                                 />
                             </form>
 
@@ -141,11 +141,11 @@ export default async function Page() {
                                 asChild
                                 variant="outline"
                                 size="sm"
-                                className="mt-3 md:mt-0 w-full md:w-auto md:h-14 md:px-6 rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50"
+                                className="mt-3 md:mt-0 w-full md:w-auto h-12 md:h-14 px-6 rounded-xl border-gray-200 text-gray-700 text-base hover:bg-gray-50"
                             >
                                 <Link href="/map">
                                     지도에서 찾기
-                                    <ArrowRight size={13} />
+                                    <ArrowRight size={16} />
                                 </Link>
                             </Button>
                         </div>

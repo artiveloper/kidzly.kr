@@ -41,8 +41,11 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         }
     });
 
-    // 목록 Drawer 상태
-    const [isListOpen, setIsListOpen] = useState(false);
+    // 목록 Drawer 상태 — 홈 검색(q 파라미터)으로 진입하면 모바일에서 목록을 열어 결과를 노출
+    const [isListOpen, setIsListOpen] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return new URLSearchParams(window.location.search).has('q');
+    });
 
     const [searchQuery, setSearchQuery] = useQueryState('q', parseAsString.withDefault(''));
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
