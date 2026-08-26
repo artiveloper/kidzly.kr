@@ -42,7 +42,7 @@ export default function PromoToast({ latestPost }: PromoToastProps) {
             : { emoji: '🏆', text: '전국 어린이집 랭킹을 확인해보세요', href: '/rankings' };
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[calc(100%-2rem)] max-w-sm animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[calc(100%-2rem)] max-w-sm animate-in slide-in-from-bottom-4 fade-in duration-300">
             <div className="flex items-center gap-3 bg-gray-900 text-white rounded-2xl px-4 py-3 shadow-xl">
                 <span className="text-xl shrink-0">{emoji}</span>
                 <p className="flex-1 text-sm font-medium leading-snug line-clamp-2">

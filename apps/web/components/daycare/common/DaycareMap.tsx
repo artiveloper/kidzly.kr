@@ -152,7 +152,7 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         `md:hidden fixed inset-x-0 top-14 bottom-0 z-[48] bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
+        <div className="flex flex-col h-dvh overflow-hidden">
             <Header />
 
             <div className="flex flex-1 overflow-hidden pt-14">
