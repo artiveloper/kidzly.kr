@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Flame, Clock, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { runPrefetch } from '@/lib/react-query/prefetch';
-import { daycarePrefetch, fetchDaycareRegionSummary, fetchDaycareRankingWaiting } from '@/domain/daycare/server';
+import { daycarePrefetch, fetchDaycareRankingWaiting } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsLists from '@/components/rankings/RankingsLists';
 import { RankingsListsSkeleton } from '@/components/rankings/RankingsSkeleton';
@@ -59,13 +59,12 @@ export default async function RankingsPageView({ sido }: Props) {
         ],
     };
 
-    const [state, regionSummary, waitingRanking] = await Promise.all([
+    const [state, waitingRanking] = await Promise.all([
         runPrefetch(
             daycarePrefetch.rankingWaiting({ sido }),
             daycarePrefetch.rankingCapacity({ sido }),
             daycarePrefetch.rankingOldest({ sido }),
         ),
-        fetchDaycareRegionSummary(sido),
         // prefetch와 같은 데이터를 한 번 더 조회한다 — ItemList는 dehydrate된 상태가 아니라 실제 배열이
         // 필요하고, dedup하려면 클라이언트에서도 쓰는 API 함수에 cache()를 씌워 경계가 흐려진다.
         // revalidate 3600 ISR 페이지(전국 1 + 시도 17)라 중복 1회 비용이 무시할 수준이다.
@@ -115,10 +114,6 @@ export default async function RankingsPageView({ sido }: Props) {
                         <h1 className="mb-1 text-xl font-bold text-gray-900">
                             {regionLabel} 어린이집 랭킹
                         </h1>
-                        <p className="text-sm text-gray-400 mb-1">
-                            {regionLabel} 정상 운영 어린이집 {regionSummary.totalCount.toLocaleString('ko-KR')}곳
-                            {regionSummary.avgWaiting !== null && `, 대기 있는 곳 평균 ${regionSummary.avgWaiting}명 대기`}
-                        </p>
                         <p className="text-sm text-gray-400 mb-5">
                             다양한 기준으로 {regionLabel} 어린이집을 비교해보세요.
                         </p>

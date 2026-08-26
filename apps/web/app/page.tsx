@@ -5,11 +5,15 @@ import { Suspense } from 'react'
 import { MapPin, Trophy, BookOpen, ArrowRight, Search } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { getAllPosts, getLatestPosts } from '@/lib/blog'
-import { fetchDaycareCount } from '@/domain/daycare/server'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import HomeUpcomingDaycares from '@/components/home/HomeUpcomingDaycares'
 import HomeUpcomingDaycaresSkeleton from '@/components/home/HomeUpcomingDaycaresSkeleton'
+
+// 등록 어린이집 수는 고정값으로 표시한다 — 24,000여 행 exact count가 빌드(미국 리전)에서
+// 반복 실패했고, 실패가 0으로 삼켜져 홈에 "0+"가 프리렌더된 사고가 있었다.
+// 하루 1회 동기화되는 값이라 "+" 표기의 하한선으로 두는 편이 안전하다.
+const DAYCARE_COUNT_LABEL = '25,000+'
 
 const TITLE = '어린이집 찾기 | 지도 검색·랭킹·육아 정보 한곳에 - 키즐리'
 const DESCRIPTION = '전국 어린이집을 지도에서 찾고, 지역별 랭킹과 육아 정보까지 한 곳에서 확인하세요.'
@@ -84,11 +88,10 @@ const organizationLd = {
 
 export default async function Page() {
     const latestPosts = getLatestPosts(8)
-    const daycareCount = await fetchDaycareCount()
     const contentCount = getAllPosts().length
 
     const STATS = [
-        { value: `${daycareCount.toLocaleString('ko-KR')}+`, label: '등록 어린이집' },
+        { value: DAYCARE_COUNT_LABEL, label: '등록 어린이집' },
         { value: '17개', label: '시·도 전체 커버' },
         { value: `${contentCount}+`, label: '육아 콘텐츠' },
     ]
