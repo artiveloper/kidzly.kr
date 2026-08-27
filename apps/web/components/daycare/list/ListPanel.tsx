@@ -20,6 +20,7 @@ interface ListPanelProps {
     scrollRef?: React.RefObject<HTMLDivElement | null>;
     onClose?: () => void;
     promoPosts?: BlogPostMeta[];
+    onHoverDaycare?: (id: string | null) => void;
 }
 
 export default function ListPanel({
@@ -34,6 +35,7 @@ export default function ListPanel({
     scrollRef,
     onClose,
     promoPosts,
+    onHoverDaycare,
 }: ListPanelProps) {
     return (
         <div className="flex flex-col h-full">
@@ -100,6 +102,7 @@ export default function ListPanel({
                 isLoading={isLoading}
                 scrollRef={scrollRef}
                 promoPosts={promoPosts}
+                onHoverDaycare={onHoverDaycare}
             />
         </div>
     );

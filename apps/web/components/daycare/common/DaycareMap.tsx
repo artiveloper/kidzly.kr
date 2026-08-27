@@ -28,6 +28,8 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
     const [rawBounds, setRawBounds] = useState<MapBounds>(DEFAULT_BOUNDS);
     const bounds = useDebounce(rawBounds, 600);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
+    // PC 목록 hover 중인 어린이집 — 지도 마커를 선택 상태와 동일하게 강조
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const [initialCenter] = useState<{ lat: number; lng: number } | null>(() => {
         if (typeof window === 'undefined') return null;
@@ -157,7 +159,7 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    <ListPanel {...panelProps} />
+                    <ListPanel {...panelProps} onHoverDaycare={setHoveredId} />
                 </aside>
 
                 <main className="flex-1 relative">
@@ -170,6 +172,7 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                         ref={mapViewRef}
                         daycares={filteredDaycares}
                         selectedId={pathnameId}
+                        hoveredId={hoveredId}
                         initialCenter={initialCenter}
                         onSelectDaycare={handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}

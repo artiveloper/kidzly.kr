@@ -10,10 +10,11 @@ import { saveDaycareReturnUrl } from '@/lib/navigation';
 interface DaycareListItemProps {
     daycare: DaycareListItem;
     activeAge: DaycareAgeFilter | null; // 연령 필터 선택 시 해당 연령 대기 정보 표시
+    onHover?: (id: string | null) => void; // PC 목록 hover 시 지도 마커 강조 (모바일 미전달)
 }
 
 
-export default function DaycareListItem({ daycare, activeAge }: DaycareListItemProps) {
+export default function DaycareListItem({ daycare, activeAge, onHover }: DaycareListItemProps) {
     // 정원 대비 현원 비율 (정원 또는 현원이 없으면 null)
     const occupancyRate =
         daycare.capacity && daycare.currentChildCount
@@ -29,6 +30,8 @@ export default function DaycareListItem({ daycare, activeAge }: DaycareListItemP
             href={`/daycare/${daycare.id}`}
             replace
             onClick={saveDaycareReturnUrl}
+            onMouseEnter={() => onHover?.(daycare.id)}
+            onMouseLeave={() => onHover?.(null)}
             className="block border-b border-gray-100 px-4 py-3.5 transition-all hover:bg-gray-50"
         >
             <div className="flex items-start justify-between gap-2">

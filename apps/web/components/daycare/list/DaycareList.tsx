@@ -20,9 +20,10 @@ interface DaycareListProps {
     isLoading?: boolean;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
     promoPosts?: BlogPostMeta[];
+    onHoverDaycare?: (id: string | null) => void;
 }
 
-export default function DaycareList({ daycares, isLoading = false, scrollRef, promoPosts = [] }: DaycareListProps) {
+export default function DaycareList({ daycares, isLoading = false, scrollRef, promoPosts = [], onHoverDaycare }: DaycareListProps) {
     const [activeAgeStr] = useQueryState('age', daycareFilterParsers.age);
     const activeAge = (activeAgeStr ? Number(activeAgeStr) : null) as DaycareAgeFilter | null;
 
@@ -74,6 +75,7 @@ export default function DaycareList({ daycares, isLoading = false, scrollRef, pr
                                 <DaycareListItem
                                     daycare={daycare}
                                     activeAge={activeAge}
+                                    onHover={onHoverDaycare}
                                 />
                                 {promoPost && <ContentPromoCard post={promoPost} />}
                             </Fragment>

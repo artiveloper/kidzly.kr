@@ -14,6 +14,7 @@ export type NaverMapHandle = {
 interface NaverMapProps {
     daycares: DaycareListItem[];
     selectedId?: string | null;
+    hoveredId?: string | null;
     initialCenter?: { lat: number; lng: number } | null;
     onSelectDaycare: (id: string) => void;
     onBoundsChange: (bounds: MapBounds) => void;
@@ -73,6 +74,20 @@ function markerHtml(name: string, showName: boolean, selected: boolean): string 
     </div>`;
 }
 
+// 마커 아이콘·앵커·z-index를 강조 상태(선택 또는 목록 hover)에 맞게 적용
+function applyMarkerIcon(
+    marker: naver.maps.Marker,
+    name: string,
+    showName: boolean,
+    highlighted: boolean,
+): void {
+    marker.setIcon({
+        content: markerHtml(name, showName, highlighted),
+        anchor: new naver.maps.Point(highlighted ? 18 : 14, highlighted ? 50 : 41),
+    });
+    marker.setZIndex(highlighted ? 10 : 1);
+}
+
 function getBounds(map: naver.maps.Map): MapBounds {
     const bounds = map.getBounds() as naver.maps.LatLngBounds;
     const ne = bounds.getNE();
@@ -114,6 +129,7 @@ function clusterStylingFunction(clusterMarker: naver.maps.Marker, count: number)
 const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
     daycares,
     selectedId,
+    hoveredId,
     initialCenter,
     onSelectDaycare,
     onBoundsChange,
@@ -196,23 +212,17 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
 
             const showName = zoom >= NAME_MIN_ZOOM;
             const selected = daycare.id === selectedId;
-            const html = markerHtml(daycare.name, showName, selected);
-            const anchor = new naver.maps.Point(selected ? 18 : 14, selected ? 50 : 41);
+            const existingMarker = existing.get(daycare.id);
 
-            if (existing.has(daycare.id)) {
-                const marker = existing.get(daycare.id);
-                if (marker) {
-                    marker.setIcon({ content: html, anchor });
-                    marker.setZIndex(selected ? 10 : 1);
-                }
+            if (existingMarker) {
+                applyMarkerIcon(existingMarker, daycare.name, showName, selected);
             } else {
                 // map은 여기서 지정하지 않는다 — 클러스터링 인스턴스가 노출 여부를 관리한다
                 const marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(daycare.latitude, daycare.longitude),
-                    icon: { content: html, anchor },
                     title: daycare.name,
-                    zIndex: selected ? 10 : 1,
                 });
+                applyMarkerIcon(marker, daycare.name, showName, selected);
                 naver.maps.Event.addListener(marker, 'click', () =>
                     onSelectDaycare(daycare.id),
                 );
@@ -247,6 +257,25 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
 
         selectedMarker?.setMap(map);
     }, [scriptLoaded, daycares, onSelectDaycare, zoom, selectedId]);
+
+    // 목록 hover 시 해당 마커를 선택 상태와 동일하게 강조하고, hover out 시 되돌린다
+    useEffect(() => {
+        if (!scriptLoaded || !hoveredId || hoveredId === selectedId) return;
+
+        const marker = markersRef.current.get(hoveredId);
+        // 클러스터에 묶여 노출되지 않는 마커는 대상이 아니다
+        if (!marker || !marker.getMap()) return;
+
+        const daycare = daycares.find((d) => d.id === hoveredId);
+        if (!daycare) return;
+
+        const showName = zoom >= NAME_MIN_ZOOM;
+        applyMarkerIcon(marker, daycare.name, showName, true);
+
+        return () => {
+            applyMarkerIcon(marker, daycare.name, showName, false);
+        };
+    }, [scriptLoaded, hoveredId, selectedId, daycares, zoom]);
 
     if (!CLIENT_ID) {
         return (
