@@ -61,13 +61,16 @@ apps/web/domain/
 
 | 경로 | 설명 |
 |------|------|
+| `/` | 홈 — 서비스 소개·검색 진입·FAQ |
 | `/map` | 지도 기반 어린이집 탐색 |
 | `/daycares` | 어린이집 목록 |
 | `/daycare/[id]` | 어린이집 상세 (목록에서 진입 시 `@modal`로 인터셉트) |
 | `/rankings`, `/rankings/[sido]` | 지역별 어린이집 랭킹 |
 | `/contents`, `/contents/[slug]` | 블로그 목록·상세 |
-| `/about`, `/terms`, `/privacy-policy` | 서비스 소개·약관 |
-| `/api/article/[uuid]`, `/api/naver/blog` | 내부 API 라우트 |
+| `/about`, `/about/editorial` | 서비스 소개·편집 정책 |
+| `/terms`, `/privacy-policy` | 이용약관·개인정보 처리방침 |
+| `/api/naver/blog` | 네이버 블로그 검색 프록시 |
+| `/api/article/[uuid]/view`, `/api/article/[uuid]/like` | 아티클 조회수·좋아요 집계 |
 
 ### 콘텐츠 파이프라인
 
@@ -95,12 +98,16 @@ pnpm install
 pnpm dev
 ```
 
-환경 변수는 `apps/web/.env.local` 에 설정합니다.
+환경 변수는 `apps/web/.env.local` 에 설정합니다. (`apps/web/.env.local.example` 참고)
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=
+
+# 네이버 블로그 검색 프록시(/api/naver/blog)에만 필요 (서버 전용)
+NAVER_CLIENT_ID=
+NAVER_CLIENT_SECRET=
 ```
 
 ### 스크립트
@@ -128,11 +135,12 @@ kidzly.kr/
 │       ├── content/       # 블로그 MDX 원문
 │       ├── domain/        # 도메인 로직 (API, Query, Prefetch)
 │       ├── hooks/         # 공통 hooks
-│       ├── lib/           # 유틸리티 (React Query 설정, 날짜 포맷 등)
+│       ├── lib/           # 유틸리티 (React Query 설정, 날짜 포맷, 구조화 데이터 등)
 │       ├── types/         # 전역 타입 선언
 │       └── velite.config.ts
 ├── packages/
 │   ├── ui/                # 공유 UI 컴포넌트 (shadcn/ui 기반)
+│   ├── supabase/          # Supabase 클라이언트·타입 (@workspace/supabase)
 │   ├── eslint-config/     # 공유 ESLint 설정
 │   └── typescript-config/ # 공유 TypeScript 설정
 └── docs/
