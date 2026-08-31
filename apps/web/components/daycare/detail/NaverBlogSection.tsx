@@ -17,7 +17,7 @@ export default function NaverBlogSection({ query }: NaverBlogSectionProps) {
     return (
         <section className="px-3 py-5 border-t-8 border-gray-100">
             <div className="flex items-center gap-1.5 mb-3">
-                <p className="text-sm font-semibold uppercase tracking-wide">네이버 블로그 관련글</p>
+                <h2 className="text-sm font-semibold uppercase tracking-wide">네이버 블로그 관련글</h2>
                 <Popover>
                     <PopoverTrigger asChild>
                         <button type="button" aria-label="블로그 후기 안내" className="text-gray-400 hover:text-gray-600 transition-colors">

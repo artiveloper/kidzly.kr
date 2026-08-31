@@ -15,7 +15,7 @@ export function calcYearsSince(dateStr: string | null): number | null {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
     return (
-        <p className="text-sm font-semibold uppercase tracking-wide mb-3">{children}</p>
+        <h2 className="text-sm font-semibold uppercase tracking-wide mb-3">{children}</h2>
     );
 }
 
@@ -378,9 +378,9 @@ export default function DaycareDetailContent({ daycare }: { daycare: DaycareDeta
                         )
                         return (
                             <div className="mb-3 flex items-baseline gap-2">
-                                <p className="text-sm font-semibold tracking-wide uppercase">
+                                <h2 className="text-sm font-semibold tracking-wide uppercase">
                                     교직원
-                                </p>
+                                </h2>
                                 {total !== null && (
                                     <span className="text-sm text-gray-400">총 {total}명</span>
                                 )}
@@ -436,7 +436,7 @@ export default function DaycareDetailContent({ daycare }: { daycare: DaycareDeta
                     )}
                     {daycare.staffTenure && (
                         <div>
-                            <p className="mb-3 text-sm text-gray-600">보육교사 근속년수</p>
+                            <h3 className="mb-3 text-sm text-gray-600">보육교사 근속년수</h3>
                             <div className="flex h-5 overflow-hidden rounded-full bg-gray-100">
                                 {[
                                     { label: '1년 미만', value: daycare.staffTenure.under1y, color: 'bg-emerald-200' },

@@ -132,7 +132,7 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
             {latestPosts.length > 0 && (
                 <section className="border-t-8 border-gray-100 px-3 py-5">
                     <div className="mb-3 flex items-center justify-between">
-                        <p className="text-sm font-semibold uppercase tracking-wide">함께 보면 좋은 글</p>
+                        <h2 className="text-sm font-semibold uppercase tracking-wide">함께 보면 좋은 글</h2>
                         <Link
                             href="/contents"
                             className="flex items-center gap-0.5 text-xs text-gray-400 transition-colors hover:text-gray-600"

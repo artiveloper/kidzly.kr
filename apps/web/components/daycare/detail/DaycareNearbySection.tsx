@@ -17,9 +17,9 @@ export default function DaycareNearbySection({ sigunguCode, excludeId, latitude,
 
     return (
         <section className="px-3 py-4 border-t-8 border-gray-100">
-            <p className="text-sm font-semibold uppercase tracking-wide mb-2.5">
+            <h2 className="text-sm font-semibold uppercase tracking-wide mb-2.5">
                 주변 다른 어린이집
-            </p>
+            </h2>
 
             {items.length === 0 ? (
                 <p className="text-sm text-gray-500 py-2">
