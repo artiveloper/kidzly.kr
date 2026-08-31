@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Suspense } from 'react'
-import { MapPin, Trophy, BookOpen, ArrowRight, Search } from 'lucide-react'
+import { MapPin, Trophy, BookOpen, ArrowRight, Search, ChevronDown } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { getAllPosts, getLatestPosts } from '@/lib/blog'
 import Header from '@/components/common/Header'
@@ -87,6 +87,41 @@ const organizationLd = {
     },
 }
 
+// FAQ는 화면에 보이는 <details> Q&A와 FAQPage 스키마가 같은 내용을 가리켜야 한다 —
+// 구글은 페이지에 실제로 노출되지 않는 FAQ 스키마를 스팸 정책 위반으로 본다
+const FAQS = [
+    {
+        question: '키즐리는 어떤 서비스인가요?',
+        answer: '키즐리는 전국 2만 5천여 곳의 어린이집을 지도에서 검색하고 비교할 수 있는 무료 서비스입니다. 국공립·민간·가정 어린이집을 지역별로 살펴보고, 정원·대기 현황과 지역 랭킹, 부모급여·입소 준비 같은 육아 정보까지 한곳에서 확인할 수 있습니다.',
+    },
+    {
+        question: '어린이집 정보는 어디서 가져오나요?',
+        answer: '모든 어린이집 정보는 정부가 운영하는 어린이집 정보공개포털(info.childcare.go.kr)의 공공 데이터를 출처로 합니다. 정원·현원·대기 현황, 교직원 구성, 보육실 면적, 통학차량 운영 여부 등을 원본 데이터 그대로 제공합니다.',
+    },
+    {
+        question: '어린이집 정보는 얼마나 자주 갱신되나요?',
+        answer: '변경된 데이터는 매일 새벽 2시(KST)에 자동으로 동기화하고, 전체 데이터는 매주 일요일 새벽 3시에 다시 동기화합니다. 그래서 최신 정원·대기 현황을 확인할 수 있습니다.',
+    },
+    {
+        question: '어떤 조건으로 어린이집을 검색할 수 있나요?',
+        answer: '지도에서 위치로 찾거나, 시·군·구 지역별 목록에서 어린이집 유형(국공립·민간·가정 등), 수용 연령, 제공 서비스 조건으로 걸러 검색할 수 있습니다. 아직 문을 열지 않은 인허가 예정 어린이집도 미리 확인할 수 있습니다.',
+    },
+    {
+        question: '회원가입이나 이용료가 필요한가요?',
+        answer: '필요하지 않습니다. 키즐리는 회원가입이나 로그인 없이 누구나 무료로 이용할 수 있습니다.',
+    },
+]
+
+const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map(({ question, answer }) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: { '@type': 'Answer', text: answer },
+    })),
+}
+
 export default async function Page() {
     const latestPosts = getLatestPosts(8)
     const contentCount = getAllPosts().length
@@ -107,6 +142,10 @@ export default async function Page() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
             />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+            />
             <div className="daum-wm-title hidden">{TITLE}</div>
             <div className="daum-wm-content hidden">{DESCRIPTION}</div>
             <Header />
@@ -123,10 +162,11 @@ export default async function Page() {
                             내 주변 어린이집,<br />
                             <span className="text-emerald-600">지도에서 바로 찾기</span>
                         </h1>
+                        <p className="text-sm md:text-base text-gray-500 leading-relaxed mb-2">
+                            키즐리는 전국 2만 5천여 곳의 어린이집을 지도에서 검색·비교하는 무료 서비스입니다.
+                        </p>
                         <p className="text-sm md:text-base text-gray-500 leading-relaxed mb-6">
-                            국공립·민간·가정 어린이집을 지도로 비교하고{' '}
-                            <br className="sm:hidden" />
-                            대기 현황까지 확인하세요.
+                            국공립·민간·가정 어린이집의 정원·대기 현황까지 한눈에 확인하세요.
                         </p>
 
                         {/* 검색은 지도 페이지(/map)의 이름·주소 검색을 그대로 재사용 — q 파라미터로 전달 */}
@@ -269,7 +309,7 @@ export default async function Page() {
                     </section>
 
                     {/* 신뢰 */}
-                    <section className="py-10 md:py-14">
+                    <section className="py-10 md:py-14 border-b border-gray-100">
                         <div className="p-4 md:p-8 bg-emerald-50 rounded-xl flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
                             <p className="text-sm md:text-base text-gray-700">
                                 모든 어린이집 정보는 정부 공공 데이터(어린이집 정보공개포털)를 기반으로 매일 자동 동기화됩니다.
@@ -281,6 +321,35 @@ export default async function Page() {
                                 서비스 소개 더 보기
                                 <ArrowRight size={13} />
                             </Link>
+                        </div>
+                    </section>
+
+                    {/* 자주 묻는 질문 — 화면 노출 Q&A와 FAQPage JSON-LD가 동일 내용 */}
+                    <section className="py-10 md:py-14">
+                        <h2 className="text-base md:text-lg font-semibold uppercase tracking-widest text-gray-900 mb-4 md:mb-6">
+                            자주 묻는 질문
+                        </h2>
+                        <div className="space-y-3">
+                            {FAQS.map(({ question, answer }) => (
+                                <details
+                                    key={question}
+                                    className="group rounded-xl border border-gray-100 px-4 py-3 md:px-5 md:py-4 [&_summary::-webkit-details-marker]:hidden"
+                                >
+                                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3">
+                                        <h3 className="text-sm md:text-base font-semibold text-gray-900">
+                                            {question}
+                                        </h3>
+                                        <ChevronDown
+                                            size={18}
+                                            className="shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+                                            aria-hidden="true"
+                                        />
+                                    </summary>
+                                    <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+                                        {answer}
+                                    </p>
+                                </details>
+                            ))}
                         </div>
                     </section>
                 </div>
