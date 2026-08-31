@@ -81,6 +81,9 @@ export default async function RankingsPageView({ sido }: Props) {
                 name: `${regionLabel} 어린이집 랭킹 | 키즐리`,
                 description: `${regionLabel} 입소 대기가 많은 어린이집 순위`,
                 url: pageUrl,
+                numberOfItems: waitingRanking.length,
+                // 랭킹 데이터는 매일 동기화되고 페이지는 ISR로 재생성된다 — 재생성 시각을 최신성 신호로 노출
+                dateModified: new Date().toISOString(),
                 itemListElement: waitingRanking.map((item, index) => ({
                     '@type': 'ListItem',
                     position: index + 1,
@@ -114,10 +117,13 @@ export default async function RankingsPageView({ sido }: Props) {
                         <h1 className="mb-1 text-xl font-bold text-gray-900">
                             {regionLabel} 어린이집 랭킹
                         </h1>
-                        <p className="text-sm text-gray-400 mb-5">
-                            다양한 기준으로 {regionLabel} 어린이집을 비교해보세요.
+                        <p className="mb-2 text-sm leading-relaxed text-gray-500">
+                            이 페이지는 {regionLabel} 어린이집을 입소 대기, 정원 규모, 운영 역사 세 가지 기준으로 순위를 매긴 목록입니다. 정부 공공 데이터를 매일 자동 갱신해 대기가 많은 어린이집부터 가장 오래된 어린이집까지 한눈에 비교할 수 있습니다.
                         </p>
-                        <div className="grid grid-cols-3 gap-2">
+                        <p className="mb-5 text-xs text-gray-400">
+                            매일 자동 갱신 · 출처: 어린이집 정보공개포털
+                        </p>
+                        <nav aria-label="랭킹 목차" className="grid grid-cols-3 gap-2">
                             {SECTION_CARDS.map(({ id, icon: Icon, iconClass, label, description }) => (
                                 <a
                                     key={id}
@@ -133,7 +139,7 @@ export default async function RankingsPageView({ sido }: Props) {
                                     </div>
                                 </a>
                             ))}
-                        </div>
+                        </nav>
                     </div>
                 </div>
 
