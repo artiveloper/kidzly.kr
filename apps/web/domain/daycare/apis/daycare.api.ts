@@ -257,23 +257,30 @@ export async function fetchDaycareServiceTypes(): Promise<string[]> {
 
 // sido_name은 sitemap이 /rankings/[sido]의 lastmod(시도별 data_standard_date 최대값)를
 // 추가 쿼리 없이 계산하기 위해 함께 받는다
-export async function fetchDaycareIdsPaginated(options: { offset: number; limit: number }): Promise<{ id: string; lastModified: string | null; sidoName: string | null }[]> {
-    const { offset, limit } = options;
+export async function fetchDaycareIdsPaginated(options: { afterCode: string | null; limit: number }): Promise<{ id: string; lastModified: string | null; sidoName: string | null }[]> {
+    const { afterCode, limit } = options;
     const supabase = createServerClient();
 
-    // order 없이 range()만 쓰면 페이지마다 행 순서가 안정적이지 않아 배치 간 중복·누락이 발생한다
-    // (sitemap URL 누락/중복 원인) — daycare_code로 정렬해 페이지네이션을 고정한다
-    const { data, error } = await supabase
+    // OFFSET 페이지네이션(range)은 offset이 커질수록(2만여 건 기준 offset 17000 지점) 앞 행을 모두
+    // 스캔·폐기하느라 statement timeout이 났다. daycare_code 커서(keyset) 방식으로 바꿔 매 페이지가
+    // 인덱스 seek에서 시작하게 한다. 정렬·커서 기준을 daycare_code로 일치시켜야 배치 간 중복·누락이 없다.
+    let req = supabase
         .from('daycares')
         .select('daycare_code, data_standard_date, sido_name')
         .eq('status', '정상')
         .order('daycare_code', { ascending: true })
-        .range(offset, offset + limit - 1);
+        .limit(limit);
+
+    if (afterCode !== null) {
+        req = req.gt('daycare_code', afterCode);
+    }
+
+    const { data, error } = await req;
 
     // 빈 배열을 반환하면 호출부(sitemap)가 "마지막 페이지"로 오인해 이후 배치를 통째로 잃는다 —
     // 실제로 빌드 중 statement timeout 한 번에 URL 8,500여 개가 조용히 누락됐다. 반드시 throw한다.
     if (error) {
-        throw new Error(`[fetchDaycareIdsPaginated] offset=${offset} ${error.message}`);
+        throw new Error(`[fetchDaycareIdsPaginated] afterCode=${afterCode ?? 'START'} ${error.message}`);
     }
 
     return ((data ?? []) as DaycareIdRow[]).map((r) => ({

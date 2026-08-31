@@ -22,10 +22,10 @@ type DaycareSitemapEntry = { id: string; lastModified: string | null; sidoName: 
 // 끝까지가 사이트맵에서 조용히 사라지므로, 재시도한 뒤에도 실패하면 사이트맵 생성 자체를 실패시킨다.
 const BATCH_RETRIES = 2
 
-async function fetchDaycareBatch(offset: number): Promise<DaycareSitemapEntry[]> {
+async function fetchDaycareBatch(afterCode: string | null): Promise<DaycareSitemapEntry[]> {
     for (let attempt = 0; ; attempt++) {
         try {
-            return await fetchDaycareIdsPaginated({ offset, limit: BATCH_SIZE })
+            return await fetchDaycareIdsPaginated({ afterCode, limit: BATCH_SIZE })
         } catch (error) {
             if (attempt >= BATCH_RETRIES) throw error
             await new Promise((resolve) => setTimeout(resolve, 1_000 * (attempt + 1)))
@@ -35,13 +35,16 @@ async function fetchDaycareBatch(offset: number): Promise<DaycareSitemapEntry[]>
 
 async function fetchAllDaycareEntries(): Promise<DaycareSitemapEntry[]> {
     const entries: DaycareSitemapEntry[] = []
-    let offset = 0
+    let afterCode: string | null = null
 
     while (true) {
-        const batch = await fetchDaycareBatch(offset)
+        const batch = await fetchDaycareBatch(afterCode)
         entries.push(...batch)
         if (batch.length < BATCH_SIZE) break
-        offset += BATCH_SIZE
+        // 정렬 기준(daycare_code)의 마지막 값을 다음 페이지 커서로 넘긴다
+        const last = batch[batch.length - 1]
+        if (!last) break
+        afterCode = last.id
     }
 
     return entries
