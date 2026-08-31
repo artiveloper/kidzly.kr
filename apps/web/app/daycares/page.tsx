@@ -20,7 +20,8 @@ import UpcomingDaycareList from '@/components/home/UpcomingDaycareList'
 
 const BASE_URL = 'https://kidzly.kr'
 const TITLE = '어린이집 목록 | 지역별·인허가예정 - 키즐리'
-const DESCRIPTION = '지역별 어린이집 목록과 인허가 예정 어린이집을 한곳에서 확인하세요.'
+const DESCRIPTION =
+    '시·군·구별 어린이집 목록을 국공립·민간·가정 유형과 연령·지원서비스로 걸러 확인하세요. 정원과 현원, 주소까지 한 화면에서 비교하고, 곧 문을 여는 인허가 예정 어린이집 정보도 함께 살펴볼 수 있습니다.'
 
 export const revalidate = 3600
 

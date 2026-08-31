@@ -10,7 +10,7 @@ import { getAllPosts } from '@/lib/blog'
 
 const TITLE = '어린이집 지도 검색 | 내 주변 국공립 어린이집 한눈에 비교 - 키즐리'
 const DESCRIPTION =
-    '지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능'
+    '지도에서 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집을 위치별로 비교하고, 정원·대기 현황과 운영시간, 통학 거리까지 지도 위에서 한눈에 확인할 수 있습니다.'
 
 export const metadata: Metadata = {
     title: { absolute: TITLE },

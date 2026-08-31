@@ -16,7 +16,8 @@ import HomeUpcomingDaycaresSkeleton from '@/components/home/HomeUpcomingDaycares
 const DAYCARE_COUNT_LABEL = '25,000+'
 
 const TITLE = '어린이집 찾기 | 지도 검색·랭킹·육아 정보 한곳에 - 키즐리'
-const DESCRIPTION = '전국 어린이집을 지도에서 찾고, 지역별 랭킹과 육아 정보까지 한 곳에서 확인하세요.'
+const DESCRIPTION =
+    '전국 2만 5천여 곳의 어린이집을 지도에서 검색하고, 국공립·민간·가정 어린이집을 지역별로 비교해 보세요. 정원·대기 현황과 지역 랭킹은 물론, 부모급여·보육료 지원과 입소 준비까지 실전 육아 정보를 한 곳에서 확인할 수 있습니다.'
 
 export const revalidate = 3600
 
