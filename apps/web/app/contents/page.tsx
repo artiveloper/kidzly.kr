@@ -8,7 +8,7 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 
 const BASE_URL = 'https://kidzly.kr'
-const TITLE = '콘텐츠 | 어린이집 부모를 위한 육아 정보 - 키즐리'
+const TITLE = '어린이집 부모를 위한 육아 정보 | 부모급여·입소 준비·보육 꿀팁 - 키즐리'
 const DESCRIPTION =
     '어린이집·유치원 부모를 위한 육아 정보를 한곳에 모았습니다. 부모급여·보육료 등 지원금 가이드부터 입소 준비, 감염병 대응, 원 생활 적응까지 실전에 바로 쓰는 보육 꿀팁을 알려드립니다.'
 
