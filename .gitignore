@@ -43,3 +43,7 @@ npm-debug.log*
 
 # Serena MCP local cache/memory
 .serena/
+
+# 에이전트 파이프라인 작업본 — 날짜 접미사가 붙은 회차별 폴더 포함
+_workspace/
+_workspace_*/
