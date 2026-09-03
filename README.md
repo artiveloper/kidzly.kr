@@ -147,6 +147,26 @@ kidzly.kr/
     └── content/           # 콘텐츠 발행 관리 문서
 ```
 
+## 데이터베이스
+
+Supabase(PostgreSQL)를 **읽기 전용**으로 사용합니다. 인증은 없습니다.
+
+**스키마는 이 저장소가 관리하지 않습니다.** 테이블·인덱스·뷰 전부
+[kidzly-sync](https://github.com/artiveloper/kidzly-sync)의 Flyway 마이그레이션이 소유합니다.
+웹이 쓰는 조회 인덱스와 필터 옵션 뷰도 마찬가지입니다. Supabase SQL 에디터에서 직접 만들지 마세요 —
+이력에 남지 않아 재현이 불가능해집니다.
+
+이 저장소가 갖는 것은 스키마의 **타입 표현**뿐입니다.
+
+| | 위치 |
+|---|---|
+| 스키마 정의(원본) | kidzly-sync `src/main/resources/db/migration/` |
+| 스키마 스냅샷 | kidzly-sync `schema.sql` (pg_dump 생성, 손으로 고치지 않음) |
+| 타입 (이 저장소) | `packages/supabase/src/types.ts` |
+
+컬럼을 추가·변경해야 하면 kidzly-sync에 마이그레이션을 넣고, **운영에 적용된 것을 확인한 뒤**
+`types.ts`를 갱신하고 배포합니다. 절차는 kidzly-sync README의 "데이터베이스 스키마" 절에 있습니다.
+
 ## 개발 규칙
 
 코드 작성 규칙은 [`CLAUDE.md`](./CLAUDE.md)에 정리되어 있습니다. 핵심만 옮기면 다음과 같습니다.

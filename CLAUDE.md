@@ -133,6 +133,7 @@ apps/web/domain/{name}/
 
 ### 13. APIs Layer
 
+- 스키마는 kidzly-sync의 Flyway가 소유 — 이 저장소에서 테이블·인덱스·뷰를 만들거나 바꾸지 않는다. Supabase SQL 에디터 직접 실행 금지
 - `lib/supabase/client.ts` / `lib/supabase/server.ts` 사용
 - non-null assertion(`!`) 금지 — 명시적 null 체크 후 에러 throw
 - 에러 → throw (React Query가 error state 처리)

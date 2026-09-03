@@ -47,3 +47,6 @@ npm-debug.log*
 # 에이전트 파이프라인 작업본 — 날짜 접미사가 붙은 회차별 폴더 포함
 _workspace/
 _workspace_*/
+
+# DB 접속 정보 (평문 — 커밋 금지)
+database.txt
