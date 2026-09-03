@@ -87,36 +87,69 @@ export function buildRegionPath(sido?: string | null, sigungu?: string | null): 
     return ['/daycares', ...segments].join('/');
 }
 
+/**
+ * 슬러그 비교용 키 — 공백과 하이픈을 지운 형태.
+ * 표준 슬러그는 공백을 하이픈으로 바꾼 형태지만, 폐지된 /region 시절 URL은 공백을 그대로
+ * 인코딩(%20)해 두 표기가 함께 유입된다. 같은 지역으로 인식한 뒤 표준 형태로 301 시키려고
+ * 두 표기를 한 키로 모은다. 시군구 277건에 이 규칙으로 겹치는 지역이 없음을 확인했다.
+ */
+function toRegionKey(name: string): string {
+    return name.replace(/[\s-]+/g, '');
+}
+
 export type RegionSelection =
     | { kind: 'index' }
     | { kind: 'sido'; sido: string }
     | { kind: 'sigungu'; sido: string; entry: SigunguEntry };
 
+export type RegionResolution = {
+    selection: RegionSelection;
+    /** 표준 슬러그가 아닌 형태로 들어왔을 때 301로 보낼 표준 경로 — 표준 형태면 null */
+    redirectTo: string | null;
+};
+
 /**
  * /daycares 이하 경로 세그먼트를 지역 선택 상태로 해석한다.
  * 세그먼트 값은 사용자 입력이므로 반드시 entries와 대조한다 — 맞는 지역이 없으면 null을
  * 돌려주고, 호출부가 notFound()로 404를 응답한다(soft 200과 중복 색인 방지).
+ * 지역은 맞지만 표기가 표준 슬러그와 다르면 redirectTo로 표준 경로를 돌려준다 —
+ * 같은 목록이 여러 URL로 갈라지지 않도록 호출부가 301로 넘긴다.
  */
 export function resolveRegionSegments(
     segments: string[] | undefined,
     entries: SigunguEntry[],
-): RegionSelection | null {
-    if (!segments || segments.length === 0) return { kind: 'index' };
+): RegionResolution | null {
+    if (!segments || segments.length === 0) return { selection: { kind: 'index' }, redirectTo: null };
     if (segments.length > 2) return null;
 
     const [sidoSegment, sigunguSegment] = segments;
-    const sidoSlug = sidoSegment ? parseRegionSlug(sidoSegment) : null;
-    if (!sidoSlug) return null;
+    const sidoInput = sidoSegment ? parseRegionSlug(sidoSegment) : null;
+    if (!sidoInput) return null;
 
-    const sido = entries.find((entry) => toRegionSlug(entry.sido) === sidoSlug)?.sido;
+    const sido = entries.find((entry) => toRegionKey(entry.sido) === toRegionKey(sidoInput))?.sido;
     if (!sido) return null;
-    if (!sigunguSegment) return { kind: 'sido', sido };
 
-    const sigunguSlug = parseRegionSlug(sigunguSegment);
-    if (!sigunguSlug) return null;
+    if (!sigunguSegment) {
+        const canonical = sidoInput === toRegionSlug(sido);
+        return {
+            selection: { kind: 'sido', sido },
+            redirectTo: canonical ? null : buildRegionPath(sido),
+        };
+    }
+
+    const sigunguInput = parseRegionSlug(sigunguSegment);
+    if (!sigunguInput) return null;
 
     const entry = entries.find(
-        (candidate) => candidate.sido === sido && toRegionSlug(candidate.sigungu) === sigunguSlug,
+        (candidate) =>
+            candidate.sido === sido && toRegionKey(candidate.sigungu) === toRegionKey(sigunguInput),
     );
-    return entry ? { kind: 'sigungu', sido, entry } : null;
+    if (!entry) return null;
+
+    const canonical =
+        sidoInput === toRegionSlug(sido) && sigunguInput === toRegionSlug(entry.sigungu);
+    return {
+        selection: { kind: 'sigungu', sido, entry },
+        redirectTo: canonical ? null : buildRegionPath(sido, entry.sigungu),
+    };
 }

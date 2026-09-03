@@ -24,9 +24,18 @@ const nextConfig = {
         ]
     },
     async redirects() {
-        // /region 인덱스는 /daycares(지역별 탭)로 완전히 대체됨 — /region/[sido] 이하는 그대로 유지
+        // /region은 /daycares 경로형 지역 목록으로 완전히 대체됨.
+        // 시도·시군구 세그먼트 이름이 그대로 대응하므로 1:1로 넘긴다. 다만 옛 /region은 시군구
+        // 이름의 공백을 %20으로 그대로 실었고 지금 표준 슬러그는 하이픈이라, 공백이 든 17개 지역은
+        // 여기서 한 번, 라우트의 슬러그 정규화에서 다시 한 번 301을 탄다(2홉).
         return [
             { source: "/region", destination: "/daycares", permanent: true },
+            { source: "/region/:sido", destination: "/daycares/:sido", permanent: true },
+            {
+                source: "/region/:sido/:sigungu",
+                destination: "/daycares/:sido/:sigungu",
+                permanent: true,
+            },
             // 보육료 글 2개가 사실상 같은 주제라 하나로 통합 — 흡수된 쪽을 유지 슬러그로 넘김
             {
                 source: "/contents/보육료-지원-누가-얼마나",

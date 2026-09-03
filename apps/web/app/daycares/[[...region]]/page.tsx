@@ -11,7 +11,7 @@ import {
     resolveRegionSegments,
 } from '@/domain/region'
 import { fetchSidoNames, fetchSigunguNames } from '@/domain/region/server'
-import type { RegionSelection, SigunguEntry } from '@/domain/region'
+import type { RegionResolution, RegionSelection, SigunguEntry } from '@/domain/region'
 import {
     daycarePrefetch,
     fetchDaycareRankingUpcoming,
@@ -82,17 +82,17 @@ function buildRegionStrings(selection: RegionSelection): RegionStrings | null {
     return null
 }
 
-async function resolveSelection(params: Props['params']): Promise<RegionSelection> {
+async function resolveRegion(params: Props['params']): Promise<RegionResolution> {
     const { region } = await params
     const entries = await fetchSigunguNames()
-    const selection = resolveRegionSegments(region, entries)
+    const resolution = resolveRegionSegments(region, entries)
     // 존재하지 않는 지역 경로는 라우팅 단계에서 404 — soft 200과 중복 색인 방지
-    if (!selection) notFound()
-    return selection
+    if (!resolution) notFound()
+    return resolution
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const selection = await resolveSelection(params)
+    const { selection } = await resolveRegion(params)
     // 유형·연령·지원서비스 필터는 같은 지역 목록의 부분집합이라 canonical에 싣지 않는다 —
     // 실으면 필터 조합만큼 URL이 늘어 색인이 잘게 쪼개진다
     const region = buildRegionStrings(selection)
@@ -152,24 +152,32 @@ function buildLegacyRegionRedirect(
     const sido = typeof searchParams.sido === 'string' ? searchParams.sido : undefined
     if (!arcode && !sido) return null
 
-    const filters = buildFilterQuery(searchParams)
-    const suffix = filters ? `?${filters}` : ''
-
     if (arcode) {
         const entry = entries.find((candidate) => candidate.arcode === arcode)
-        return `${entry ? buildRegionPath(entry.sido, entry.sigungu) : '/daycares'}${suffix}`
+        const path = entry ? buildRegionPath(entry.sido, entry.sigungu) : '/daycares'
+        return withFilters(path, searchParams)
     }
 
     const known = entries.some((entry) => entry.sido === sido)
-    return `${known ? buildRegionPath(sido) : '/daycares'}${suffix}`
+    return withFilters(known ? buildRegionPath(sido) : '/daycares', searchParams)
+}
+
+/** 리다이렉트 목적지에 필터를 다시 실어 준다 — 지역이 바뀌어도 고른 조건은 유지된다 */
+function withFilters(path: string, searchParams: Record<string, string | string[] | undefined>) {
+    const filters = buildFilterQuery(searchParams)
+    return filters ? `${path}?${filters}` : path
 }
 
 export default async function DaycaresPage({ params, searchParams }: Props) {
-    const [selection, resolvedSearchParams, entries] = await Promise.all([
-        resolveSelection(params),
+    const [{ selection, redirectTo }, resolvedSearchParams, entries] = await Promise.all([
+        resolveRegion(params),
         searchParams,
         fetchSigunguNames(),
     ])
+
+    // 지역은 맞지만 표기가 표준 슬러그와 다른 경로(폐지된 /region 시절의 공백 형태 등)를
+    // 표준 URL 하나로 모은다 — 같은 목록이 두 URL로 색인되는 것을 막는다
+    if (redirectTo) permanentRedirect(withFilters(redirectTo, resolvedSearchParams))
 
     if (selection.kind === 'index') {
         const legacy = buildLegacyRegionRedirect(resolvedSearchParams, entries)
