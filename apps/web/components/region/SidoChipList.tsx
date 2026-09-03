@@ -8,17 +8,13 @@
 //
 // 경로 세그먼트의 유효성 검증은 라우트(app/daycares/[[...region]]/page.tsx)가 이미 끝냈다 —
 // 맞지 않는 지역은 404로 걸러지므로 여기서는 넘겨받은 선택 상태를 그대로 쓴다.
-import { Suspense } from 'react'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { cn } from '@workspace/ui/lib/utils'
 import { buildRegionPath, getSidoShort, sortSido } from '@/domain/region'
 import type { SigunguEntry } from '@/domain/region'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import SidoFilterChips, { type SidoChipItem } from '@/components/common/SidoFilterChips'
 import DaycareFilters from '@/components/daycare/list/filters/DaycareFilters'
-import RegionDaycareList from './RegionDaycareList'
-import RegionDaycareListSkeleton from './RegionDaycareListSkeleton'
-import RegionDaycareListError from './RegionDaycareListError'
 
 type Props = {
     sigunguBySido: Record<string, SigunguEntry[]>
@@ -28,6 +24,8 @@ type Props = {
     selectedEntry: SigunguEntry | null
     /** 지역을 옮겨도 유지할 필터 쿼리 문자열(type/vehicle/services/age) — 지역 링크에 이어 붙인다 */
     filterQuery: string
+    /** 선택된 시군구의 목록 영역 — 조회는 호출부가 소유하고 여기서는 자리만 내준다 */
+    list: ReactNode
 }
 
 function chipClass(active: boolean) {
@@ -44,7 +42,7 @@ function regionHref(filterQuery: string, sido?: string, sigungu?: string) {
     return filterQuery ? `${path}?${filterQuery}` : path
 }
 
-export default function SidoChipList({ sigunguBySido, selectedSido, selectedEntry, filterQuery }: Props) {
+export default function SidoChipList({ sigunguBySido, selectedSido, selectedEntry, filterQuery, list }: Props) {
     if (!selectedSido) {
         // 시도 목록도 sigungus에서 온 sigunguBySido에서 파생한다 — 추가 조회 없이
         // DB를 진실 소스로 쓰고, 노출 순서만 SIDO_SHORT 키 순서(행정 순)를 따른다
@@ -91,11 +89,7 @@ export default function SidoChipList({ sigunguBySido, selectedSido, selectedEntr
                         Suspense 경계 밖(형제)에 둔다 — 안에 두면 필터 선택할 때마다 필터 바까지
                         스켈레톤으로 통째로 사라진다 */}
                     <DaycareFilters className="px-0" />
-                    <ErrorBoundary fallback={<RegionDaycareListError />}>
-                        <Suspense fallback={<RegionDaycareListSkeleton />}>
-                            <RegionDaycareList sigunguCode={selectedEntry.arcode} />
-                        </Suspense>
-                    </ErrorBoundary>
+                    {list}
                 </div>
             )}
         </div>

@@ -10,17 +10,14 @@ import {
 } from '@/domain/region'
 import { fetchSigunguNames } from '@/domain/region/server'
 import type { RegionResolution, RegionSelection, SigunguEntry } from '@/domain/region'
-import {
-    daycarePrefetch,
-    loadDaycareFilters,
-    toDaycareFilterParams,
-} from '@/domain/daycare/server'
-import { runPrefetch } from '@/lib/react-query/prefetch'
+import { loadDaycareFilters, toDaycareFilterParams } from '@/domain/daycare/server'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data/breadcrumb'
-import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import DaycaresShell from '@/components/daycare/list/DaycaresShell'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import SidoChipList from '@/components/region/SidoChipList'
-import RegionSectionSkeleton from '@/components/region/RegionSectionSkeleton'
+import RegionDaycareListSSR from '@/components/region/RegionDaycareListSSR'
+import RegionDaycareListSkeleton from '@/components/region/RegionDaycareListSkeleton'
+import RegionDaycareListError from '@/components/region/RegionDaycareListError'
 
 const BASE_URL = 'https://kidzly.kr'
 const TITLE = '어린이집 목록 | 지역별·인허가예정 - 키즐리'
@@ -210,13 +207,11 @@ export default async function DaycaresPage({ params, searchParams }: Props) {
                 </>
             }
         >
-            <Suspense fallback={<RegionSectionSkeleton />}>
-                <RegionSection
-                    selection={selection}
-                    entries={entries}
-                    searchParams={resolvedSearchParams}
-                />
-            </Suspense>
+            <RegionSection
+                selection={selection}
+                entries={entries}
+                searchParams={resolvedSearchParams}
+            />
         </DaycaresShell>
     )
 }
@@ -243,7 +238,7 @@ function buildFilterQuery(searchParams: Record<string, string | string[] | undef
     return query.toString()
 }
 
-async function RegionSection({
+function RegionSection({
     selection,
     entries,
     searchParams,
@@ -253,29 +248,30 @@ async function RegionSection({
     searchParams: Record<string, string | string[] | undefined>
 }) {
     const sigunguBySido = groupBySido(entries)
-    // 시군구 경로로 들어온 경우 초기 로드부터 해당 시군구 목록을 prefetch —
-    // 시도만 고른 상태는 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않는다
     const selectedEntry = selection.kind === 'sigungu' ? selection.entry : null
 
-    // 필터가 URL에 함께 실려 있으면 prefetch에도 반영해야 한다 — 반영하지 않으면
-    // queryKey가 클라이언트 hook과 어긋나 목록이 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
-    const state = selectedEntry
-        ? await runPrefetch(
-              daycarePrefetch.regionList({
-                  sigunguCode: selectedEntry.arcode,
-                  ...toDaycareFilterParams(loadDaycareFilters(searchParams)),
-              })
-          )
-        : null
+    // 목록 조회만 <Suspense> 안에 가둔다 — 칩까지 함께 기다리면 시군구를 고를 때마다
+    // 칩이 스켈레톤에 덮여 어디를 눌렀는지 보이지 않는다.
+    // 필터도 함께 실어야 클라이언트 hook과 queryKey가 어긋나지 않는다 — 어긋나면 목록이
+    // 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
+    const list = selectedEntry ? (
+        <ErrorBoundary fallback={<RegionDaycareListError />}>
+            <Suspense fallback={<RegionDaycareListSkeleton />}>
+                <RegionDaycareListSSR
+                    sigunguCode={selectedEntry.arcode}
+                    filters={toDaycareFilterParams(loadDaycareFilters(searchParams))}
+                />
+            </Suspense>
+        </ErrorBoundary>
+    ) : null
 
-    const chips = (
+    return (
         <SidoChipList
             sigunguBySido={sigunguBySido}
             selectedSido={selection.kind === 'index' ? null : selection.sido}
             selectedEntry={selectedEntry}
             filterQuery={buildFilterQuery(searchParams)}
+            list={list}
         />
     )
-
-    return state ? <HydrationBoundary state={state}>{chips}</HydrationBoundary> : chips
 }
