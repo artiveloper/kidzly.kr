@@ -1,31 +1,80 @@
+// 로고·서비스 메뉴 그룹·데이터 출처 고지를 묶어 렌더링하는 전역 푸터
 import Link from "next/link"
+import Logo from "@/components/common/Logo"
+
+const LINK_GROUPS = [
+    {
+        title: "어린이집 찾기",
+        links: [
+            { href: "/map", label: "지도로 찾기" },
+            { href: "/daycares", label: "어린이집 목록" },
+            { href: "/rankings", label: "지역별 랭킹" },
+        ],
+    },
+    {
+        title: "정보와 가이드",
+        links: [
+            { href: "/contents", label: "육아 콘텐츠" },
+            { href: "/about/editorial", label: "편집·검증 정책" },
+        ],
+    },
+    {
+        title: "안내",
+        links: [
+            { href: "/about", label: "서비스 소개" },
+            { href: "/about#contact", label: "문의와 제보" },
+            { href: "/terms", label: "이용약관" },
+            { href: "/privacy-policy", label: "개인정보처리방침" },
+        ],
+    },
+]
 
 export default function Footer() {
     return (
-        <footer className="border-t border-gray-100 py-8">
-            <div className="max-w-lg mx-auto px-5 flex flex-col items-center gap-3">
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-600">
-                    <Link href="/about" className="hover:text-gray-900 transition-colors">
-                        서비스 소개
-                    </Link>
-                    <span className="w-px h-3 bg-gray-200" />
-                    <Link href="/about/editorial" className="hover:text-gray-900 transition-colors">
-                        편집·검증 정책
-                    </Link>
-                    <span className="w-px h-3 bg-gray-200" />
-                    <Link href="/about#contact" className="hover:text-gray-900 transition-colors">
-                        문의
-                    </Link>
-                    <span className="w-px h-3 bg-gray-200" />
-                    <Link href="/terms" className="hover:text-gray-900 transition-colors">
-                        이용약관
-                    </Link>
-                    <span className="w-px h-3 bg-gray-200" />
-                    <Link href="/privacy-policy" className="font-bold hover:text-gray-900 transition-colors">
-                        개인정보처리방침
-                    </Link>
+        <footer className="border-t border-gray-100 bg-gray-50">
+            <div className="max-w-2xl mx-auto px-5 py-10">
+                <div className="flex flex-col gap-8 sm:flex-row sm:gap-8">
+                    <div className="sm:w-40 sm:shrink-0">
+                        <Logo />
+                        <p className="mt-3 text-sm text-gray-500">공공데이터 기반 어린이집 정보 서비스</p>
+                    </div>
+
+                    <nav aria-label="푸터" className="grid flex-1 grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
+                        {LINK_GROUPS.map((group) => (
+                            <div key={group.title}>
+                                <h2 className="text-sm font-bold text-gray-900">{group.title}</h2>
+                                <ul className="mt-1">
+                                    {group.links.map((link) => (
+                                        <li key={link.href}>
+                                            <Link
+                                                href={link.href}
+                                                className="flex min-h-11 items-center text-sm text-gray-600 transition-colors hover:text-gray-900"
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </nav>
                 </div>
-                <p className="text-sm text-gray-500">© {new Date().getFullYear()} 키즐리</p>
+
+                <div className="mt-8 space-y-2 border-t border-gray-200 pt-6 text-xs leading-relaxed text-gray-500">
+                    <p>
+                        데이터 출처: 보건복지부 어린이집 정보공개포털. 공시 시점 기준이라 실제 운영 상황과 다를 수
+                        있으니 입소 문의는 해당 시설에 직접 확인하세요.
+                    </p>
+                    <p>
+                        © {new Date().getFullYear()} 키즐리 (kidzly.kr). 문의:{" "}
+                        <a
+                            href="mailto:artiveloper@gmail.com"
+                            className="underline underline-offset-2 transition-colors hover:text-gray-900"
+                        >
+                            artiveloper@gmail.com
+                        </a>
+                    </p>
+                </div>
             </div>
         </footer>
     )
