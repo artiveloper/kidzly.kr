@@ -35,8 +35,8 @@ export default function TermsPage() {
     return (
         <div className="min-h-screen bg-white">
             <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center px-4">
-                <Link href="/">
-                    <Image src="/logo.png" alt="키즐리" width={80} height={34} priority />
+                <Link href="/" className="flex min-h-11 items-center">
+                    <Image src="/logo-v2.png" alt="키즐리" width={62} height={13} priority />
                 </Link>
             </header>
 

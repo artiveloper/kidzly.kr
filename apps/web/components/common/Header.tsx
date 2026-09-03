@@ -29,8 +29,8 @@ export default function Header() {
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 grid grid-cols-3 items-center px-4">
-            <Link href="/" className="justify-self-start">
-                <Image src="/logo.png" alt="키즐리" width={80} height={34} priority />
+            <Link href="/" className="flex min-h-11 items-center justify-self-start">
+                <Image src="/logo-v2.png" alt="키즐리" width={62} height={13} priority />
             </Link>
 
             <div className="hidden items-center gap-2 justify-self-center sm:flex">
@@ -95,7 +95,7 @@ export default function Header() {
                         <SheetHeader>
                             <SheetTitle asChild>
                                 <span>
-                                    <Image src="/logo.png" alt="키즐리" width={80} height={34} priority />
+                                    <Image src="/logo-v2.png" alt="키즐리" width={62} height={13} priority />
                                 </span>
                             </SheetTitle>
                         </SheetHeader>
