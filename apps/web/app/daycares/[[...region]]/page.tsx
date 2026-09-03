@@ -1,31 +1,26 @@
 // 어린이집 지역별 목록 — /daycares(시도 선택) · /daycares/{시도} · /daycares/{시도}/{시군구} 3단계 경로
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
-import { cn } from '@workspace/ui/lib/utils'
 import {
     buildRegionPath,
     formatLocation,
     getSidoShort,
     resolveRegionSegments,
 } from '@/domain/region'
-import { fetchSidoNames, fetchSigunguNames } from '@/domain/region/server'
+import { fetchSigunguNames } from '@/domain/region/server'
 import type { RegionResolution, RegionSelection, SigunguEntry } from '@/domain/region'
 import {
     daycarePrefetch,
-    fetchDaycareRankingUpcoming,
     loadDaycareFilters,
     toDaycareFilterParams,
 } from '@/domain/daycare/server'
 import { runPrefetch } from '@/lib/react-query/prefetch'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data/breadcrumb'
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
-import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
+import DaycaresShell from '@/components/daycare/list/DaycaresShell'
 import SidoChipList from '@/components/region/SidoChipList'
 import RegionSectionSkeleton from '@/components/region/RegionSectionSkeleton'
-import UpcomingDaycareList from '@/components/home/UpcomingDaycareList'
 
 const BASE_URL = 'https://kidzly.kr'
 const TITLE = '어린이집 목록 | 지역별·인허가예정 - 키즐리'
@@ -124,13 +119,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 }
 
-const TABS = [
-    { key: 'region', label: '지역별' },
-    { key: 'upcoming', label: '인허가예정' },
-] as const
-
-// 지역은 경로 세그먼트로 들어온다. searchParams에는 필터(type/vehicle/services/age)와
-// 인허가예정 탭(tab), 그리고 경로형 이전 전에 쓰던 지역 파라미터(sido/arcode)만 남는다.
+// 지역은 경로 세그먼트로 들어온다. searchParams에는 필터(type/vehicle/services/age)와,
+// 경로형 이전 전에 쓰던 탭·지역 파라미터(tab/sido/arcode)만 남는다.
 type Props = {
     params: Promise<{ region?: string[] }>
     searchParams: Promise<
@@ -139,7 +129,7 @@ type Props = {
 }
 
 /**
- * 쿼리 파라미터로 지역을 지정하던 옛 URL을 경로형으로 넘길 목적지를 만든다.
+ * 쿼리 파라미터로 탭·지역을 지정하던 옛 URL을 경로형으로 넘길 목적지를 만든다.
  * 색인·외부 링크에 이미 퍼져 있는 주소라 영구(308) 이전이 필요하다.
  * 폐지된 코드처럼 대조되지 않는 값은 목록 첫 화면으로 보낸다 — 목적지에는 두 파라미터가 없어
  * 리다이렉트가 다시 걸리지 않는다.
@@ -148,6 +138,9 @@ function buildLegacyRegionRedirect(
     searchParams: Record<string, string | string[] | undefined>,
     entries: SigunguEntry[],
 ): string | null {
+    // 인허가예정은 지역과 무관한 전국 화면이라 필터도 지역도 싣지 않는다
+    if (searchParams.tab === 'upcoming') return '/daycares/upcoming'
+
     const arcode = typeof searchParams.arcode === 'string' ? searchParams.arcode : undefined
     const sido = typeof searchParams.sido === 'string' ? searchParams.sido : undefined
     if (!arcode && !sido) return null
@@ -184,10 +177,6 @@ export default async function DaycaresPage({ params, searchParams }: Props) {
         if (legacy) permanentRedirect(legacy)
     }
 
-    // 인허가예정 탭은 지역과 무관한 전국 화면이라 목록 첫 화면에서만 연다 —
-    // 지역 경로에 tab이 얹혀 같은 내용이 여러 URL로 갈라지는 것을 막는다
-    const activeTab =
-        selection.kind === 'index' && resolvedSearchParams.tab === 'upcoming' ? 'upcoming' : 'region'
     const region = buildRegionStrings(selection)
     // 시군구 페이지에서는 그 위에 시도 단계를 한 칸 끼워 넣어 3단계 경로 구조를 그대로 드러낸다
     const sidoCrumb = selection.kind === 'sigungu' ? buildSidoStrings(selection.sido) : null
@@ -200,63 +189,35 @@ export default async function DaycaresPage({ params, searchParams }: Props) {
     ])
 
     return (
-        <div className="min-h-screen bg-white">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-            />
-            <div className="daum-wm-title hidden">{region ? region.title : TITLE}</div>
-            <div className="daum-wm-content hidden">{region ? region.description : DESCRIPTION}</div>
-            <Header />
-
-            <main className="pt-14">
-                <div className="bg-white border-b border-gray-100">
-                    <div className="mx-auto max-w-2xl px-4 pt-7 pb-6">
-                        <h1 className="mb-1 text-xl font-bold text-gray-900">
-                            {region ? region.heading : '어린이집 목록'}
-                        </h1>
-                        <p className="text-sm text-gray-400">
-                            {region
-                                ? `${region.location} 지역의 국공립·민간·가정 어린이집을 한 번에 확인하세요.`
-                                : '지역별로 찾아보거나, 곧 인허가될 어린이집을 미리 확인하세요.'}
-                        </p>
+        <DaycaresShell
+            activeTab="region"
+            heading={region ? region.heading : '어린이집 목록'}
+            description={
+                region
+                    ? `${region.location} 지역의 국공립·민간·가정 어린이집을 한 번에 확인하세요.`
+                    : '지역별로 찾아보거나, 곧 인허가될 어린이집을 미리 확인하세요.'
+            }
+            seo={
+                <>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                    />
+                    <div className="daum-wm-title hidden">{region ? region.title : TITLE}</div>
+                    <div className="daum-wm-content hidden">
+                        {region ? region.description : DESCRIPTION}
                     </div>
-                </div>
-
-                <div className="mx-auto max-w-2xl px-4 flex gap-1">
-                    {TABS.map((t) => (
-                        <Link
-                            key={t.key}
-                            href={t.key === 'region' ? '/daycares' : `/daycares?tab=${t.key}`}
-                            className={cn(
-                                'px-4 py-2.5 text-base md:text-lg font-bold border-b-2 transition-colors',
-                                activeTab === t.key
-                                    ? 'border-emerald-600 text-emerald-700'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600',
-                            )}
-                        >
-                            {t.label}
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="mx-auto max-w-2xl px-4 pt-6 pb-12">
-                    <Suspense fallback={<RegionSectionSkeleton />}>
-                        {activeTab === 'region' ? (
-                            <RegionSection
-                                selection={selection}
-                                entries={entries}
-                                searchParams={resolvedSearchParams}
-                            />
-                        ) : (
-                            <UpcomingSection />
-                        )}
-                    </Suspense>
-                </div>
-            </main>
-
-            <Footer />
-        </div>
+                </>
+            }
+        >
+            <Suspense fallback={<RegionSectionSkeleton />}>
+                <RegionSection
+                    selection={selection}
+                    entries={entries}
+                    searchParams={resolvedSearchParams}
+                />
+            </Suspense>
+        </DaycaresShell>
     )
 }
 
@@ -317,21 +278,4 @@ async function RegionSection({
     )
 
     return state ? <HydrationBoundary state={state}>{chips}</HydrationBoundary> : chips
-}
-
-// 현재 전국 6건 수준이라 사실상 전수 노출 — 데이터 이상 유입 대비 안전장치로만 상한을 둔다
-const UPCOMING_LIMIT = 100
-
-async function UpcomingSection() {
-    const sidoNames = await fetchSidoNames()
-    const [upcomingAll, ...upcomingBySido] = await Promise.all([
-        fetchDaycareRankingUpcoming(UPCOMING_LIMIT),
-        ...sidoNames.map((sido) => fetchDaycareRankingUpcoming(UPCOMING_LIMIT, sido)),
-    ])
-    const regions = [
-        { key: '전체', label: '전체', items: upcomingAll },
-        ...sidoNames.map((sido, i) => ({ key: sido, label: getSidoShort(sido), items: upcomingBySido[i] ?? [] })),
-    ]
-
-    return <UpcomingDaycareList regions={regions} />
 }

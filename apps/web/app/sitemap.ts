@@ -103,6 +103,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${BASE_URL}/daycares`,
         },
+        {
+            // 인허가예정 — 전국 단위 목록. 인가 예정일이 지나면 빠지므로 근거가 될 수정 시각이 없다
+            url: `${BASE_URL}/daycares/upcoming`,
+        },
         // 시도별 목록 — 시군구 칩으로 가는 허브. 시군구 페이지와 함께 경로형 URL로 색인된다
         ...sidoNames.map((sido) => {
             const sidoDataDate = latestDataDateBySido.get(sido)

@@ -254,13 +254,13 @@ export default async function Page() {
                         </div>
                     </section>
 
-                    {/* 인허가 예정 — 전국 기준 8개, 지역별 상세는 /daycares?tab=upcoming에서 확인 */}
+                    {/* 인허가 예정 — 전국 기준 8개, 지역별 상세는 /daycares/upcoming에서 확인 */}
                     <section className="py-10 md:py-14 border-b border-gray-100">
                         <div className="flex items-center justify-between mb-4 md:mb-6">
                             <h2 className="text-base md:text-lg font-semibold uppercase tracking-widest text-gray-900">
                                 인허가 예정
                             </h2>
-                            <Link href="/daycares?tab=upcoming" className="text-xs md:text-sm font-semibold text-gray-400">
+                            <Link href="/daycares/upcoming" className="text-xs md:text-sm font-semibold text-gray-400">
                                 지역별로 보기
                             </Link>
                         </div>
