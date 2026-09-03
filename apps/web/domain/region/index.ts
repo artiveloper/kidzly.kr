@@ -1,3 +1,5 @@
+import type { SigunguEntry } from './types';
+
 export type { SigunguEntry } from './types'
 
 // 시도 목록의 진실 소스는 sigungus 테이블이다 (domain/region/server.ts의 fetchSidoNames).
@@ -49,4 +51,72 @@ export function sortSido(names: string[]): string[] {
         if (ib !== -1) return 1;
         return a.localeCompare(b, 'ko');
     });
+}
+
+// ── URL 경로 ─────────────────────────────────────────────────────────────────
+// 지역 목록은 쿼리스트링(?arcode=11680)이 아니라 경로(/daycares/서울특별시/강남구)로 표현한다.
+// 지역마다 제목·설명·canonical이 다른 개별 색인 대상이므로 /rankings/[sido]와 같은 규칙을 쓴다.
+
+/**
+ * 지역 이름을 URL 경로 세그먼트로 바꾼다 — 공백만 하이픈으로 치환하고 나머지는 원문을 유지한다.
+ * "서구(구)"처럼 데이터에 그대로 남아 있는 행정 명칭을 가공하면 원래 이름으로 되돌릴 수 없다.
+ * 시군구 277건 전수 확인 결과 이 규칙으로 (시도, 시군구) 슬러그가 겹치는 지역은 없다.
+ */
+export function toRegionSlug(name: string): string {
+    return name.replace(/\s+/g, '-');
+}
+
+/**
+ * 경로 세그먼트를 슬러그 비교용 문자열로 되돌린다.
+ * URL 파라미터는 percent-encoded·NFD로 들어올 수 있어 디코드 후 NFC로 정규화한다.
+ * 단독 '%'처럼 잘못 인코딩된 값은 디코드가 실패하므로 null로 떨어뜨려 호출부가 404를 내게 한다.
+ */
+function parseRegionSlug(segment: string): string | null {
+    try {
+        return decodeURIComponent(segment).normalize('NFC');
+    } catch {
+        return null;
+    }
+}
+
+/** 지역 목록 URL을 만든다 — 시도만 주면 시도 페이지, 둘 다 주면 시군구 페이지 */
+export function buildRegionPath(sido?: string | null, sigungu?: string | null): string {
+    const segments = [sido, sigungu]
+        .filter((name): name is string => Boolean(name))
+        .map((name) => encodeURIComponent(toRegionSlug(name)));
+    return ['/daycares', ...segments].join('/');
+}
+
+export type RegionSelection =
+    | { kind: 'index' }
+    | { kind: 'sido'; sido: string }
+    | { kind: 'sigungu'; sido: string; entry: SigunguEntry };
+
+/**
+ * /daycares 이하 경로 세그먼트를 지역 선택 상태로 해석한다.
+ * 세그먼트 값은 사용자 입력이므로 반드시 entries와 대조한다 — 맞는 지역이 없으면 null을
+ * 돌려주고, 호출부가 notFound()로 404를 응답한다(soft 200과 중복 색인 방지).
+ */
+export function resolveRegionSegments(
+    segments: string[] | undefined,
+    entries: SigunguEntry[],
+): RegionSelection | null {
+    if (!segments || segments.length === 0) return { kind: 'index' };
+    if (segments.length > 2) return null;
+
+    const [sidoSegment, sigunguSegment] = segments;
+    const sidoSlug = sidoSegment ? parseRegionSlug(sidoSegment) : null;
+    if (!sidoSlug) return null;
+
+    const sido = entries.find((entry) => toRegionSlug(entry.sido) === sidoSlug)?.sido;
+    if (!sido) return null;
+    if (!sigunguSegment) return { kind: 'sido', sido };
+
+    const sigunguSlug = parseRegionSlug(sigunguSegment);
+    if (!sigunguSlug) return null;
+
+    const entry = entries.find(
+        (candidate) => candidate.sido === sido && toRegionSlug(candidate.sigungu) === sigunguSlug,
+    );
+    return entry ? { kind: 'sigungu', sido, entry } : null;
 }

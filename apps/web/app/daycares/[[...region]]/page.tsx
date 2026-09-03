@@ -1,9 +1,17 @@
+// 어린이집 지역별 목록 — /daycares(시도 선택) · /daycares/{시도} · /daycares/{시도}/{시군구} 3단계 경로
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { cn } from '@workspace/ui/lib/utils'
-import { formatLocation, getSidoShort } from '@/domain/region'
+import {
+    buildRegionPath,
+    formatLocation,
+    getSidoShort,
+    resolveRegionSegments,
+} from '@/domain/region'
 import { fetchSidoNames, fetchSigunguNames } from '@/domain/region/server'
-import type { SigunguEntry } from '@/domain/region'
+import type { RegionSelection, SigunguEntry } from '@/domain/region'
 import {
     daycarePrefetch,
     fetchDaycareRankingUpcoming,
@@ -16,6 +24,7 @@ import { HydrationBoundary } from '@/components/providers/ReactQueryProvider'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import SidoChipList from '@/components/region/SidoChipList'
+import RegionSectionSkeleton from '@/components/region/RegionSectionSkeleton'
 import UpcomingDaycareList from '@/components/home/UpcomingDaycareList'
 
 const BASE_URL = 'https://kidzly.kr'
@@ -25,36 +34,73 @@ const DESCRIPTION =
 
 export const revalidate = 3600
 
-// arcode로 시군구가 특정된 화면은 지역마다 목록이 다른 별개의 페이지다. 지금까지는 제목·설명·
-// canonical이 전 지역 동일해 구글이 전부 /daycares 하나로 합쳐버렸고, 250여 개 지역 페이지가
-// 통째로 색인에서 빠져 있었다. 지역이 특정되면 세 값을 모두 그 지역 것으로 바꾼다.
-async function findSigunguEntry(arcode: string | undefined): Promise<SigunguEntry | null> {
-    if (!arcode) return null
-    const entries = await fetchSigunguNames()
-    return entries.find((entry) => entry.arcode === arcode) ?? null
+// 이 세그먼트에는 loading.tsx를 두지 않는다 — 라우트 단위 Suspense가 붙으면 셸이 먼저 전송돼
+// 아래의 notFound()·permanentRedirect()가 HTTP 상태에 반영되지 못하고, 없는 지역이 "200 + 404 화면"
+// (soft 404)으로, 옛 쿼리 URL이 308 대신 200으로 나간다. 스트리밍은 각 섹션의 <Suspense>가 맡는다.
+
+// 지역은 경로로 특정된다 — 지역마다 목록이 다른 별개의 페이지라 제목·설명·canonical이 모두 갈라진다.
+// 쿼리 파라미터(?arcode=)를 쓰던 시절에는 세 값이 전 지역 동일해 구글이 전부 /daycares 하나로
+// 합쳐버렸고, 250여 개 지역 페이지가 통째로 색인에서 빠져 있었다.
+type RegionStrings = {
+    location: string
+    heading: string
+    title: string
+    description: string
+    url: string
 }
 
-function buildRegionStrings(entry: SigunguEntry) {
+function buildSidoStrings(sido: string): RegionStrings {
+    const location = getSidoShort(sido)
+    const path = buildRegionPath(sido)
+
+    return {
+        location,
+        heading: `${location} 어린이집`,
+        title: `${location} 어린이집 | 시군구별 목록 - 키즐리`,
+        description: `${location}의 시·군·구를 선택해 어린이집 목록을 확인하세요. 국공립·민간·가정 유형과 연령·지원서비스로 걸러 비교할 수 있습니다.`,
+        url: `${BASE_URL}${path}`,
+    }
+}
+
+function buildSigunguStrings(entry: SigunguEntry): RegionStrings {
     // 세종처럼 시도와 시군구 이름이 같은 경우 formatLocation이 중복을 걷어낸다
     const location = formatLocation(entry.sido, entry.sigungu)
+    const path = buildRegionPath(entry.sido, entry.sigungu)
 
     return {
         location,
         heading: `${location} 어린이집`,
         title: `${location} 어린이집 | 국공립·민간·가정 목록 - 키즐리`,
         description: `${location}에 있는 어린이집을 유형·연령·지원서비스로 걸러 확인하세요. 정원과 현원, 주소까지 한 화면에서 비교할 수 있습니다.`,
-        url: `${BASE_URL}/daycares?arcode=${entry.arcode}`,
+        url: `${BASE_URL}${path}`,
     }
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-    const { arcode } = await searchParams
-    const entry = await findSigunguEntry(arcode)
+function buildRegionStrings(selection: RegionSelection): RegionStrings | null {
+    if (selection.kind === 'sido') return buildSidoStrings(selection.sido)
+    if (selection.kind === 'sigungu') return buildSigunguStrings(selection.entry)
+    return null
+}
+
+async function resolveSelection(params: Props['params']): Promise<RegionSelection> {
+    const { region } = await params
+    const entries = await fetchSigunguNames()
+    const selection = resolveRegionSegments(region, entries)
+    // 존재하지 않는 지역 경로는 라우팅 단계에서 404 — soft 200과 중복 색인 방지
+    if (!selection) notFound()
+    return selection
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const selection = await resolveSelection(params)
     // 유형·연령·지원서비스 필터는 같은 지역 목록의 부분집합이라 canonical에 싣지 않는다 —
     // 실으면 필터 조합만큼 URL이 늘어 색인이 잘게 쪼개진다
-    const { title, description, url } = entry
-        ? buildRegionStrings(entry)
-        : { title: TITLE, description: DESCRIPTION, url: `${BASE_URL}/daycares` }
+    const region = buildRegionStrings(selection)
+    const { title, description, url } = region ?? {
+        title: TITLE,
+        description: DESCRIPTION,
+        url: `${BASE_URL}/daycares`,
+    }
 
     return {
         title: { absolute: title },
@@ -83,25 +129,65 @@ const TABS = [
     { key: 'upcoming', label: '인허가예정' },
 ] as const
 
-// sido와 arcode는 배타적이다 — 시군구까지 선택된 상태는 ?arcode=11680, 시도만 선택된
-// 상태는 ?sido=서울특별시. sido는 클라이언트(SidoChipList)에서만 소비하므로 여기선 읽지 않는다.
-// 필터(vehicle/services/age)는 loadDaycareFilters로 읽어야 하므로 인덱스 시그니처를 함께 둔다.
+// 지역은 경로 세그먼트로 들어온다. searchParams에는 필터(type/vehicle/services/age)와
+// 인허가예정 탭(tab), 그리고 경로형 이전 전에 쓰던 지역 파라미터(sido/arcode)만 남는다.
 type Props = {
+    params: Promise<{ region?: string[] }>
     searchParams: Promise<
         { tab?: string; sido?: string; arcode?: string } & Record<string, string | string[] | undefined>
     >
 }
 
-export default async function DaycaresPage({ searchParams }: Props) {
-    const params = await searchParams
-    const { tab, arcode } = params
-    const activeTab = tab === 'upcoming' ? 'upcoming' : 'region'
-    // arcode는 지역별 탭에서만 의미를 가진다 (fetchSigunguNames는 cache()라 조회가 늘지 않는다)
-    const region = activeTab === 'region' ? await findSigunguEntry(arcode).then((entry) => (entry ? buildRegionStrings(entry) : null)) : null
+/**
+ * 쿼리 파라미터로 지역을 지정하던 옛 URL을 경로형으로 넘길 목적지를 만든다.
+ * 색인·외부 링크에 이미 퍼져 있는 주소라 영구(308) 이전이 필요하다.
+ * 폐지된 코드처럼 대조되지 않는 값은 목록 첫 화면으로 보낸다 — 목적지에는 두 파라미터가 없어
+ * 리다이렉트가 다시 걸리지 않는다.
+ */
+function buildLegacyRegionRedirect(
+    searchParams: Record<string, string | string[] | undefined>,
+    entries: SigunguEntry[],
+): string | null {
+    const arcode = typeof searchParams.arcode === 'string' ? searchParams.arcode : undefined
+    const sido = typeof searchParams.sido === 'string' ? searchParams.sido : undefined
+    if (!arcode && !sido) return null
+
+    const filters = buildFilterQuery(searchParams)
+    const suffix = filters ? `?${filters}` : ''
+
+    if (arcode) {
+        const entry = entries.find((candidate) => candidate.arcode === arcode)
+        return `${entry ? buildRegionPath(entry.sido, entry.sigungu) : '/daycares'}${suffix}`
+    }
+
+    const known = entries.some((entry) => entry.sido === sido)
+    return `${known ? buildRegionPath(sido) : '/daycares'}${suffix}`
+}
+
+export default async function DaycaresPage({ params, searchParams }: Props) {
+    const [selection, resolvedSearchParams, entries] = await Promise.all([
+        resolveSelection(params),
+        searchParams,
+        fetchSigunguNames(),
+    ])
+
+    if (selection.kind === 'index') {
+        const legacy = buildLegacyRegionRedirect(resolvedSearchParams, entries)
+        if (legacy) permanentRedirect(legacy)
+    }
+
+    // 인허가예정 탭은 지역과 무관한 전국 화면이라 목록 첫 화면에서만 연다 —
+    // 지역 경로에 tab이 얹혀 같은 내용이 여러 URL로 갈라지는 것을 막는다
+    const activeTab =
+        selection.kind === 'index' && resolvedSearchParams.tab === 'upcoming' ? 'upcoming' : 'region'
+    const region = buildRegionStrings(selection)
+    // 시군구 페이지에서는 그 위에 시도 단계를 한 칸 끼워 넣어 3단계 경로 구조를 그대로 드러낸다
+    const sidoCrumb = selection.kind === 'sigungu' ? buildSidoStrings(selection.sido) : null
 
     const breadcrumbLd = buildBreadcrumbJsonLd([
         { name: '키즐리', url: BASE_URL },
         { name: '어린이집 목록', url: `${BASE_URL}/daycares` },
+        ...(sidoCrumb ? [{ name: sidoCrumb.heading, url: sidoCrumb.url }] : []),
         ...(region ? [{ name: region.heading, url: region.url }] : []),
     ])
 
@@ -147,11 +233,17 @@ export default async function DaycaresPage({ searchParams }: Props) {
                 </div>
 
                 <div className="mx-auto max-w-2xl px-4 pt-6 pb-12">
-                    {activeTab === 'region' ? (
-                        <RegionSection sido={params.sido} arcode={arcode} searchParams={params} />
-                    ) : (
-                        <UpcomingSection />
-                    )}
+                    <Suspense fallback={<RegionSectionSkeleton />}>
+                        {activeTab === 'region' ? (
+                            <RegionSection
+                                selection={selection}
+                                entries={entries}
+                                searchParams={resolvedSearchParams}
+                            />
+                        ) : (
+                            <UpcomingSection />
+                        )}
+                    </Suspense>
                 </div>
             </main>
 
@@ -183,21 +275,18 @@ function buildFilterQuery(searchParams: Record<string, string | string[] | undef
 }
 
 async function RegionSection({
-    sido,
-    arcode,
+    selection,
+    entries,
     searchParams,
 }: {
-    sido?: string
-    arcode?: string
+    selection: RegionSelection
+    entries: SigunguEntry[]
     searchParams: Record<string, string | string[] | undefined>
 }) {
-    const entries = await fetchSigunguNames()
     const sigunguBySido = groupBySido(entries)
-
-    // arcode= 딥링크로 들어온 경우 초기 로드부터 해당 시군구 목록을 prefetch —
-    // 엔트리 목록에 실재하는 코드일 때만 (SidoChipList의 클라이언트 검증과 동일 기준).
-    // sido=만 들어온 1단계 상태는 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않는다.
-    const selectedEntry = arcode ? entries.find((entry) => entry.arcode === arcode) : undefined
+    // 시군구 경로로 들어온 경우 초기 로드부터 해당 시군구 목록을 prefetch —
+    // 시도만 고른 상태는 선택된 시군구가 없어 조회할 목록도 없으므로 prefetch하지 않는다
+    const selectedEntry = selection.kind === 'sigungu' ? selection.entry : null
 
     // 필터가 URL에 함께 실려 있으면 prefetch에도 반영해야 한다 — 반영하지 않으면
     // queryKey가 클라이언트 hook과 어긋나 목록이 떴다가 스켈레톤으로 교체된 뒤 다시 로드된다.
@@ -213,8 +302,8 @@ async function RegionSection({
     const chips = (
         <SidoChipList
             sigunguBySido={sigunguBySido}
-            sido={sido}
-            arcode={arcode}
+            selectedSido={selection.kind === 'index' ? null : selection.sido}
+            selectedEntry={selectedEntry}
             filterQuery={buildFilterQuery(searchParams)}
         />
     )

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { fetchDaycareIdsPaginated } from "@/domain/daycare/server"
+import { buildRegionPath } from "@/domain/region"
 import { fetchSidoNames, fetchSigunguNames } from "@/domain/region/server"
 import { getAllPosts } from "@/lib/blog"
 
@@ -102,13 +103,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${BASE_URL}/daycares`,
         },
-        // 시군구 지역별 목록 — 어린이집 상세로 가는 내부 링크 허브이자 "OO구 어린이집" 검색의 착지점.
-        // 경로형이 아닌 쿼리 파라미터 URL이지만 지역마다 제목·설명·canonical이 갈라져 있어 개별 색인 대상이다.
-        ...sigunguEntries.map(({ sido, arcode }) => {
+        // 시도별 목록 — 시군구 칩으로 가는 허브. 시군구 페이지와 함께 경로형 URL로 색인된다
+        ...sidoNames.map((sido) => {
             const sidoDataDate = latestDataDateBySido.get(sido)
 
             return {
-                url: `${BASE_URL}/daycares?arcode=${arcode}`,
+                url: `${BASE_URL}${buildRegionPath(sido)}`,
+                lastModified: sidoDataDate ? new Date(sidoDataDate) : undefined,
+            }
+        }),
+        // 시군구 지역별 목록 — 어린이집 상세로 가는 내부 링크 허브이자 "OO구 어린이집" 검색의 착지점
+        ...sigunguEntries.map(({ sido, sigungu }) => {
+            const sidoDataDate = latestDataDateBySido.get(sido)
+
+            return {
+                url: `${BASE_URL}${buildRegionPath(sido, sigungu)}`,
                 lastModified: sidoDataDate ? new Date(sidoDataDate) : undefined,
             }
         }),
