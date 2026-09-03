@@ -123,7 +123,7 @@ const faqLd = {
 }
 
 export default async function Page() {
-    const latestPosts = getLatestPosts(8)
+    const latestPosts = getLatestPosts(5)
     const contentCount = getAllPosts().length
 
     const STATS = [
@@ -279,7 +279,7 @@ export default async function Page() {
                                 전체 보기
                             </Link>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                             {latestPosts.map((post) => (
                                 <Link
                                     key={post.slug}
