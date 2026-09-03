@@ -81,9 +81,9 @@ const organizationLd = {
     url: 'https://kidzly.kr',
     logo: {
         '@type': 'ImageObject',
-        url: 'https://kidzly.kr/logo.png',
-        width: 716,
-        height: 300,
+        url: 'https://kidzly.kr/favicon-512.png',
+        width: 512,
+        height: 512,
     },
 }
 
