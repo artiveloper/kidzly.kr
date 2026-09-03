@@ -3,7 +3,7 @@
 import Script from 'next/script';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { List } from 'lucide-react';
-import type { DaycareListItem, MapBounds } from '@/domain/daycare';
+import type { MapBounds } from '@/domain/daycare';
 import { DEFAULT_BOUNDS } from '@/domain/daycare';
 
 export type NaverMapHandle = {
@@ -11,12 +11,50 @@ export type NaverMapHandle = {
     getCurrentBounds: () => MapBounds | null;
 };
 
+/** 지도에 마커로 찍을 수 있는 최소 형태 — 어린이집·놀이시설이 공통으로 만족한다 */
+export type MapMarkerItem = {
+    id: string;
+    name: string;
+    latitude: number | null;
+    longitude: number | null;
+};
+
+/** 레이어별 마커·클러스터 색상. 한 번에 한 레이어만 그리므로 지도 전체가 이 테마를 쓴다 */
+export type MapMarkerTheme = {
+    base: string;
+    selected: string;
+    clusterTiers: readonly { size: number; bg: string }[];
+};
+
+export const DAYCARE_MARKER_THEME: MapMarkerTheme = {
+    base: '#10b981',
+    selected: '#059669',
+    clusterTiers: [
+        { size: 36, bg: '#10b981' },
+        { size: 44, bg: '#059669' },
+        { size: 52, bg: '#047857' },
+        { size: 60, bg: '#065f46' },
+    ],
+};
+
+export const PLAYGROUND_MARKER_THEME: MapMarkerTheme = {
+    base: '#f59e0b',
+    selected: '#d97706',
+    clusterTiers: [
+        { size: 36, bg: '#f59e0b' },
+        { size: 44, bg: '#d97706' },
+        { size: 52, bg: '#b45309' },
+        { size: 60, bg: '#92400e' },
+    ],
+};
+
 interface NaverMapProps {
-    daycares: DaycareListItem[];
+    items: MapMarkerItem[];
+    markerTheme: MapMarkerTheme;
     selectedId?: string | null;
     hoveredId?: string | null;
     initialCenter?: { lat: number; lng: number } | null;
-    onSelectDaycare: (id: string) => void;
+    onSelectItem: (id: string) => void;
     onBoundsChange: (bounds: MapBounds) => void;
     onOpenBottomSheet: () => void;
 }
@@ -30,13 +68,13 @@ const DEFAULT_CENTER = {
 
 const NAME_MIN_ZOOM = 16;
 
-function markerHtml(name: string, showName: boolean, selected: boolean): string {
-    const color = selected ? '#059669' : '#10b981';
+function markerHtml(name: string, showName: boolean, selected: boolean, theme: MapMarkerTheme): string {
+    const color = selected ? theme.selected : theme.base;
     const size = selected ? 36 : 28;
     const dotSize = selected ? 11 : 8;
     const border = selected ? '3px' : '2.5px';
     const shadow = selected
-        ? '0 4px 12px rgba(5,150,105,0.45)'
+        ? `0 4px 12px ${color}73`
         : '0 2px 6px rgba(0,0,0,0.18)';
 
     const dot = `
@@ -62,8 +100,8 @@ function markerHtml(name: string, showName: boolean, selected: boolean): string 
           padding:${selected ? '3px 8px' : '2px 6px'};border-radius:4px;
           white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;
           font-family:-apple-system,sans-serif;
-          box-shadow:${selected ? '0 2px 8px rgba(5,150,105,0.4)' : '0 1px 4px rgba(0,0,0,0.15)'};
-          border:1px solid ${selected ? color : 'rgba(16,185,129,0.25)'};
+          box-shadow:${selected ? `0 2px 8px ${color}66` : '0 1px 4px rgba(0,0,0,0.15)'};
+          border:1px solid ${selected ? color : `${theme.base}40`};
         ">${name}</div>
       </div>`;
     }
@@ -80,9 +118,10 @@ function applyMarkerIcon(
     name: string,
     showName: boolean,
     highlighted: boolean,
+    theme: MapMarkerTheme,
 ): void {
     marker.setIcon({
-        content: markerHtml(name, showName, highlighted),
+        content: markerHtml(name, showName, highlighted, theme),
         anchor: new naver.maps.Point(highlighted ? 18 : 14, highlighted ? 50 : 41),
     });
     marker.setZIndex(highlighted ? 10 : 1);
@@ -95,17 +134,11 @@ function getBounds(map: naver.maps.Map): MapBounds {
     return { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() };
 }
 
-// 클러스터 마커 개수 구간별 아이콘 (작을수록 옅은 그린, 많을수록 짙은 그린)
-const CLUSTER_TIERS = [
-    { size: 36, bg: '#10b981' },
-    { size: 44, bg: '#059669' },
-    { size: 52, bg: '#047857' },
-    { size: 60, bg: '#065f46' },
-];
+// 클러스터 마커 개수 구간별 아이콘 (작을수록 옅고, 많을수록 짙다)
 const CLUSTER_INDEX_GENERATOR = [10, 30, 100];
 
-function getClusterIcons(): naver.maps.HtmlIcon[] {
-    return CLUSTER_TIERS.map(({ size, bg }) => ({
+function getClusterIcons(theme: MapMarkerTheme): naver.maps.HtmlIcon[] {
+    return theme.clusterTiers.map(({ size, bg }) => ({
         content: `
         <div style="
           width:${size}px;height:${size}px;border-radius:50%;
@@ -127,11 +160,12 @@ function clusterStylingFunction(clusterMarker: naver.maps.Marker, count: number)
 }
 
 const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
-    daycares,
+    items,
+    markerTheme,
     selectedId,
     hoveredId,
     initialCenter,
-    onSelectDaycare,
+    onSelectItem,
     onBoundsChange,
     onOpenBottomSheet,
 }, ref) {
@@ -198,7 +232,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
         if (!scriptLoaded || !mapRef.current) return;
         const map = mapRef.current;
         const existing = markersRef.current;
-        const nextIds = new Set(daycares.map((d) => d.id));
+        const nextIds = new Set(items.map((item) => item.id));
 
         for (const [id, marker] of existing) {
             if (!nextIds.has(id)) {
@@ -207,26 +241,26 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
             }
         }
 
-        for (const daycare of daycares) {
-            if (!daycare.latitude || !daycare.longitude) continue;
+        for (const item of items) {
+            if (!item.latitude || !item.longitude) continue;
 
             const showName = zoom >= NAME_MIN_ZOOM;
-            const selected = daycare.id === selectedId;
-            const existingMarker = existing.get(daycare.id);
+            const selected = item.id === selectedId;
+            const existingMarker = existing.get(item.id);
 
             if (existingMarker) {
-                applyMarkerIcon(existingMarker, daycare.name, showName, selected);
+                applyMarkerIcon(existingMarker, item.name, showName, selected, markerTheme);
             } else {
                 // map은 여기서 지정하지 않는다 — 클러스터링 인스턴스가 노출 여부를 관리한다
                 const marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng(daycare.latitude, daycare.longitude),
-                    title: daycare.name,
+                    position: new naver.maps.LatLng(item.latitude, item.longitude),
+                    title: item.name,
                 });
-                applyMarkerIcon(marker, daycare.name, showName, selected);
+                applyMarkerIcon(marker, item.name, showName, selected, markerTheme);
                 naver.maps.Event.addListener(marker, 'click', () =>
-                    onSelectDaycare(daycare.id),
+                    onSelectItem(item.id),
                 );
-                existing.set(daycare.id, marker);
+                existing.set(item.id, marker);
             }
         }
 
@@ -249,14 +283,14 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
             minClusterSize: 2,
             maxZoom: NAME_MIN_ZOOM,
             gridSize: 100,
-            icons: getClusterIcons(),
+            icons: getClusterIcons(markerTheme),
             indexGenerator: CLUSTER_INDEX_GENERATOR,
             averageCenter: true,
             stylingFunction: clusterStylingFunction,
         });
 
         selectedMarker?.setMap(map);
-    }, [scriptLoaded, daycares, onSelectDaycare, zoom, selectedId]);
+    }, [scriptLoaded, items, markerTheme, onSelectItem, zoom, selectedId]);
 
     // 목록 hover 시 해당 마커를 선택 상태와 동일하게 강조하고, hover out 시 되돌린다
     useEffect(() => {
@@ -266,16 +300,16 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap({
         // 클러스터에 묶여 노출되지 않는 마커는 대상이 아니다
         if (!marker || !marker.getMap()) return;
 
-        const daycare = daycares.find((d) => d.id === hoveredId);
-        if (!daycare) return;
+        const item = items.find((i) => i.id === hoveredId);
+        if (!item) return;
 
         const showName = zoom >= NAME_MIN_ZOOM;
-        applyMarkerIcon(marker, daycare.name, showName, true);
+        applyMarkerIcon(marker, item.name, showName, true, markerTheme);
 
         return () => {
-            applyMarkerIcon(marker, daycare.name, showName, false);
+            applyMarkerIcon(marker, item.name, showName, false, markerTheme);
         };
-    }, [scriptLoaded, hoveredId, selectedId, daycares, zoom]);
+    }, [scriptLoaded, hoveredId, selectedId, items, markerTheme, zoom]);
 
     if (!CLIENT_ID) {
         return (

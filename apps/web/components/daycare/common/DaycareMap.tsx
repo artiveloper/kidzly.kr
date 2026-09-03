@@ -9,12 +9,21 @@ import type { BlogPostMeta } from '@/lib/blog';
 import { useDebounce } from '@/hooks/useDebounce';
 import Header from '@/components/common/Header';
 import ListPanel from '../list/ListPanel';
-import NaverMap, { type NaverMapHandle } from './NaverMap';
+import NaverMap, {
+    type NaverMapHandle,
+    DAYCARE_MARKER_THEME,
+    PLAYGROUND_MARKER_THEME,
+} from './NaverMap';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
 import DaycareDetailView from '../detail/DaycareDetailView';
 import DaycareDetailLoading from '../detail/DaycareDetailLoading';
 import DaycareFilters from '../list/filters/DaycareFilters';
 import { saveDaycareReturnUrl } from '@/lib/navigation';
+import { usePlaygroundsInBounds } from '@/domain/playground';
+import { mapLayerParsers, MAP_LAYER_TABS_ENABLED, type MapLayer } from '@/lib/map/layer-params';
+import MapLayerToggle from '@/components/map/MapLayerToggle';
+import PlaygroundListPanel from '@/components/playground/PlaygroundListPanel';
+import PlaygroundInfoCard from '@/components/playground/PlaygroundInfoCard';
 
 interface DaycareMapProps {
     promoPosts?: BlogPostMeta[];
@@ -56,6 +65,16 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
     const [activeServices] = useQueryState('services', daycareFilterParsers.services);
     const [activeAge] = useQueryState('age', daycareFilterParsers.age);
 
+    const [layer, setLayer] = useQueryState('layer', mapLayerParsers.layer);
+    const isPlaygroundLayer = layer === 'playground';
+    // 놀이시설 선택은 URL이 아닌 로컬 상태다 — 상세 페이지 없이 정보 카드만 띄운다
+    const [selectedPlaygroundId, setSelectedPlaygroundId] = useState<string | null>(null);
+
+    const { data: playgrounds = [], isFetching: isFetchingPlaygrounds } = usePlaygroundsInBounds(
+        bounds,
+        isPlaygroundLayer,
+    );
+
     const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
         query: debouncedSearchQuery || undefined,
         vehicleOperation: vehicleOperation || undefined,
@@ -72,16 +91,19 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
     // pathname 기반 선택된 어린이집 ID (마커 강조 + Drawer 제어 공통)
     const pathnameId = pathname.startsWith('/daycare/') ? pathname.slice('/daycare/'.length) : null;
 
+    // 놀이시설 레이어에서는 어린이집 상세를 띄우지 않는다 (딥링크로 두 상태가 함께 들어올 수 있다)
+    const activeDaycareId = isPlaygroundLayer ? null : pathnameId;
+
     useEffect(() => {
-        if (!pathnameId) return;
-        const daycare = daycaresRef.current.find(d => d.id === pathnameId);
+        if (!activeDaycareId) return;
+        const daycare = daycaresRef.current.find(d => d.id === activeDaycareId);
         if (daycare?.latitude && daycare?.longitude) {
             mapViewRef.current?.panTo(daycare.latitude, daycare.longitude);
         }
-    }, [pathnameId]);
+    }, [activeDaycareId]);
 
     // 목록 Drawer에서 상세로 진입 시 ID
-    const listDaycareId = isMobile && isListOpen && pathnameId ? pathnameId : null;
+    const listDaycareId = isMobile && isListOpen && activeDaycareId ? activeDaycareId : null;
 
     // 목록 상세 진입 시 스크롤 저장, 복귀 시 복원
     useEffect(() => {
@@ -132,6 +154,37 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         setIsListOpen(true);
     };
 
+    const handleSelectPlayground = (id: string) => {
+        setSelectedPlaygroundId(id);
+        setIsListOpen(false);
+        const playground = playgrounds.find((p) => p.id === id);
+        if (playground) mapViewRef.current?.panTo(playground.latitude, playground.longitude);
+    };
+
+    const handleLayerChange = (nextLayer: MapLayer) => {
+        setSelectedPlaygroundId(null);
+        setIsListOpen(false);
+        // 어린이집 상세가 열린 상태에서 레이어를 바꾸면 지도로 되돌린다
+        if (pathnameId) {
+            router.replace(nextLayer === 'playground' ? '/map?layer=playground' : '/map');
+            return;
+        }
+        // 기본값(daycare)은 쿼리 파라미터에서 제거한다
+        setLayer(nextLayer === 'daycare' ? null : nextLayer);
+    };
+
+    const selectedPlayground =
+        isPlaygroundLayer && selectedPlaygroundId
+            ? (playgrounds.find((p) => p.id === selectedPlaygroundId) ?? null)
+            : null;
+
+    const playgroundPanelProps = {
+        playgrounds,
+        isLoading: isFetchingPlaygrounds,
+        selectedId: selectedPlaygroundId,
+        onSelect: handleSelectPlayground,
+    };
+
     const panelProps = {
         searchQuery,
         onSearchChange: setSearchQuery,
@@ -155,35 +208,74 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
 
     return (
         <div className="flex flex-col h-dvh overflow-hidden">
-            <Header />
+            {/* 모바일은 지도 위 공간이 좁아 헤더 가운데(내비게이션이 안 쓰는 자리)에 넣는다 */}
+            <Header
+                mobileCenter={
+                    MAP_LAYER_TABS_ENABLED ? (
+                        <MapLayerToggle
+                            layer={layer}
+                            onChange={handleLayerChange}
+                            listClassName="border border-gray-200 bg-gray-100 p-0.5"
+                        />
+                    ) : undefined
+                }
+            />
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    <ListPanel {...panelProps} onHoverDaycare={setHoveredId} />
+                    {isPlaygroundLayer ? (
+                        <PlaygroundListPanel {...playgroundPanelProps} />
+                    ) : (
+                        <ListPanel {...panelProps} onHoverDaycare={setHoveredId} />
+                    )}
                 </aside>
 
                 <main className="flex-1 relative">
-                    <div className="md:hidden absolute top-0 left-0 right-0 z-10 pointer-events-none">
-                        <div className="pointer-events-auto">
-                            <DaycareFilters />
+                    {!isPlaygroundLayer && (
+                        <div className="md:hidden absolute top-0 left-0 right-0 z-10 pointer-events-none">
+                            <div className="pointer-events-auto">
+                                <DaycareFilters />
+                            </div>
                         </div>
-                    </div>
+                    )}
+                    {/* sm 미만은 헤더가 담당한다. sm~md 구간은 필터 바가 아직 떠 있어 그 아래로 내린다 */}
+                    {MAP_LAYER_TABS_ENABLED && (
+                        <div
+                            className={`absolute left-1/2 z-20 hidden -translate-x-1/2 sm:block ${
+                                isPlaygroundLayer ? 'top-3' : 'top-16 md:top-3'
+                            }`}
+                        >
+                            <MapLayerToggle layer={layer} onChange={handleLayerChange} />
+                        </div>
+                    )}
                     <NaverMap
                         ref={mapViewRef}
-                        daycares={filteredDaycares}
-                        selectedId={pathnameId}
-                        hoveredId={hoveredId}
+                        items={isPlaygroundLayer ? playgrounds : filteredDaycares}
+                        markerTheme={isPlaygroundLayer ? PLAYGROUND_MARKER_THEME : DAYCARE_MARKER_THEME}
+                        selectedId={isPlaygroundLayer ? selectedPlaygroundId : activeDaycareId}
+                        hoveredId={isPlaygroundLayer ? null : hoveredId}
                         initialCenter={initialCenter}
-                        onSelectDaycare={handleSelectDaycare}
+                        onSelectItem={isPlaygroundLayer ? handleSelectPlayground : handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}
                         onOpenBottomSheet={handleOpenList}
                     />
+                    {selectedPlayground && (
+                        <PlaygroundInfoCard
+                            playground={selectedPlayground}
+                            onClose={() => setSelectedPlaygroundId(null)}
+                        />
+                    )}
                 </main>
             </div>
 
             {/* 모바일 목록 오버레이 */}
             <div className={overlayClass(isMobile && (isListOpen || !!listDaycareId))}>
-                {listDaycareId ? (
+                {isPlaygroundLayer ? (
+                    <PlaygroundListPanel
+                        {...playgroundPanelProps}
+                        onClose={() => setIsListOpen(false)}
+                    />
+                ) : listDaycareId ? (
                     <div className="flex-1 overflow-y-auto pb-4">
                         <Suspense fallback={<DaycareDetailLoading />}>
                             <DaycareDetailView id={listDaycareId} latestPosts={latestPosts} />
@@ -195,18 +287,18 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
             </div>
 
             {/* 모바일 마커 상세 오버레이 */}
-            <div className={overlayClass(isMobile && !isListOpen && !!pathnameId)}>
+            <div className={overlayClass(isMobile && !isListOpen && !!activeDaycareId)}>
                 <div className="flex-1 overflow-y-auto pb-4">
-                    {pathnameId && !isListOpen && (
-                        <Suspense key={pathnameId} fallback={<DaycareDetailLoading />}>
-                            <DaycareDetailView id={pathnameId} latestPosts={latestPosts} />
+                    {activeDaycareId && !isListOpen && (
+                        <Suspense key={activeDaycareId} fallback={<DaycareDetailLoading />}>
+                            <DaycareDetailView id={activeDaycareId} latestPosts={latestPosts} />
                         </Suspense>
                     )}
                 </div>
             </div>
 
             {/* 네이버 지도 로고(z-100) 가림 — 모바일 오버레이 오픈 시에만 표시 */}
-            {isMobile && (isListOpen || !!pathnameId) && (
+            {isMobile && (isListOpen || !!activeDaycareId) && (
                 <div className="fixed bottom-0 inset-x-0 h-4 bg-white z-101" />
             )}
         </div>

@@ -34,6 +34,10 @@ export const metadata: Metadata = {
 }
 
 export default async function MapPage() {
+    // 어린이집 레이어만 prefetch한다. 레이어는 searchParams(?layer=)로 정해지는데,
+    // 여기서 searchParams를 읽으면 /map이 통째로 동적 렌더링으로 바뀐다(정적 → ƒ).
+    // 놀이시설은 부차 레이어이고 지도 자체가 클라이언트에서 SDK를 기다리므로,
+    // 정적 셸을 지키고 놀이시설 데이터는 클라이언트 조회에 맡긴다.
     const state = await runPrefetch(
         daycarePrefetch.bounds({ bounds: DEFAULT_BOUNDS }),
     )
