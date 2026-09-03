@@ -5,7 +5,7 @@ import "./fonts.css"
 import ThemeProvider from "@/components/theme-provider"
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
-import DeferredAnalytics from "@/components/providers/DeferredAnalytics"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 const BASE_URL = "https://kidzly.kr"
 
@@ -80,9 +80,10 @@ export default function RootLayout({
             className="font-sans antialiased"
         >
             <head>
-                {/* 광고·분석 스크립트는 유휴 시점에 뜨므로 preconnect 대신 이름 해석만 미리 해둔다 */}
+                {/* 광고 스크립트는 유휴 시점에 뜨므로 이름 해석만 미리 해둔다 */}
                 <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-                <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+                {/* GA4는 하이드레이션 직후 뜨므로 연결까지 미리 맺는다 */}
+                <link rel="preconnect" href="https://www.googletagmanager.com" />
             </head>
             <body>
                 <Script
@@ -91,7 +92,7 @@ export default function RootLayout({
                     crossOrigin="anonymous"
                     strategy="lazyOnload"
                 />
-                <DeferredAnalytics />
+                <GoogleAnalytics gaId="G-9CKKGKLVLC" />
                 <NuqsAdapter>
                     <ReactQueryProvider>
                         <ThemeProvider>
