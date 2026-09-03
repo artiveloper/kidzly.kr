@@ -258,6 +258,9 @@ create index idx_daycares_address_trgm
 create index idx_daycares_map_bbox
     on daycares using btree (status, latitude, longitude) WHERE ((latitude IS NOT NULL) AND (longitude IS NOT NULL));
 
+create index idx_daycares_nearby
+    on daycares using btree (sigungu_code) INCLUDE (daycare_code, name, type_name, address, latitude, longitude) WHERE (((status)::text = '정상'::text) AND (latitude IS NOT NULL) AND (longitude IS NOT NULL));
+
 create index idx_daycares_name_trgm
     on daycares using gin (name gin_trgm_ops);
 

@@ -1,5 +1,5 @@
 import { isServer } from '@tanstack/react-query';
-import { createServerClient } from '@workspace/supabase/server';
+import { createServerClient, createCachedServerClient } from '@workspace/supabase/server';
 import { createBrowserClient } from '@workspace/supabase/client';
 import { toDaycareListItem, toDaycareDetail, toDaycareRankingItem, toDaycareRecentItem, toDaycareCapacityItem, toDaycareNearbyItem, toDaycareRegionListItem } from '../parser/daycare.parser';
 import type { DaycareRankingRow, DaycareNearbyRow, DaycareRegionRow } from '../parser/daycare.parser';
@@ -21,6 +21,12 @@ const NEARBY_COLUMNS = 'daycare_code, name, type_name, address, latitude, longit
 
 /** origin 기준 거리순 정렬 전, 후보 풀로 가져올 최대 행 수 — latitude/longitude가 varchar라 DB 레벨 거리 정렬 불가 */
 const NEARBY_POOL_LIMIT = 200;
+
+/**
+ * 주변 어린이집 후보 풀의 캐시 수명(초).
+ * 어린이집 데이터는 하루 한 번 동기화되므로 1시간 재사용해도 신선도 문제가 없다.
+ */
+const NEARBY_POOL_REVALIDATE_SECONDS = 3600;
 
 const REGION_LIST_COLUMNS = 'daycare_code, name, type_name, address';
 
@@ -129,13 +135,17 @@ export async function fetchDaycareDetail(id: string): Promise<DaycareDetail> {
 
 /**
  * 같은 시군구(sigungu_code) 내 다른 정상 운영 어린이집 조회 — origin 좌표 기준 가까운 순 정렬.
- * - 현재 상세페이지의 id는 제외
+ * - 현재 상세페이지의 id는 제외 — 단 쿼리가 아니라 JS에서 걸러낸다(아래 캐시 설명 참고)
  * - status='정상'만 포함
  * - limit 필수 (기본 10)
  * - 필요한 컬럼만 select (daycare_code, name, type_name, address, latitude, longitude)
  * - latitude/longitude가 varchar 컬럼이라 DB에서 직접 거리 정렬 불가 →
  *   같은 시군구 후보를 NEARBY_POOL_LIMIT만큼 가져와 JS에서 haversine 거리 계산 후 정렬·slice
  * - origin이 null(현재 어린이집 좌표 결측)이면 거리 정렬 없이 DB 반환 순서 그대로 limit
+ * - 후보 풀 쿼리에는 excludeId를 넣지 않는다. 넣으면 어린이집마다 URL이 달라져 캐시가 매번
+ *   빗나간다. 실제로 이 쿼리 하나가 DB 전체 시간의 57%를 차지했다(2026-09-03 pg_stat_statements,
+ *   39만 회 × 평균 50ms). 시군구 단위로 URL을 모아 같은 지역 상세페이지 수천 건이 응답 하나를
+ *   공유하게 하고, 현재 id 제외는 JS에서 처리한다.
  */
 export async function fetchDaycareNearby(
     sigunguCode: string,
@@ -144,14 +154,15 @@ export async function fetchDaycareNearby(
     options: { limit?: number } = {}
 ): Promise<DaycareNearbyItem[]> {
     const { limit = 10 } = options;
-    const supabase = createSupabaseClient();
+    const supabase = isServer
+        ? createCachedServerClient(NEARBY_POOL_REVALIDATE_SECONDS)
+        : createBrowserClient();
 
     const { data, error } = await supabase
         .from('daycares')
         .select(NEARBY_COLUMNS)
         .eq('sigungu_code', sigunguCode)
         .eq('status', '정상')
-        .neq('daycare_code', excludeId)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
         .limit(NEARBY_POOL_LIMIT);
@@ -161,7 +172,9 @@ export async function fetchDaycareNearby(
         throw new Error(error.message);
     }
 
-    const items = (data ?? []).map((row) => toDaycareNearbyItem(row as DaycareNearbyRow, origin));
+    const items = ((data ?? []) as DaycareNearbyRow[])
+        .filter((row) => row.daycare_code !== excludeId)
+        .map((row) => toDaycareNearbyItem(row, origin));
 
     if (!origin) {
         return items.slice(0, limit);
