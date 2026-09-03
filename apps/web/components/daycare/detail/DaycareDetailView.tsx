@@ -33,12 +33,25 @@ function buildBlogQuery(sigunguName: string | null, name: string, address: strin
 interface DaycareDetailInnerProps {
     id: string;
     latestPosts?: BlogPostMeta[];
+    /**
+     * 같은 지역 목록으로 가는 경로형 링크. 시군구 코드를 sigungus에서 역참조해야 만들 수 있어
+     * 서버 렌더(DaycareDetailSSR)에서만 넘어온다. 없으면 옛 쿼리 URL로 떨어뜨려
+     * /daycares의 영구 리다이렉트에 맡긴다(지도·모달의 클라이언트 렌더).
+     */
+    regionLink?: { href: string; label: string };
 }
 
-export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetailInnerProps) {
+export default function DaycareDetailView({ id, latestPosts = [], regionLink }: DaycareDetailInnerProps) {
     const router = useRouter();
     const { data: detail } = useDaycareDetail(id);
     const [copied, setCopied] = useState(false);
+
+    // 서버가 경로형 링크를 넘겨주면 그대로 쓰고, 아니면 옛 쿼리 URL로 떨어뜨린다 (regionLink 주석 참고)
+    const region =
+        regionLink ??
+        (detail.sigunguCode && detail.sigunguName
+            ? { href: `/daycares?arcode=${detail.sigunguCode}`, label: detail.sigunguName }
+            : null);
 
     const handleShare = async () => {
         const url = `${window.location.origin}/daycare/${id}`;
@@ -201,15 +214,15 @@ export default function DaycareDetailView({ id, latestPosts = [] }: DaycareDetai
                     <ChevronRight size={16} className="shrink-0 text-gray-400" />
                 </Link>
 
-                {detail.sigunguCode && detail.sigunguName && (
+                {region && (
                     <Link
-                        href={`/daycares?arcode=${detail.sigunguCode}`}
+                        href={region.href}
                         className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                     >
                         <span className="text-2xl" aria-hidden="true">📍</span>
                         <div className="min-w-0 flex-1">
                             <p className="text-sm font-semibold text-gray-900">
-                                {detail.sigunguName} 어린이집 전체보기
+                                {region.label} 어린이집 전체보기
                             </p>
                             <p className="mt-0.5 text-xs text-gray-500">
                                 같은 지역 어린이집을 모두 확인해보세요

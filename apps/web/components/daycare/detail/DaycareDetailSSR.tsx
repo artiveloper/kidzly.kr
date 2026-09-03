@@ -1,6 +1,8 @@
 import { cache } from 'react';
 import { runPrefetch } from '@/lib/react-query/prefetch';
 import { daycarePrefetch, fetchDaycareDetail } from '@/domain/daycare/server';
+import { buildRegionPath } from '@/domain/region';
+import { fetchSigunguNames } from '@/domain/region/server';
 import { formatDate } from '@/lib/format';
 import { HydrationBoundary } from '@tanstack/react-query';
 import { getLatestPosts } from '@/lib/blog';
@@ -74,6 +76,15 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
         ? { queries: [...state.queries, ...nearbyState.queries], mutations: state.mutations }
         : state;
 
+    // 같은 지역 목록으로 가는 링크는 sigungus에서 시군구 코드로 역참조해 만든다 —
+    // daycares의 시군구 이름은 행정구역 개편 이후 sigungus와 어긋난 레코드가 있어
+    // (인천 서구↔검단구, 경기 수원시권선구↔수원시 등) 그 값으로는 경로를 만들 수 없다.
+    // 색인 대상인 이 렌더에서만 경로형 URL을 넘긴다 — 지도·모달의 클라이언트 렌더는
+    // 시군구 코드를 경로로 바꿀 수단이 없어 옛 쿼리 URL로 두고 리다이렉트에 맡긴다.
+    const regionEntry = (await fetchSigunguNames()).find(
+        (entry) => entry.arcode === daycare.sigunguCode
+    );
+
     const { title, description } = buildDaycareMetaStrings(daycare);
     const daumDatetime = formatDate(daycare.syncedAt);
 
@@ -139,7 +150,18 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
             {daumDatetime !== '-' && <div className="daum-wm-datetime hidden">{daumDatetime}</div>}
             <div className="daum-wm-content hidden">{description}</div>
             <HydrationBoundary state={hydrationState}>
-                <DaycareDetailView id={id} latestPosts={getLatestPosts(4)} />
+                <DaycareDetailView
+                    id={id}
+                    latestPosts={getLatestPosts(4)}
+                    regionLink={
+                        regionEntry
+                            ? {
+                                href: buildRegionPath(regionEntry.sido, regionEntry.sigungu),
+                                label: regionEntry.sigungu,
+                            }
+                            : undefined
+                    }
+                />
             </HydrationBoundary>
         </>
     );

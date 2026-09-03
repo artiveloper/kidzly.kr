@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Flame, Clock, Users, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { runPrefetch } from '@/lib/react-query/prefetch';
+import { buildRegionPath } from '@/domain/region';
 import { daycarePrefetch, fetchDaycareRankingWaiting } from '@/domain/daycare/server';
 import { HydrationBoundary } from '@/components/providers/ReactQueryProvider';
 import RankingsLists from '@/components/rankings/RankingsLists';
@@ -151,11 +152,11 @@ export default async function RankingsPageView({ sido }: Props) {
                         </Suspense>
 
                         {/* 위(랭킹 TOP10)→아래(지역별 전체 목록)로 연결하는 상호 링크 피라미드 —
-                            /region 폐지 후 /daycares 지역별 탭으로 안내, sido 쿼리 파라미터로
+                            /region 폐지 후 /daycares 지역별 탭으로 안내, 시도 경로로
                             시군구 칩 화면까지 바로 진입 */}
                         {sido && (
                             <Link
-                                href={`/daycares?sido=${encodeURIComponent(sido)}`}
+                                href={buildRegionPath(sido)}
                                 className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 active:bg-gray-200"
                             >
                                 <span className="text-2xl">📍</span>
