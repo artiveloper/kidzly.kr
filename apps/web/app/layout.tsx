@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     },
     description:
         "지도 기반으로 내 주변 어린이집을 빠르게 찾아보세요. 국공립·민간·가정 어린이집 비교 및 운영시간·대기 현황 확인 가능",
+    // keywords는 넣지 않는다 — 구글·네이버·다음 모두 메타 키워드를 색인·순위에 쓰지 않는다
     authors: [{ name: "키즐리" }],
     creator: "키즐리",
     publisher: "키즐리",
