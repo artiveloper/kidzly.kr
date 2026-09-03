@@ -170,7 +170,7 @@ export default async function Page() {
                         </p>
 
                         {/* 검색은 지도 페이지(/map)의 이름·주소 검색을 그대로 재사용 — q 파라미터로 전달 */}
-                        <div className="mb-3 md:flex md:items-center md:gap-3 md:max-w-xl md:mx-auto">
+                        <div className="mb-3 md:flex md:items-center md:gap-3 md:max-w-2xl md:mx-auto">
                             <form action="/map" method="GET" className="relative md:flex-1">
                                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
@@ -194,8 +194,9 @@ export default async function Page() {
                             </Button>
                         </div>
 
-                        {/* 데스크톱 전용 3열 바로가기 — SHORTCUTS 재사용 */}
-                        <div className="hidden md:grid md:grid-cols-3 md:gap-4 md:mt-10 md:text-left">
+                        {/* 데스크톱 전용 3열 바로가기 — SHORTCUTS 재사용.
+                            폭은 아래 본문·푸터와 같은 max-w-2xl로 맞춘다 */}
+                        <div className="hidden md:grid md:max-w-2xl md:mx-auto md:grid-cols-3 md:gap-4 md:mt-10 md:text-left">
                             {SHORTCUTS.map(({ icon: Icon, title, description, href }) => (
                                 <Link
                                     key={title}
@@ -215,7 +216,7 @@ export default async function Page() {
                     </div>
                 </section>
 
-                <div className="max-w-lg md:max-w-5xl mx-auto px-5">
+                <div className="max-w-2xl mx-auto px-5">
                     {/* 통계 */}
                     <section className="py-10 md:py-14 border-b border-gray-100">
                         <div className="grid grid-cols-3 gap-3 md:gap-8">
