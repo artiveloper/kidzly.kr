@@ -63,7 +63,8 @@ apps/web/domain/
 |------|------|
 | `/` | 홈 — 서비스 소개·검색 진입·FAQ |
 | `/map` | 지도 기반 어린이집 탐색 |
-| `/daycares` | 어린이집 목록 |
+| `/daycares` | 어린이집 목록 — 시도 선택·인허가예정 탭(`?tab=upcoming`) |
+| `/daycares/[sido]`, `/daycares/[sido]/[sigungu]` | 지역별 어린이집 목록 (옛 `?sido=`·`?arcode=` 쿼리 URL은 308로 이전) |
 | `/daycare/[id]` | 어린이집 상세 (목록에서 진입 시 `@modal`로 인터셉트) |
 | `/rankings`, `/rankings/[sido]` | 지역별 어린이집 랭킹 |
 | `/contents`, `/contents/[slug]` | 블로그 목록·상세 |
