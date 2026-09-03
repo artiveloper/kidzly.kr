@@ -140,9 +140,13 @@ export type Database = {
                     emd_code: string | null;
                     name: string;
                     address: string | null;
-                    /** EPSG:3857 Web Mercator — 위경도가 아니다 */
+                    /** EPSG:3857 Web Mercator — 위경도가 아니다. 지도에는 latitude/longitude를 쓴다 */
                     coord_x: number | null;
                     coord_y: number | null;
+                    /** WGS84 위도 — coord_y에서 DB가 계산하는 생성 컬럼 (쓰기 불가). 좌표 미입력(coord=0)이면 null */
+                    latitude: number | null;
+                    /** WGS84 경도 — coord_x에서 DB가 계산하는 생성 컬럼 (쓰기 불가). 좌표 미입력(coord=0)이면 null */
+                    longitude: number | null;
                     /** YYYYMMDD 문자열 */
                     install_date: string | null;
                     facility_code1: string | null;
