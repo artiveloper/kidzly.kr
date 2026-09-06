@@ -55,11 +55,20 @@ npx velite build
 | `tags` | string[] | | 기본값 `[]` |
 | `publishedAt` | string | O | `YYYY-MM-DD` |
 | `updatedAt` | string | | 제도·금액이 갱신될 때만 채운다 |
-| `readingTime` | number | | 기본값 3 |
 | `thumbnail` | string | O | `/blog/{슬러그}/thumbnail.png` |
 
-`slug`와 `code`는 velite가 파일 경로와 본문에서 자동 생성하므로 직접 쓰지 않는다.
+`slug`·`code`·`readingTime`은 velite가 자동 생성하므로 **frontmatter에 쓰지 않는다.**
 한글 파일명은 NFD를 NFC로 정규화해 슬러그로 쓴다.
+
+### `readingTime` 산정식
+
+`velite.config.ts`의 `estimateReadingTime()`이 본문에서 계산한다. **공백 제외 글자 수 ÷ 500, 올림, 최소 1분**이다.
+코드블록·이미지·HTML 태그·표 구분선은 세지 않고, 링크는 앵커 텍스트만 센다.
+
+2026-09-06에 도입했다. 그전까지는 사람이나 에이전트가 매번 추정해 값이 서로 어긋나 있었다
+(5,007자에 20분, 3,413자에 15분, 3,376자에 9분처럼 분량과 무관한 값이 섞여 있었다).
+같은 분량에 같은 값이 나오는 것이 목적이므로, 특정 글만 값을 손보고 싶어도 **frontmatter로 덮어쓰지 않는다.**
+값이 마음에 들지 않으면 나누는 수(500)를 바꿔 전체에 일괄 적용한다.
 
 ---
 
