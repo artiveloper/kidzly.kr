@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import RankingsPageView from '@/components/rankings/RankingsPageView';
 import { buildRankingsMetadata } from '@/components/rankings/rankings-meta';
 
-export const revalidate = 3600;
+// 86400 = 24시간. 데이터가 하루 1회 동기화되므로 그에 맞춘다.
+export const revalidate = 86400;
 
 export const metadata: Metadata = buildRankingsMetadata();
 

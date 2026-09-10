@@ -4,7 +4,8 @@ import { fetchSidoNames } from '@/domain/region/server';
 import RankingsPageView from '@/components/rankings/RankingsPageView';
 import { buildRankingsMetadata } from '@/components/rankings/rankings-meta';
 
-export const revalidate = 3600;
+// 86400 = 24시간. 데이터가 하루 1회 동기화되므로 그에 맞춘다.
+export const revalidate = 86400;
 // sigungus에 있는 시도만 유효 — 그 외 경로는 라우팅 단계에서 404 처리해 중복/soft-200 방지
 export const dynamicParams = false;
 

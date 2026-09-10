@@ -19,7 +19,8 @@ const TITLE = '어린이집 찾기 | 지도 검색·랭킹·육아 정보 한곳
 const DESCRIPTION =
     '전국 2만 5천여 곳의 어린이집을 지도에서 검색하고, 국공립·민간·가정 어린이집을 지역별로 비교해 보세요. 정원·대기 현황과 지역 랭킹은 물론, 부모급여·보육료 지원과 입소 준비까지 실전 육아 정보를 한 곳에서 확인할 수 있습니다.'
 
-export const revalidate = 3600
+// 86400 = 24시간. 홈에 노출되는 어린이집 데이터가 하루 1회 동기화되므로 그에 맞춘다.
+export const revalidate = 86400
 
 export const metadata: Metadata = {
     title: { absolute: TITLE },

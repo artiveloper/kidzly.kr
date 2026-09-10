@@ -15,9 +15,9 @@ const DESCRIPTION =
 const HEADING = '인허가예정 어린이집'
 const LEAD = '곧 인가를 받아 문을 열 어린이집을 인가 예정일 순으로 보여드려요.'
 
-export const revalidate = 3600
+export const revalidate = 86400 // 24시간 — 데이터 동기화 주기에 맞춤
 
-// 지역·필터 어느 것도 URL에서 읽지 않으므로 정적으로 생성되고 1시간마다 갱신된다.
+// 지역·필터 어느 것도 URL에서 읽지 않으므로 정적으로 생성되고 하루 1회 갱신된다(데이터 동기화 주기에 맞춤).
 // 인가 예정일이 지난 건은 다음 갱신에서 목록에서 빠진다.
 export const metadata: Metadata = {
     title: { absolute: TITLE },
