@@ -2,6 +2,17 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
+# 필터·레거시 쿼리 URL은 크롤하지 않는다 — 전부 canonical이 경로형 지역 URL로 합쳐져 색인
+# 가치가 없는데, 크롤되면 /daycares/{시도}/{시군구}가 동적 렌더돼 Vercel 함수 비용만 늘어난다.
+# (type/vehicle/services/age = 필터, tab/sido/arcode = 경로형 이전 전 레거시 파라미터)
+Disallow: /*?*type=
+Disallow: /*?*vehicle=
+Disallow: /*?*services=
+Disallow: /*?*age=
+Disallow: /*?*tab=
+Disallow: /*?*sido=
+Disallow: /*?*arcode=
+
 Sitemap: https://kidzly.kr/sitemap.xml
 
 #DaumWebMasterTool:e597cfa5df7291fea91391c23f2794db419290e46aee4a0a7e918b0d3fe8b89f:PoMn77621kMj1CLr9KFRhg==
