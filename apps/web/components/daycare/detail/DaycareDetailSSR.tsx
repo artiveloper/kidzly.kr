@@ -54,14 +54,21 @@ export function buildDaycareMetaStrings(daycare: DaycareDetail) {
 }
 
 export async function DaycareDetailSSR({ id }: { id: string }) {
+    // 상세는 여기서 한 번만 조회한다 — generateMetadata·Page와 React의 cache()로 공유되고, 그 결과를
+    // React Query 캐시에 그대로 시딩한다. prefetchQuery로 다시 부르면 같은 행을 두 번 조회하게 돼
+    // 상세 1건당 Supabase 왕복이 2회 나갔다(가장 뜨거운 라우트라 함수 비용에 직접 반영됨).
+    // 시군구 목록은 상세와 무관하므로 병렬로 가져온다 — 순차로 기다리면 왕복 1회치가 그대로 늘어난다.
     // 존재하지 않는 id는 Page에서 이미 404로 걸러졌다. 여기서 실패하면 DB 조회 실패이므로
     // 404로 뭉개지 않고 그대로 던져 5xx로 응답한다 — 검색로봇이 나중에 재수집한다.
-    const [state, daycare] = await Promise.all([
-        runPrefetch(daycarePrefetch.detail(id)),
+    const [daycare, sigunguEntries] = await Promise.all([
         getCachedDaycareDetail(id),
+        fetchSigunguNames(),
     ]);
 
-    // "주변 다른 어린이집"은 보조 섹션 — 실패해도 페이지 전체를 404 처리하지 않음
+    const state = await runPrefetch(daycarePrefetch.detailSeed(id, daycare));
+
+    // "주변 다른 어린이집"은 상세의 좌표·시군구에 의존하므로 이후에 조회한다.
+    // 보조 섹션 — 실패해도 페이지 전체를 404 처리하지 않는다.
     const nearbyState = await runPrefetch(
         daycarePrefetch.nearby({
             sigunguCode: daycare.sigunguCode,
@@ -81,9 +88,7 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
     // (인천 서구↔검단구, 경기 수원시권선구↔수원시 등) 그 값으로는 경로를 만들 수 없다.
     // 색인 대상인 이 렌더에서만 경로형 URL을 넘긴다 — 지도·모달의 클라이언트 렌더는
     // 시군구 코드를 경로로 바꿀 수단이 없어 옛 쿼리 URL로 두고 리다이렉트에 맡긴다.
-    const regionEntry = (await fetchSigunguNames()).find(
-        (entry) => entry.arcode === daycare.sigunguCode
-    );
+    const regionEntry = sigunguEntries.find((entry) => entry.arcode === daycare.sigunguCode);
 
     const { title, description } = buildDaycareMetaStrings(daycare);
     const daumDatetime = formatDate(daycare.syncedAt);
