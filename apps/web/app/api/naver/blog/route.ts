@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { NaverBlogRawItem, NaverBlogRawResponse } from '@/domain/naver-blog';
+import type { NaverBlogRawResponse } from '@/domain/naver-blog';
 
 /**
- * 네이버 검색은 "창신어린이집"을 토막 내 매칭해서 이름이 한 번도 안 나오는 글이 대부분이다.
- * 상위 5건만 받으면 실제로 그 어린이집을 언급한 글이 걸리는 비율이 표본 40곳 중 13%뿐이었고,
- * 100건까지 훑으면 65%로 올라간다. 호출 수는 그대로(1회)이고 응답만 커진다.
+ * 네이버 검색은 "창신어린이집"을 토막 내 매칭해서 무관한 글이 대부분이고, 쓸 만한 글은
+ * 연관순 뒤쪽에 묻힌다. 표본 40곳 중 제목 매칭이 걸린 13곳 가운데 12곳은 상위 5건만
+ * 받았으면 놓쳤다. 호출 수는 그대로(1회)이고 응답만 커진다.
  */
 const UPSTREAM_DISPLAY = 100;
 
@@ -43,19 +43,14 @@ export async function GET(request: NextRequest) {
     }
 
     const data: NaverBlogRawResponse = await response.json();
-    const matched = (data.items ?? []).filter((item: NaverBlogRawItem) =>
-        mentionsName(`${item.title}${item.description}`, name)
-    );
-    // 제목에 이름이 박힌 글이 그 어린이집을 다룬 글이다. 동네 목록·해시태그에 이름만
-    // 스친 글보다 앞세운다 — sort가 안정 정렬이라 그룹 안에서는 네이버 연관순이 남는다.
-    const ranked = [...matched].sort(
-        (a, b) => Number(mentionsName(b.title, name)) - Number(mentionsName(a.title, name))
-    );
+    // 제목에 이름이 박힌 글만 그 어린이집을 다룬 글이다. 본문이나 해시태그에 이름만 스친
+    // 동네 목록·분양 홍보 글은 후기가 아니라 언급이라 거른다.
+    const matched = (data.items ?? []).filter((item) => mentionsName(item.title, name));
 
     return NextResponse.json({
-        total: ranked.length,
+        total: matched.length,
         start,
         display,
-        items: ranked.slice(start - 1, start - 1 + display),
+        items: matched.slice(start - 1, start - 1 + display),
     });
 }
