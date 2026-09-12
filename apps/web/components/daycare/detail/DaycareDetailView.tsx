@@ -20,14 +20,26 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
 
-function extractDong(address: string): string | null {
-    return address.split(' ').find((part) => /[동읍면]$/.test(part)) ?? null;
+/** "만리동2가"처럼 숫자+가로 끝나는 법정동까지 받되, "3509동" 같은 아파트 동 번호는 거른다. */
+function isDong(token: string): boolean {
+    return /([동읍면]|\d가)$/.test(token) && !/^\d+동$/.test(token);
 }
 
+/**
+ * 도로명주소는 법정동을 괄호 안에 둔다 — "창신5길 22 (창신동)".
+ * 괄호 밖 토큰만 훑으면 동을 통째로 놓치거나(표본 1,000건 중 28.6%)
+ * "3509동 102호"의 아파트 동 번호를 동 이름으로 잘못 집어(23.3%) 검색어를 망친다.
+ */
+function extractDong(address: string): string | null {
+    // 괄호는 "(3층 건물전체) (산곡동)"처럼 여러 번 나오므로 전부 훑는다.
+    const legalDong = [...address.matchAll(/\(([^),]+)/g)].map((match) => (match[1] ?? '').trim()).find(isDong);
+    return legalDong ?? address.split(' ').find(isDong) ?? null;
+}
+
+// 네이버 검색은 큰따옴표를 구문 검색으로 취급하지 않는다(따옴표 유무와 total이 동일).
+// 정확도는 결과를 받은 뒤 이름 일치로 거르는 쪽(/api/naver/blog)에서 맡는다.
 function buildBlogQuery(sigunguName: string | null, name: string, address: string): string {
-    const dong = extractDong(address);
-    const location = [sigunguName, dong].filter(Boolean).join(' ');
-    return location ? `${location} "${name}"` : `"${name}"`;
+    return [sigunguName, extractDong(address), name].filter(Boolean).join(' ');
 }
 
 interface DaycareDetailInnerProps {
@@ -138,6 +150,7 @@ export default function DaycareDetailView({ id, latestPosts = [], regionLink }: 
                             detail.name,
                             detail.address
                         )}
+                        name={detail.name}
                     />
                 </Suspense>
             </ErrorBoundary>

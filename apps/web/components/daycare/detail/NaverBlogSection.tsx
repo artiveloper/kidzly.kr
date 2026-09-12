@@ -6,10 +6,11 @@ import { useNaverBlogInfinite } from '@/domain/naver-blog';
 
 interface NaverBlogSectionProps {
     query: string;
+    name: string;
 }
 
-export default function NaverBlogSection({ query }: NaverBlogSectionProps) {
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(query);
+export default function NaverBlogSection({ query, name }: NaverBlogSectionProps) {
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(query, name);
     const posts = data?.pages.flatMap((p) => p.items) ?? [];
 
     if (posts.length === 0) return null;

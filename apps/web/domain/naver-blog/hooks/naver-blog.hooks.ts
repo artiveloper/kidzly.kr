@@ -4,10 +4,10 @@ import { fetchNaverBlogPage } from '../apis/naver-blog.api';
 
 const DISPLAY = 5;
 
-export function useNaverBlogInfinite(query: string) {
+export function useNaverBlogInfinite(query: string, name: string) {
     return useInfiniteQuery({
-        queryKey: naverBlogQueryKeys.search(query),
-        queryFn: ({ pageParam }) => fetchNaverBlogPage(query, pageParam, DISPLAY),
+        queryKey: naverBlogQueryKeys.search(query, name),
+        queryFn: ({ pageParam }) => fetchNaverBlogPage(query, name, pageParam, DISPLAY),
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             const nextStart = lastPage.start + lastPage.display;
