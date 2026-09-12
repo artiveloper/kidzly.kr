@@ -5,6 +5,7 @@
 ## 주요 기능
 
 - **지도 기반 탐색** — 현재 지도 영역의 어린이집을 실시간으로 조회
+- **놀이시설 레이어** — 지도에서 어린이집 ↔ 놀이시설로 전환해 주변 놀이터를 함께 확인
 - **필터링** — 어린이집 유형, 서비스 유형(시간제, 장애아 등)으로 필터링
 - **상세 정보** — 정원, 현원, 연령별 대기 현황, CCTV, 차량 운행 등 공공데이터 기반 상세 정보 제공
 - **지역별 목록·랭킹** — 시도·시군구 단위로 어린이집을 모아보고 순위 비교
@@ -44,8 +45,9 @@ apps/web/domain/
 │   ├── query-options/    # queryOptions 팩토리 (hooks & prefetch 공유)
 │   ├── hooks/            # Client-side React Query hooks
 │   └── prefetch/         # SSR prefetch (server-only)
-├── article/              # 블로그 아티클 조회
-├── naver-blog/           # 네이버 블로그 검색 연동
+├── article/              # 블로그 아티클 조회·조회수·좋아요
+├── playground/           # 어린이 놀이시설 (지도 레이어)
+├── naver-blog/           # 네이버 블로그 검색 연동 (NAVER API HUB)
 └── region/               # 시도·시군구 지역 데이터
 ```
 
@@ -70,7 +72,7 @@ apps/web/domain/
 | `/contents`, `/contents/[slug]` | 블로그 목록·상세 |
 | `/about`, `/about/editorial` | 서비스 소개·편집 정책 |
 | `/terms`, `/privacy-policy` | 이용약관·개인정보 처리방침 |
-| `/api/naver/blog` | 네이버 블로그 검색 프록시 |
+| `/api/naver/blog` | 네이버 블로그 검색 프록시 — NAVER API HUB 호출 후 제목에 어린이집 이름이 든 글만 반환 |
 | `/api/article/[uuid]/view`, `/api/article/[uuid]/like` | 아티클 조회수·좋아요 집계 |
 
 ### 콘텐츠 파이프라인
@@ -107,13 +109,19 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=
 
 # 네이버 블로그 검색 프록시(/api/naver/blog)에만 필요 (서버 전용)
-NAVER_CLIENT_ID=
-NAVER_CLIENT_SECRET=
+# 네이버 클라우드 플랫폼 → API Hub → Application → NAVER 검색(블로그)
+NAVER_API_HUB_CLIENT_ID=
+NAVER_API_HUB_CLIENT_SECRET=
 ```
+
+관리자 앱은 `apps/admin/.env.local` 을 따로 둡니다. 관리자 계정 CRUD에 쓰는
+`SUPABASE_SECRET_KEY`는 서버 전용이라 `NEXT_PUBLIC_` 접두사를 붙이지 않습니다.
+(`apps/admin/.env.local.example` 참고)
 
 ### 스크립트
 
-루트에서 실행하면 Turborepo가 모든 워크스페이스에 전파합니다.
+루트에서 실행하면 Turborepo가 모든 워크스페이스에 전파합니다. `pnpm dev`는 웹(3000)과
+관리자(3001)를 함께 띄웁니다. 한쪽만 띄우려면 해당 앱 디렉토리에서 실행합니다.
 
 | 명령 | 설명 |
 |------|------|
@@ -130,15 +138,16 @@ NAVER_CLIENT_SECRET=
 ```
 kidzly.kr/
 ├── apps/
-│   └── web/               # Next.js 앱
-│       ├── app/           # App Router (pages, layouts, intercepting routes)
-│       ├── components/    # UI 컴포넌트 (도메인별 분류)
-│       ├── content/       # 블로그 MDX 원문
-│       ├── domain/        # 도메인 로직 (API, Query, Prefetch)
-│       ├── hooks/         # 공통 hooks
-│       ├── lib/           # 유틸리티 (React Query 설정, 날짜 포맷, 구조화 데이터 등)
-│       ├── types/         # 전역 타입 선언
-│       └── velite.config.ts
+│   ├── web/               # 서비스 앱 kidzly.kr (포트 3000)
+│   │   ├── app/           # App Router (pages, layouts, intercepting routes)
+│   │   ├── components/    # UI 컴포넌트 (도메인별 분류)
+│   │   ├── content/       # 블로그 MDX 원문
+│   │   ├── domain/        # 도메인 로직 (API, Query, Prefetch)
+│   │   ├── hooks/         # 공통 hooks
+│   │   ├── lib/           # 유틸리티 (React Query 설정, 날짜 포맷, 구조화 데이터 등)
+│   │   ├── types/         # 전역 타입 선언
+│   │   └── velite.config.ts
+│   └── admin/             # 운영 관리자 앱 (포트 3001, Supabase Auth 로그인)
 ├── packages/
 │   ├── ui/                # 공유 UI 컴포넌트 (shadcn/ui 기반)
 │   ├── supabase/          # Supabase 클라이언트·타입 (@workspace/supabase)
@@ -150,7 +159,10 @@ kidzly.kr/
 
 ## 데이터베이스
 
-Supabase(PostgreSQL)를 **읽기 전용**으로 사용합니다. 인증은 없습니다.
+Supabase(PostgreSQL)를 사용합니다. 서비스 앱은 로그인이 없고 어린이집·놀이시설·아티클을
+**읽기 전용**으로 조회합니다. 예외는 아티클 조회수·좋아요뿐으로, 테이블을 직접 쓰지 않고
+RPC(`increment_view_count`, `toggle_like`)로 증분합니다. 관리자 앱만 Supabase Auth로
+로그인하며, 여기서도 어린이집 데이터는 조회만 합니다.
 
 **스키마는 이 저장소가 관리하지 않습니다.** 테이블·인덱스·뷰 전부
 [kidzly-sync](https://github.com/artiveloper/kidzly-sync)의 Flyway 마이그레이션이 소유합니다.
