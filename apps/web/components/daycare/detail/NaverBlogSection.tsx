@@ -2,15 +2,14 @@
 
 import { CircleHelp, ExternalLink } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
-import { useNaverBlogInfinite } from '@/domain/naver-blog';
+import { useNaverBlogInfinite, type NaverBlogTarget } from '@/domain/naver-blog';
 
 interface NaverBlogSectionProps {
-    query: string;
-    name: string;
+    target: NaverBlogTarget;
 }
 
-export default function NaverBlogSection({ query, name }: NaverBlogSectionProps) {
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(query, name);
+export default function NaverBlogSection({ target }: NaverBlogSectionProps) {
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNaverBlogInfinite(target);
     const posts = data?.pages.flatMap((p) => p.items) ?? [];
 
     if (posts.length === 0) return null;
@@ -26,7 +25,7 @@ export default function NaverBlogSection({ query, name }: NaverBlogSectionProps)
                         </button>
                     </PopoverTrigger>
                     <PopoverContent align="start" className="w-60 text-xs text-gray-600 leading-relaxed">
-                        네이버 블로그 검색 API를 통해 연관순으로 가져온 데이터입니다. 검색 특성상 해당 어린이집과 직접 관련이 없는 글이 포함될 수 있습니다.
+                        네이버 블로그 검색 API로 최신순으로 가져와, 제목에 어린이집 이름이 있는 글만 추렸습니다. 같은 이름의 어린이집이 여러 곳 있어 다른 지역 글이 섞일 수 있습니다.
                     </PopoverContent>
                 </Popover>
             </div>

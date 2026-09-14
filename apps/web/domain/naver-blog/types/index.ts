@@ -1,3 +1,9 @@
+export type NaverBlogTarget = {
+    name: string;
+    address: string;
+    sigunguName: string | null;
+};
+
 export type NaverBlogItem = {
     title: string;
     link: string;

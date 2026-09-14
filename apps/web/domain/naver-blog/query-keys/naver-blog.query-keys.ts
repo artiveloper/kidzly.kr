@@ -1,4 +1,7 @@
+import type { NaverBlogTarget } from '../types';
+
 export const naverBlogQueryKeys = {
     all: ['naver-blog'] as const,
-    search: (query: string, name: string) => [...naverBlogQueryKeys.all, 'search', query, name] as const,
+    search: (target: NaverBlogTarget) =>
+        [...naverBlogQueryKeys.all, 'search', target.name, target.sigunguName, target.address] as const,
 };
