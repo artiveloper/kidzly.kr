@@ -28,6 +28,9 @@ const NEARBY_POOL_LIMIT = 200;
  */
 const NEARBY_POOL_REVALIDATE_SECONDS = 3600;
 
+// 어린이집 이름 목록은 하루 한 번 동기화되는 준정적 데이터다.
+const NAME_COUNT_REVALIDATE_SECONDS = 86400;
+
 const REGION_LIST_COLUMNS = 'daycare_code, name, type_name, address';
 
 export async function fetchDaycares(options: { limit?: number } = {}): Promise<DaycareListItem[]> {
@@ -444,4 +447,27 @@ export async function fetchSigungus(): Promise<SigunguRow[]> {
     }
 
     return (data ?? []) as SigunguRow[];
+}
+
+/**
+ * 같은 이름을 쓰는 어린이집 수. "다솜어린이집"처럼 전국 126곳이 같은 이름을 쓰는 경우가
+ * 표본 100곳 중 54%라, 블로그 검색 결과가 이 원의 글인지 판정할 때 기준이 된다.
+ * 폐지·재개를 포함해 센다 — 문 닫은 동명 원의 옛 글도 똑같이 섞여 들어온다.
+ */
+export async function countDaycaresByName(name: string): Promise<number> {
+    const supabase = createCachedServerClient(NAME_COUNT_REVALIDATE_SECONDS);
+
+    const { count, error } = await supabase
+        .from('daycares')
+        .select('daycare_code', { count: 'exact', head: true })
+        .eq('name', name);
+
+    if (error) {
+        console.error('[countDaycaresByName]', error.message);
+        throw new Error(error.message);
+    }
+
+    if (count === null) throw new Error('countDaycaresByName: count is null');
+
+    return count;
 }

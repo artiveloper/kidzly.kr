@@ -15,3 +15,5 @@ export { fetchDaycareRankingWaiting } from './apis/daycare.api'
 export { fetchSigungus } from './apis/daycare.api'
 // /daycares 지역별 탭이 딥링크의 필터를 클라이언트와 같은 파서로 읽어 prefetch에 반영할 때 사용
 export { loadDaycareFilters, toDaycareFilterParams } from './parser/daycare.filter-parsers'
+// /api/naver/blog이 동명 어린이집 여부로 블로그 글 채택 기준을 가를 때 사용
+export { countDaycaresByName } from './apis/daycare.api'
