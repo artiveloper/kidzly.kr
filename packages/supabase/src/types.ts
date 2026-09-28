@@ -205,6 +205,88 @@ export type Database = {
                 };
                 Relationships: [];
             };
+            places: {
+                Row: {
+                    id: number;
+                    name: string;
+                    summary: string;
+                    /** 0.0~5.0 (소수점 1자리) */
+                    rating: number | null;
+                    /** kids_cafe | park | indoor_playground | museum | zoo | library | cafe */
+                    place_type: string;
+                    /** infant | toddler | preschool | elementary */
+                    age_groups: string[];
+                    /** indoor | outdoor | mixed */
+                    indoor_outdoor: string;
+                    is_free: boolean;
+                    /** null 은 아직 확인 안 됨 — false(불가)와 구분한다 */
+                    has_parking: boolean | null;
+                    opening_hours: string;
+                    closed_days: string;
+                    price_detail: string | null;
+                    parking_detail: string | null;
+                    /** null 은 아직 확인 안 됨 — false(없음)와 구분한다 */
+                    has_nursing_room: boolean | null;
+                    /** null 은 아직 확인 안 됨 — false(없음)와 구분한다 */
+                    has_diaper_table: boolean | null;
+                    address: string;
+                    latitude: number;
+                    longitude: number;
+                    thumbnail_url: string | null;
+                    /** YYYY-MM-DD */
+                    last_verified_at: string;
+                    /** false 면 작성 중인 초안이라 공개 지도에 노출하지 않는다 */
+                    is_published: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    name: string;
+                    summary: string;
+                    place_type: string;
+                    indoor_outdoor: string;
+                    is_free: boolean;
+                    opening_hours: string;
+                    closed_days: string;
+                    address: string;
+                    latitude: number;
+                    longitude: number;
+                    last_verified_at: string;
+                    rating?: number | null;
+                    age_groups?: string[];
+                    has_parking?: boolean | null;
+                    price_detail?: string | null;
+                    parking_detail?: string | null;
+                    has_nursing_room?: boolean | null;
+                    has_diaper_table?: boolean | null;
+                    thumbnail_url?: string | null;
+                    is_published?: boolean;
+                };
+                Update: {
+                    name?: string;
+                    summary?: string;
+                    place_type?: string;
+                    indoor_outdoor?: string;
+                    is_free?: boolean;
+                    opening_hours?: string;
+                    closed_days?: string;
+                    address?: string;
+                    latitude?: number;
+                    longitude?: number;
+                    last_verified_at?: string;
+                    rating?: number | null;
+                    age_groups?: string[];
+                    has_parking?: boolean | null;
+                    price_detail?: string | null;
+                    parking_detail?: string | null;
+                    has_nursing_room?: boolean | null;
+                    has_diaper_table?: boolean | null;
+                    thumbnail_url?: string | null;
+                    is_published?: boolean;
+                    updated_at?: string;
+                };
+                Relationships: [];
+            };
         };
         Views: {
             [_ in never]: never;
@@ -231,3 +313,6 @@ export type ContentStatsRow = Database['public']['Tables']['content_stats']['Row
 export type PlaygroundRow = Database['public']['Tables']['playgrounds']['Row'];
 export type PlaygroundInsert = Database['public']['Tables']['playgrounds']['Insert'];
 export type PlaygroundUpdate = Database['public']['Tables']['playgrounds']['Update'];
+export type PlaceRow = Database['public']['Tables']['places']['Row'];
+export type PlaceInsert = Database['public']['Tables']['places']['Insert'];
+export type PlaceUpdate = Database['public']['Tables']['places']['Update'];
