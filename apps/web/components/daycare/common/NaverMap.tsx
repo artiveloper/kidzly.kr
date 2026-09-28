@@ -37,6 +37,17 @@ export const DAYCARE_MARKER_THEME: MapMarkerTheme = {
     ],
 };
 
+export const PLACE_MARKER_THEME: MapMarkerTheme = {
+    base: '#8b5cf6',
+    selected: '#7c3aed',
+    clusterTiers: [
+        { size: 36, bg: '#8b5cf6' },
+        { size: 44, bg: '#7c3aed' },
+        { size: 52, bg: '#6d28d9' },
+        { size: 60, bg: '#5b21b6' },
+    ],
+};
+
 export const PLAYGROUND_MARKER_THEME: MapMarkerTheme = {
     base: '#f59e0b',
     selected: '#d97706',

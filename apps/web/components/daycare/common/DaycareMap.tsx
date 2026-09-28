@@ -12,6 +12,7 @@ import ListPanel from '../list/ListPanel';
 import NaverMap, {
     type NaverMapHandle,
     DAYCARE_MARKER_THEME,
+    PLACE_MARKER_THEME,
     PLAYGROUND_MARKER_THEME,
 } from './NaverMap';
 import { useIsMobile } from '@workspace/ui/hooks/use-mobile';
@@ -20,10 +21,19 @@ import DaycareDetailLoading from '../detail/DaycareDetailLoading';
 import DaycareFilters from '../list/filters/DaycareFilters';
 import { saveDaycareReturnUrl } from '@/lib/navigation';
 import { usePlaygroundsInBounds } from '@/domain/playground';
-import { mapLayerParsers, MAP_LAYER_TABS_ENABLED, type MapLayer } from '@/lib/map/layer-params';
+import { placeFilterParsers, toPlaceFilters, usePlacesInBounds } from '@/domain/place';
+import {
+    mapLayerParsers,
+    MAP_LAYER_TABS_ENABLED,
+    DEFAULT_MAP_LAYER,
+    type MapLayer,
+} from '@/lib/map/layer-params';
 import MapLayerToggle from '@/components/map/MapLayerToggle';
 import PlaygroundListPanel from '@/components/playground/PlaygroundListPanel';
 import PlaygroundInfoCard from '@/components/playground/PlaygroundInfoCard';
+import PlaceListPanel from '@/components/place/PlaceListPanel';
+import PlaceInfoCard from '@/components/place/PlaceInfoCard';
+import PlaceFilters from '@/components/place/filters/PlaceFilters';
 
 interface DaycareMapProps {
     promoPosts?: BlogPostMeta[];
@@ -66,13 +76,40 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
     const [activeAge] = useQueryState('age', daycareFilterParsers.age);
 
     const [layer, setLayer] = useQueryState('layer', mapLayerParsers.layer);
+    const isDaycareLayer = layer === 'daycare';
+    const isPlaceLayer = layer === 'place';
     const isPlaygroundLayer = layer === 'playground';
-    // 놀이시설 선택은 URL이 아닌 로컬 상태다 — 상세 페이지 없이 정보 카드만 띄운다
+    // 놀이시설·놀거리 선택은 URL이 아닌 로컬 상태다 — 상세 페이지 없이 정보 카드만 띄운다
     const [selectedPlaygroundId, setSelectedPlaygroundId] = useState<string | null>(null);
+    const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
     const { data: playgrounds = [], isFetching: isFetchingPlaygrounds } = usePlaygroundsInBounds(
         bounds,
         isPlaygroundLayer,
+    );
+
+    const [placeTypes] = useQueryState('ptype', placeFilterParsers.ptype);
+    const [placeAges] = useQueryState('page', placeFilterParsers.page);
+    const [placeIndoorOutdoors] = useQueryState('io', placeFilterParsers.io);
+    const [placeFreeOnly] = useQueryState('free', placeFilterParsers.free);
+    const [placeParkingOnly] = useQueryState('parking', placeFilterParsers.parking);
+
+    const placeFilters = useMemo(
+        () =>
+            toPlaceFilters({
+                ptype: placeTypes,
+                page: placeAges,
+                io: placeIndoorOutdoors,
+                free: placeFreeOnly,
+                parking: placeParkingOnly,
+            }),
+        [placeTypes, placeAges, placeIndoorOutdoors, placeFreeOnly, placeParkingOnly]
+    );
+
+    const { data: places = [], isFetching: isFetchingPlaces } = usePlacesInBounds(
+        bounds,
+        placeFilters,
+        isPlaceLayer,
     );
 
     const { data: daycares = [], isFetching } = useDaycaresInBounds(bounds, {
@@ -91,8 +128,8 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
     // pathname 기반 선택된 어린이집 ID (마커 강조 + Drawer 제어 공통)
     const pathnameId = pathname.startsWith('/daycare/') ? pathname.slice('/daycare/'.length) : null;
 
-    // 놀이시설 레이어에서는 어린이집 상세를 띄우지 않는다 (딥링크로 두 상태가 함께 들어올 수 있다)
-    const activeDaycareId = isPlaygroundLayer ? null : pathnameId;
+    // 어린이집 레이어가 아니면 어린이집 상세를 띄우지 않는다 (딥링크로 두 상태가 함께 들어올 수 있다)
+    const activeDaycareId = isDaycareLayer ? pathnameId : null;
 
     useEffect(() => {
         if (!activeDaycareId) return;
@@ -161,21 +198,36 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         if (playground) mapViewRef.current?.panTo(playground.latitude, playground.longitude);
     };
 
+    const handleSelectPlace = (id: string) => {
+        setSelectedPlaceId(id);
+        setIsListOpen(false);
+        const place = places.find((p) => p.id === id);
+        if (place) mapViewRef.current?.panTo(place.latitude, place.longitude);
+    };
+
     const handleLayerChange = (nextLayer: MapLayer) => {
         setSelectedPlaygroundId(null);
+        setSelectedPlaceId(null);
         setIsListOpen(false);
         // 어린이집 상세가 열린 상태에서 레이어를 바꾸면 지도로 되돌린다
         if (pathnameId) {
-            router.replace(nextLayer === 'playground' ? '/map?layer=playground' : '/map');
+            router.replace(
+                nextLayer === DEFAULT_MAP_LAYER ? '/map' : `/map?layer=${nextLayer}`
+            );
             return;
         }
         // 기본값(daycare)은 쿼리 파라미터에서 제거한다
-        setLayer(nextLayer === 'daycare' ? null : nextLayer);
+        setLayer(nextLayer === DEFAULT_MAP_LAYER ? null : nextLayer);
     };
 
     const selectedPlayground =
         isPlaygroundLayer && selectedPlaygroundId
             ? (playgrounds.find((p) => p.id === selectedPlaygroundId) ?? null)
+            : null;
+
+    const selectedPlace =
+        isPlaceLayer && selectedPlaceId
+            ? (places.find((p) => p.id === selectedPlaceId) ?? null)
             : null;
 
     const playgroundPanelProps = {
@@ -184,6 +236,41 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         selectedId: selectedPlaygroundId,
         onSelect: handleSelectPlayground,
     };
+
+    const placePanelProps = {
+        places,
+        isLoading: isFetchingPlaces,
+        selectedId: selectedPlaceId,
+        onSelect: handleSelectPlace,
+        isFiltered:
+            placeFilters.types.length > 0 ||
+            placeFilters.ages.length > 0 ||
+            placeFilters.indoorOutdoors.length > 0 ||
+            placeFilters.freeOnly ||
+            placeFilters.parkingOnly,
+    };
+
+    // 레이어마다 지도에 넘길 마커 집합과 선택 동작이 다르다
+    const mapLayerProps = isPlaceLayer
+        ? {
+              items: places,
+              markerTheme: PLACE_MARKER_THEME,
+              selectedId: selectedPlaceId,
+              onSelectItem: handleSelectPlace,
+          }
+        : isPlaygroundLayer
+          ? {
+                items: playgrounds,
+                markerTheme: PLAYGROUND_MARKER_THEME,
+                selectedId: selectedPlaygroundId,
+                onSelectItem: handleSelectPlayground,
+            }
+          : {
+                items: filteredDaycares,
+                markerTheme: DAYCARE_MARKER_THEME,
+                selectedId: activeDaycareId,
+                onSelectItem: handleSelectDaycare,
+            };
 
     const panelProps = {
         searchQuery,
@@ -223,7 +310,9 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
 
             <div className="flex flex-1 overflow-hidden pt-14">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
-                    {isPlaygroundLayer ? (
+                    {isPlaceLayer ? (
+                        <PlaceListPanel {...placePanelProps} />
+                    ) : isPlaygroundLayer ? (
                         <PlaygroundListPanel {...playgroundPanelProps} />
                     ) : (
                         <ListPanel {...panelProps} onHoverDaycare={setHoveredId} />
@@ -231,10 +320,10 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                 </aside>
 
                 <main className="flex-1 relative">
-                    {!isPlaygroundLayer && (
+                    {(isDaycareLayer || isPlaceLayer) && (
                         <div className="md:hidden absolute top-0 left-0 right-0 z-10 pointer-events-none">
                             <div className="pointer-events-auto">
-                                <DaycareFilters />
+                                {isPlaceLayer ? <PlaceFilters /> : <DaycareFilters />}
                             </div>
                         </div>
                     )}
@@ -250,12 +339,9 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                     )}
                     <NaverMap
                         ref={mapViewRef}
-                        items={isPlaygroundLayer ? playgrounds : filteredDaycares}
-                        markerTheme={isPlaygroundLayer ? PLAYGROUND_MARKER_THEME : DAYCARE_MARKER_THEME}
-                        selectedId={isPlaygroundLayer ? selectedPlaygroundId : activeDaycareId}
-                        hoveredId={isPlaygroundLayer ? null : hoveredId}
+                        {...mapLayerProps}
+                        hoveredId={isDaycareLayer ? hoveredId : null}
                         initialCenter={initialCenter}
-                        onSelectItem={isPlaygroundLayer ? handleSelectPlayground : handleSelectDaycare}
                         onBoundsChange={handleBoundsChange}
                         onOpenBottomSheet={handleOpenList}
                     />
@@ -265,12 +351,20 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                             onClose={() => setSelectedPlaygroundId(null)}
                         />
                     )}
+                    {selectedPlace && (
+                        <PlaceInfoCard
+                            place={selectedPlace}
+                            onClose={() => setSelectedPlaceId(null)}
+                        />
+                    )}
                 </main>
             </div>
 
             {/* 모바일 목록 오버레이 */}
             <div className={overlayClass(isMobile && (isListOpen || !!listDaycareId))}>
-                {isPlaygroundLayer ? (
+                {isPlaceLayer ? (
+                    <PlaceListPanel {...placePanelProps} onClose={() => setIsListOpen(false)} />
+                ) : isPlaygroundLayer ? (
                     <PlaygroundListPanel
                         {...playgroundPanelProps}
                         onClose={() => setIsListOpen(false)}

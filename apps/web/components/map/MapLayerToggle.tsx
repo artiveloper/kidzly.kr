@@ -11,7 +11,7 @@ interface MapLayerToggleProps {
     listClassName?: string;
 }
 
-// 활성 색은 각 레이어의 마커 색과 맞춘다 (어린이집 그린 / 놀이시설 앰버).
+// 활성 색은 각 레이어의 마커 색과 맞춘다 (어린이집 그린 / 놀거리 바이올렛 / 놀이시설 앰버).
 // 공유 컴포넌트의 hover:text-foreground가 data-active:text-white를 이겨 활성 탭 글씨가
 // 호버 시 검게 변한다. data-active:hover로 특이도를 올려 흰색을 유지한다.
 const OPTIONS: { value: MapLayer; label: string; colorClass: string }[] = [
@@ -20,6 +20,12 @@ const OPTIONS: { value: MapLayer; label: string; colorClass: string }[] = [
         label: '어린이집',
         colorClass:
             'data-active:bg-emerald-600 data-active:text-white data-active:hover:text-white',
+    },
+    {
+        value: 'place',
+        label: '놀거리',
+        colorClass:
+            'data-active:bg-violet-600 data-active:text-white data-active:hover:text-white',
     },
     {
         value: 'playground',
