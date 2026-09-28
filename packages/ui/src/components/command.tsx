@@ -45,6 +45,9 @@ function CommandDialog({
   description?: string
   className?: string
   showCloseButton?: boolean
+  // base-ui Dialog 의 children 은 렌더 함수도 허용하지만, 여기서는 DialogContent 안에
+  // 그대로 넣으므로 노드로 좁힌다
+  children?: React.ReactNode
 }) {
   return (
     <Dialog {...props}>

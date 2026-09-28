@@ -51,14 +51,12 @@ export default function AdminUserConfirmDialog({
                     <AlertDialogCancel variant="secondary" className="h-11" disabled={isPending}>
                         취소
                     </AlertDialogCancel>
+                    {/* 확인 버튼은 스스로 닫지 않는다. 실패하면 열어둔 채 오류를 보여주고,
+                        성공했을 때만 호출자가 onClose 로 닫는다 */}
                     <AlertDialogAction
                         className="h-11"
                         disabled={isPending}
-                        // 실패하면 다이얼로그를 닫지 않고 오류를 그대로 보여준다
-                        onClick={(event) => {
-                            event.preventDefault()
-                            onConfirm()
-                        }}
+                        onClick={onConfirm}
                     >
                         {isPending ? pendingLabel : confirmLabel}
                     </AlertDialogAction>
