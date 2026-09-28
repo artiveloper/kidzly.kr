@@ -2,6 +2,7 @@
 import {
     Baby01Icon,
     DashboardSquare01Icon,
+    FerrisWheelIcon,
     MapsLocation01Icon,
     UserIcon,
 } from '@hugeicons/core-free-icons'
@@ -23,6 +24,11 @@ export const NAV_MAIN: NavItem[] = [
         title: '어린이집 관리',
         url: '/daycares',
         icon: Baby01Icon,
+    },
+    {
+        title: '놀거리 관리',
+        url: '/places',
+        icon: FerrisWheelIcon,
     },
     {
         title: '놀이시설 관리',
