@@ -50,6 +50,7 @@ export function parsePlace(row: PlaceRow): Place {
         hasNursingRoom: row.has_nursing_room,
         hasDiaperTable: row.has_diaper_table,
         address: row.address,
+        addressDetail: row.address_detail,
         latitude: row.latitude,
         longitude: row.longitude,
         thumbnailUrl: row.thumbnail_url,

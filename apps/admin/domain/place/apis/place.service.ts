@@ -55,6 +55,7 @@ function toRowValues(input: PlaceInput) {
         has_nursing_room: input.hasNursingRoom,
         has_diaper_table: input.hasDiaperTable,
         address: input.address,
+        address_detail: input.addressDetail,
         latitude: input.latitude,
         longitude: input.longitude,
         thumbnail_url: input.thumbnailUrl,

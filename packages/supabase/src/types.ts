@@ -230,6 +230,8 @@ export type Database = {
                     /** null 은 아직 확인 안 됨 — false(없음)와 구분한다 */
                     has_diaper_table: boolean | null;
                     address: string;
+                    /** 건물명·동·층·호수 등 상세 주소. 좌표 변환에는 쓰지 않는다 */
+                    address_detail: string | null;
                     latitude: number;
                     longitude: number;
                     thumbnail_url: string | null;
@@ -259,6 +261,7 @@ export type Database = {
                     parking_detail?: string | null;
                     has_nursing_room?: boolean | null;
                     has_diaper_table?: boolean | null;
+                    address_detail?: string | null;
                     thumbnail_url?: string | null;
                     is_published?: boolean;
                 };
@@ -281,6 +284,7 @@ export type Database = {
                     parking_detail?: string | null;
                     has_nursing_room?: boolean | null;
                     has_diaper_table?: boolean | null;
+                    address_detail?: string | null;
                     thumbnail_url?: string | null;
                     is_published?: boolean;
                     updated_at?: string;

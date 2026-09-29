@@ -30,6 +30,7 @@ export type PlaceFormState = {
     hasNursingRoom: PlaceTristate
     hasDiaperTable: PlaceTristate
     address: string
+    addressDetail: string
     latitude: string
     longitude: string
     thumbnailUrl: string
@@ -60,6 +61,7 @@ export function createEmptyFormState(): PlaceFormState {
         hasNursingRoom: 'unknown',
         hasDiaperTable: 'unknown',
         address: '',
+        addressDetail: '',
         latitude: '',
         longitude: '',
         thumbnailUrl: '',
@@ -85,6 +87,7 @@ export function toFormState(place: Place): PlaceFormState {
         hasNursingRoom: toTristate(place.hasNursingRoom),
         hasDiaperTable: toTristate(place.hasDiaperTable),
         address: place.address,
+        addressDetail: place.addressDetail ?? '',
         latitude: String(place.latitude),
         longitude: String(place.longitude),
         thumbnailUrl: place.thumbnailUrl ?? '',
@@ -132,7 +135,7 @@ export function validateFormState(state: PlaceFormState): ValidationResult {
     if (!closedDays) return { ok: false, message: '휴무일을 입력하세요. 없으면 "연중무휴"로 적으세요.' }
 
     const address = state.address.trim()
-    if (!address) return { ok: false, message: '주소를 입력하세요.' }
+    if (!address) return { ok: false, message: '주소를 검색해 입력하세요.' }
 
     const latitude = parseCoordinate(state.latitude, '위도', PLACE_LATITUDE_RANGE)
     if (typeof latitude === 'string') return { ok: false, message: latitude }
@@ -166,11 +169,12 @@ export function validateFormState(state: PlaceFormState): ValidationResult {
             hasParking: fromTristate(state.hasParking),
             openingHours,
             closedDays,
-            priceDetail: state.priceDetail.trim() || null,
+            priceDetail: state.isFree ? null : state.priceDetail.trim() || null,
             parkingDetail: state.parkingDetail.trim() || null,
             hasNursingRoom: fromTristate(state.hasNursingRoom),
             hasDiaperTable: fromTristate(state.hasDiaperTable),
             address,
+            addressDetail: state.addressDetail.trim() || null,
             latitude,
             longitude,
             thumbnailUrl: state.thumbnailUrl.trim() || null,

@@ -78,6 +78,8 @@ export type Place = {
     hasNursingRoom: boolean | null;
     hasDiaperTable: boolean | null;
     address: string;
+    /** 건물명·동·층·호수 등 상세 주소. 좌표 변환에는 쓰지 않는다 */
+    addressDetail: string | null;
     latitude: number;
     longitude: number;
     thumbnailUrl: string | null;
@@ -105,6 +107,7 @@ export type PlaceInput = {
     hasNursingRoom: boolean | null;
     hasDiaperTable: boolean | null;
     address: string;
+    addressDetail: string | null;
     latitude: number;
     longitude: number;
     thumbnailUrl: string | null;

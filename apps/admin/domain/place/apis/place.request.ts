@@ -136,6 +136,7 @@ export function readPlaceInput(body: unknown): PlaceInput {
         hasNursingRoom: readNullableBoolean(record, 'hasNursingRoom', '수유시설'),
         hasDiaperTable: readNullableBoolean(record, 'hasDiaperTable', '기저귀 교환대'),
         address: readRequiredText(record, 'address', '주소'),
+        addressDetail: readOptionalText(record, 'addressDetail'),
         latitude: readNumberInRange(record, 'latitude', '위도', PLACE_LATITUDE_RANGE),
         longitude: readNumberInRange(record, 'longitude', '경도', PLACE_LONGITUDE_RANGE),
         thumbnailUrl: readOptionalText(record, 'thumbnailUrl'),
