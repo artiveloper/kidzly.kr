@@ -2,14 +2,15 @@
 import Link from "next/link"
 import Logo from "@/components/common/Logo"
 
-// docs/content/README.md의 카테고리 체계 5개와 순서를 그대로 따른다.
+// docs/content/README.md의 카테고리 체계(2026-09-29 리뉴얼)를 그대로 따른다.
+// 목표는 5개(어린이집 생활·입소등원·육아 정보·건강·안전·양육 지원금·정책)이나
+// 육아 정보·건강·안전은 아직 발행 글이 없어 빈 필터를 만들지 않도록 목록에서 뺐다.
+// 해당 클러스터 글이 발행되면 여기 추가한다.
 // /contents는 nuqs로 ?category= 필터를 읽으므로 값이 카테고리명과 정확히 일치해야 한다
 const CONTENT_CATEGORIES = [
-    "양육 지원금",
-    "일·가정 양립",
-    "입소·등원 가이드",
-    "주거·생활 지원",
     "어린이집 생활",
+    "입소·등원 가이드",
+    "양육 지원금·정책",
 ]
 
 const LINK_GROUPS = [
