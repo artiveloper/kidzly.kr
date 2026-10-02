@@ -45,8 +45,9 @@ const LINK_GROUPS = [
 ]
 
 export default function Footer() {
+    // 모바일은 하단 탭 바(BottomNav)가 마지막 줄을 가리지 않도록 그 높이만큼 띄운다
     return (
-        <footer className="border-t border-gray-100 bg-gray-50">
+        <footer className="border-t border-gray-100 bg-gray-50 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0">
             <div className="max-w-2xl mx-auto px-5 py-10">
                 <div className="flex flex-col gap-8 sm:flex-row sm:gap-8">
                     <div className="sm:w-40 sm:shrink-0">

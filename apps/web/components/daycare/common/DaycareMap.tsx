@@ -297,6 +297,7 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         <div className="flex flex-col h-dvh overflow-hidden">
             {/* 모바일은 지도 위 공간이 좁아 헤더 가운데(내비게이션이 안 쓰는 자리)에 넣는다 */}
             <Header
+                hideBottomNav={isMobile && (isListOpen || !!activeDaycareId)}
                 mobileCenter={
                     MAP_LAYER_TABS_ENABLED ? (
                         <MapLayerToggle
@@ -308,7 +309,9 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                 }
             />
 
-            <div className="flex flex-1 overflow-hidden pt-14">
+            {/* 모바일은 지도가 하단 탭 바 위에서 끝난다. 오버레이로 탭 바가 숨어도 지도 크기는 유지해
+                bounds가 바뀌어 목록이 다시 조회되지 않게 한다 */}
+            <div className="flex flex-1 overflow-hidden pt-14 pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0">
                 <aside className="hidden md:flex w-[360px] shrink-0 flex-col bg-white border-r border-gray-200 overflow-hidden shadow-sm z-10">
                     {isPlaceLayer ? (
                         <PlaceListPanel {...placePanelProps} />
@@ -319,7 +322,8 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                     )}
                 </aside>
 
-                <main className="flex-1 relative">
+                {/* isolate — 네이버 지도 로고(z-100)가 이 영역 밖의 모바일 오버레이(z-48) 위로 새지 않게 쌓임 맥락을 가둔다 */}
+                <main className="flex-1 relative isolate">
                     {(isDaycareLayer || isPlaceLayer) && (
                         <div className="md:hidden absolute top-0 left-0 right-0 z-10 pointer-events-none">
                             <div className="pointer-events-auto">
@@ -390,11 +394,6 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
                     )}
                 </div>
             </div>
-
-            {/* 네이버 지도 로고(z-100) 가림 — 모바일 오버레이 오픈 시에만 표시 */}
-            {isMobile && (isListOpen || !!activeDaycareId) && (
-                <div className="fixed bottom-0 inset-x-0 h-4 bg-white z-101" />
-            )}
         </div>
     );
 }
