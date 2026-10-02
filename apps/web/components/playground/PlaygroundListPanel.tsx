@@ -32,7 +32,7 @@ export default function PlaygroundListPanel({
                         type="button"
                         onClick={onClose}
                         aria-label="목록 닫기"
-                        className="-m-2 p-2 text-gray-400 transition-colors hover:text-gray-600"
+                        className="-m-[13px] flex size-11 items-center justify-center text-gray-400 transition-colors hover:text-gray-600"
                     >
                         <X size={18} />
                     </button>

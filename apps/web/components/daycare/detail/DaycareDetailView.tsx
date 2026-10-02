@@ -80,7 +80,7 @@ export default function DaycareDetailView({ id, latestPosts = [], regionLink }: 
                         size="icon"
                         onClick={handleBack}
                         aria-label="뒤로가기"
-                        className="shrink-0"
+                        className="size-11 shrink-0"
                     >
                         <ArrowLeft size={18} />
                     </Button>
@@ -96,7 +96,7 @@ export default function DaycareDetailView({ id, latestPosts = [], regionLink }: 
                         size="icon"
                         onClick={handleShare}
                         aria-label="공유"
-                        className="shrink-0"
+                        className="size-11 shrink-0"
                     >
                         {copied ? (
                             <Check size={18} className="text-emerald-500" />

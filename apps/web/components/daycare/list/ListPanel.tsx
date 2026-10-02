@@ -73,7 +73,7 @@ export default function ListPanel({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="shrink-0 p-1 text-gray-400 hover:text-gray-600"
+                        className="-m-2 flex size-11 shrink-0 items-center justify-center text-gray-400 hover:text-gray-600"
                         aria-label="닫기"
                     >
                         <X size={20} />

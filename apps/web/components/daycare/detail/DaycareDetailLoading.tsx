@@ -16,7 +16,7 @@ export default function DaycareDetailLoading() {
         <>
             <div className="sticky top-0 z-10 border-b border-gray-200 bg-gray-50">
                 <div className="flex items-center px-2 py-2">
-                    <Button variant="ghost" size="icon" onClick={handleBack} aria-label="뒤로가기" className="shrink-0">
+                    <Button variant="ghost" size="icon" onClick={handleBack} aria-label="뒤로가기" className="size-11 shrink-0">
                         <ArrowLeft size={18} />
                     </Button>
 
@@ -24,7 +24,7 @@ export default function DaycareDetailLoading() {
                         <div className="h-4 w-36 rounded bg-gray-200 mx-auto" />
                     </div>
 
-                    <Button variant="ghost" size="icon" aria-label="공유" className="shrink-0" disabled>
+                    <Button variant="ghost" size="icon" aria-label="공유" className="size-11 shrink-0" disabled>
                         <Share2 size={18} />
                     </Button>
                 </div>

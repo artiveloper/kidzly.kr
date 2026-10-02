@@ -290,8 +290,9 @@ export default function DaycareMap({ promoPosts = [], latestPosts = [] }: Daycar
         promoPosts,
     };
 
+    // 목록·상세는 자체 상단 바(닫기·뒤로가기)가 있어 로고 헤더(z-50)까지 덮는 전체 화면으로 띄운다
     const overlayClass = (open: boolean) =>
-        `md:hidden fixed inset-x-0 top-14 bottom-0 z-[48] bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
+        `md:hidden fixed inset-0 z-[51] pt-[env(safe-area-inset-top)] bg-white flex flex-col transition-transform duration-300 ease-in-out ${open ? 'translate-y-0' : 'translate-y-full'}`;
 
     return (
         <div className="flex flex-col h-dvh overflow-hidden">
