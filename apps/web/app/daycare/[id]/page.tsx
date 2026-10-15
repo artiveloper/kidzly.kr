@@ -39,6 +39,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: { absolute: title },
             description,
             alternates: { canonical: url },
+            // 구글만 색인에서 뺀다 — 공공데이터 템플릿 상세 2만 4천여 건이 "크롤링됨 - 색인 안 됨"으로
+            // 사이트 전체 품질 평가를 끌어내렸다(2026-10 GSC). 유입 대부분인 네이버(Yeti)·다음은
+            // googlebot 메타를 읽지 않아 계속 색인된다. robots 메타로 바꾸면 네이버 유입이 끊긴다.
+            // 페이지 robots는 레이아웃 값을 통째로 덮으므로 레이아웃의 googleBot 지시어를 함께 둔다.
+            robots: {
+                googleBot: {
+                    index: false,
+                    'max-image-preview': 'large',
+                    'max-snippet': -1,
+                },
+            },
             openGraph: {
                 type: 'website',
                 url,
