@@ -8,6 +8,7 @@ import { buildArticleJsonLd } from '@/lib/structured-data/article'
 import MDXContent from '@/components/blog/MDXContent'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import CoupangBanner from '@/components/common/CoupangBanner'
 import ViewTracker from '@/components/content/ViewTracker'
 import { ContentStatsBadge, LikeButton } from '@/components/content/ContentClientWidgets'
 
@@ -125,6 +126,12 @@ export default async function BlogPostPage({ params }: Props) {
 
                     <div className="mt-8 flex justify-center">
                         <LikeButton uuid={post.uuid} />
+                    </div>
+
+                    {/* 쿠팡 파트너스 — 본문을 끊지 않도록 글이 끝난 뒤에 둔다.
+                        624 = max-w-2xl(672) − sm:px-6 좌우(48) */}
+                    <div className="mt-8 border-t border-gray-100 pt-8">
+                        <CoupangBanner desktopWidth={624} />
                     </div>
 
                     <div className="mt-8 border-t border-gray-100 pt-6">
