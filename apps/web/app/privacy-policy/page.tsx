@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Footer from "@/components/common/Footer"
 
-const LAST_UPDATED = "2026년 6월 20일"
+const LAST_UPDATED = "2026년 10월 23일"
 
 export const metadata: Metadata = {
     title: "개인정보처리방침",
@@ -91,6 +91,7 @@ export default function PrivacyPolicyPage() {
                                 "서비스 제공 및 운영",
                                 "서비스 이용 통계 분석 및 품질 개선",
                                 "맞춤형 광고 제공 (Google AdSense)",
+                                "제휴 상품 광고 게재 (쿠팡 파트너스)",
                                 "부정 이용 방지 및 보안",
                             ].map((item) => (
                                 <li key={item} className="flex items-start gap-2">
@@ -131,6 +132,7 @@ export default function PrivacyPolicyPage() {
                                 {[
                                     { name: "Google LLC", purpose: "서비스 이용 통계 (Google Analytics)", retention: "서비스 이용 종료 시" },
                                     { name: "Google LLC", purpose: "광고 게재 (Google AdSense)", retention: "서비스 이용 종료 시" },
+                                    { name: "쿠팡 주식회사", purpose: "제휴 상품 광고 게재 (쿠팡 파트너스)", retention: "서비스 이용 종료 시" },
                                     { name: "Vercel Inc.", purpose: "서비스 호스팅", retention: "서비스 이용 종료 시" },
                                     { name: "Naver Corp.", purpose: "블로그 검색 API 제공 (검색어만 전달, 이용자 개인정보 미포함)", retention: "API 호출 즉시" },
                                 ].map((item) => (
@@ -140,6 +142,10 @@ export default function PrivacyPolicyPage() {
                                     </div>
                                 ))}
                             </div>
+                            <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
+                                홈 화면의 쿠팡 파트너스 배너는 쿠팡이 제공하는 화면입니다. 배너를 통해 상품을 구매하면 서비스는 쿠팡으로부터 일정액의 수수료를 받으며,
+                                배너 표시·클릭·구매 과정에서 쿠팡이 처리하는 정보는 쿠팡의 개인정보처리방침을 따릅니다.
+                            </p>
                             <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
                                 네이버 블로그 관련글을 클릭하면 네이버(naver.com)로 이동하며, 이후의 정보 처리는 네이버의 개인정보처리방침을 따릅니다.
                             </p>
@@ -152,6 +158,10 @@ export default function PrivacyPolicyPage() {
                                 서비스는 Google Analytics 및 Google AdSense를 통해 쿠키를 사용합니다.
                                 쿠키는 이용자의 브라우저에 저장되는 소량의 데이터로,
                                 서비스 이용 통계 수집 및 관심사 기반 광고 제공에 활용됩니다.
+                            </p>
+                            <p>
+                                홈 화면의 쿠팡 파트너스 배너가 표시되거나 클릭될 때 쿠팡이 이용자의 브라우저에 쿠키를 저장·조회할 수 있습니다.
+                                이 쿠키는 광고 노출·클릭과 구매 실적을 확인하는 데 쓰이며, 쿠팡의 개인정보처리방침을 따릅니다.
                             </p>
                             <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-2">
                                 <p className="text-xs font-semibold text-amber-800">Google 광고 쿠키 안내</p>
@@ -240,7 +250,7 @@ export default function PrivacyPolicyPage() {
                     <Section label="변경 안내" title="개인정보처리방침 변경">
                         <p className="text-sm text-gray-600 leading-relaxed">
                             본 방침은 법령 변경 또는 서비스 변경에 따라 수정될 수 있습니다.
-                            변경 시 시행일 7일 전부터 본 페이지를 통해 공지합니다.
+                            변경 시 본 페이지를 통해 공지합니다.
                         </p>
                     </Section>
 
