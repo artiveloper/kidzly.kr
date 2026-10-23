@@ -9,6 +9,7 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import HomeUpcomingDaycares from '@/components/home/HomeUpcomingDaycares'
 import HomeUpcomingDaycaresSkeleton from '@/components/home/HomeUpcomingDaycaresSkeleton'
+import HomeCoupangBanner from '@/components/home/HomeCoupangBanner'
 
 // 등록 어린이집 수는 고정값으로 표시한다 — 24,000여 행 exact count가 빌드(미국 리전)에서
 // 반복 실패했고, 실패가 0으로 삼켜져 홈에 "0+"가 프리렌더된 사고가 있었다.
@@ -309,6 +310,8 @@ export default async function Page() {
                             ))}
                         </div>
                     </section>
+
+                    <HomeCoupangBanner />
 
                     {/* 신뢰 */}
                     <section className="py-10 md:py-14 border-b border-gray-100">
