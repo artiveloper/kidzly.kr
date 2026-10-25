@@ -1,3 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Hostinger는 corepack으로 pnpm 11을 강제한다. packageManager(pnpm 9)와 버전이 달라도 설치를 멈추지 않게 한다.
+pmOnFail: ignore
+
+# pnpm 11은 승인되지 않은 의존성 빌드 스크립트가 있으면 설치를 실패시킨다.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  core-js-pure: false
+  msw: false
