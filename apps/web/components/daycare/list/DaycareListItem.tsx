@@ -29,6 +29,9 @@ export default function DaycareListItem({ daycare, activeAge, onHover }: Daycare
         <Link
             href={`/daycare/${daycare.id}`}
             replace
+            // 상세는 on-demand ISR이라 캐시에 없는 항목은 prefetch만으로 서버 렌더·DB 조회가 난다.
+            // 지도 목록은 항목이 많고 스크롤·필터로 자주 바뀌어 보이는 것마다 요청이 몰린다.
+            prefetch={false}
             onClick={saveDaycareReturnUrl}
             onMouseEnter={() => onHover?.(daycare.id)}
             onMouseLeave={() => onHover?.(null)}
