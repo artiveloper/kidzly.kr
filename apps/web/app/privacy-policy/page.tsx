@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
                                 ))}
                             </div>
                             <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
-                                홈 화면과 콘텐츠 글의 쿠팡 파트너스 배너는 쿠팡이 제공하는 화면입니다. 배너를 통해 상품을 구매하면 서비스는 쿠팡으로부터 일정액의 수수료를 받으며,
+                                홈 화면·콘텐츠 글·어린이집 상세의 쿠팡 파트너스 배너는 쿠팡이 제공하는 화면입니다. 배너를 통해 상품을 구매하면 서비스는 쿠팡으로부터 일정액의 수수료를 받으며,
                                 배너 표시·클릭·구매 과정에서 쿠팡이 처리하는 정보는 쿠팡의 개인정보처리방침을 따릅니다.
                             </p>
                             <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
@@ -160,7 +160,7 @@ export default function PrivacyPolicyPage() {
                                 서비스 이용 통계 수집 및 관심사 기반 광고 제공에 활용됩니다.
                             </p>
                             <p>
-                                홈 화면과 콘텐츠 글의 쿠팡 파트너스 배너가 표시되거나 클릭될 때 쿠팡이 이용자의 브라우저에 쿠키를 저장·조회할 수 있습니다.
+                                홈 화면·콘텐츠 글·어린이집 상세의 쿠팡 파트너스 배너가 표시되거나 클릭될 때 쿠팡이 이용자의 브라우저에 쿠키를 저장·조회할 수 있습니다.
                                 이 쿠키는 광고 노출·클릭과 구매 실적을 확인하는 데 쓰이며, 쿠팡의 개인정보처리방침을 따릅니다.
                             </p>
                             <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-2">
