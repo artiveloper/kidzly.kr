@@ -134,7 +134,8 @@ apps/web/domain/{name}/
 ### 13. APIs Layer
 
 - 스키마는 kidzly-sync의 Flyway가 소유 — 이 저장소에서 테이블·인덱스·뷰를 만들거나 바꾸지 않는다. Supabase SQL 에디터 직접 실행 금지
-- `lib/supabase/client.ts` / `lib/supabase/server.ts` 사용
+- 클라이언트는 `@workspace/supabase/client`(`createBrowserClient`) / `@workspace/supabase/server`(`createServerClient`, 준정적 조회는 `createCachedServerClient`) 사용
+- 웹은 로그인이 없어 `@supabase/ssr`를 쓰지 않는다 — `supabase-js` 직접, 브라우저·서버 모두 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`(공개 읽기 전용). `@supabase/ssr` 세션 인증은 `apps/admin`만 쓴다
 - non-null assertion(`!`) 금지 — 명시적 null 체크 후 에러 throw
 - 에러 → throw (React Query가 error state 처리)
 - Supabase 쿼리는 `apis/` 레이어에서만
@@ -151,7 +152,7 @@ apps/web/domain/{name}/
 - `useInfiniteQuery`: hooks 파일에 직접 정의 (queryKey는 팩토리 사용)
 - staleTime override: 실시간·정적 데이터만; 일반 리스트는 global 사용
 
-> 구현 패턴 상세: `.claude/skills/kidzly-refactor/references/react-query-patterns.md`
+> 일반 구현 패턴: `nextjs-kit` 플러그인의 `react-query-guide` 스킬. 이 절의 규칙이 우선한다
 
 ---
 
@@ -327,9 +328,15 @@ apps/web/domain/{name}/
 
 ## 하네스: kidzly-web 개발
 
-**목표:** CLAUDE.md 스펙 기반 코드베이스 리팩토링 및 신규 도메인/UI 구현 자동화
+**목표:** 코드 작업의 일반 지식은 `claude-devkits` 플러그인에 맡기고, 키즐리 고유 규칙은 이 문서의 "기술 스펙"에만 둔다
 
-**트리거:** 리팩토링, 도메인 구현, 코드 리뷰, UI 구현 요청 시 `kidzly-refactor` 스킬을 사용하라. 단순 질문은 직접 응답 가능.
+**구성:** `.claude/settings.json`에 프로젝트 범위로 설치한 킷을 쓴다. 전용 에이전트·스킬은 두지 않는다.
+- `common-kit` — 시스템 아키텍처(`system-architect`)
+- `frontend-kit` — 프론트 구조·디자인 시스템·프론트 QA(`frontend-architect`, `design-reviewer`, `qa-frontend`)
+- `nextjs-kit` — `nextjs-guide`, `react-query-guide`, `shadcn-ui` (함께 설치되는 `drizzle-guide`·`auth-guide`는 이 프로젝트에서 쓰지 않는다)
+- `supabase-kit` — `supabase-guide` (`@supabase/ssr` 인증 내용은 `apps/admin`에만 해당)
+
+**우선순위:** 플러그인 가이드와 이 문서가 충돌하면 이 문서의 "기술 스펙"을 따른다. 코드 리뷰는 내장 `/code-review` 스킬을 쓴다.
 
 **변경 이력:**
 | 날짜 | 변경 내용 | 대상 | 사유 |
@@ -338,6 +345,7 @@ apps/web/domain/{name}/
 | 2026-07-01 | CLAUDE.md 슬림화 — 규칙만 유지, 코드 예시 제거 | CLAUDE.md | 컨텍스트 효율화 + temp/ 패턴 반영 |
 | 2026-07-01 | temp/ 컨벤션 전면 반영 — WCAG AA, N+1, 날짜 KST, nuqs, 에러경계, Skeleton 규칙 추가 | CLAUDE.md, agents/*, skills/supabase-guide | temp/ 기준 가이드 통합 |
 | 2026-08-16 | "작업 원칙" 9개 조항(생각 먼저, 단순함 우선, 외과적 변경, 목표 기반 실행, 한국어 마침표, 새 파일 한국어 역할 주석, 오류는 읽고 추측 안 함, 실행 검증, 원자적 커밋) 신설, 기존 기술 스펙은 "기술 스펙" 절로 유지하며 10~28번으로 재번호 | CLAUDE.md | 다른 저장소용 CLAUDE.md가 실수로 덮어써진 것을 복구하는 과정에서, 그 문서의 행동 지침 부분이 유용하다고 판단해 키즐리 기준으로 반영 |
+| 2026-10-27 | **`kidzly-refactor` 하네스 폐기, `claude-devkits` 플러그인으로 전환** — 에이전트 5개(architect·domain-engineer·ui-engineer·qa-engineer·code-reviewer)와 `kidzly-refactor`·`supabase-guide` 스킬, `react-query-patterns.md` 삭제. common·frontend·nextjs·supabase 킷을 프로젝트 범위로 설치. 로컬 supabase-guide에만 있던 사실(웹은 `@supabase/ssr` 미사용·publishable key 공용)을 §13으로 옮기고, §13의 클라이언트 경로를 실제 위치(`@workspace/supabase/*`)로 정정. §14의 패턴 문서 포인터를 플러그인 `react-query-guide`로 교체 | CLAUDE.md, .claude/settings.json, .claude/agents/*, .claude/skills/{kidzly-refactor,supabase-guide} | 에이전트 본문 대부분이 항상 로드되는 이 문서의 기술 스펙을 다시 적은 것이었고, 2026-08-16 재번호 이후 절 참조(§3·§5 등)가 모두 어긋난 채 방치돼 있었다. 초기 구성 이후 한 번도 갱신·실행된 흔적이 없고(`_workspace` 산출물 없음), 일반 원칙은 여러 프로젝트가 공유하는 플러그인이 대신한다. 로컬 supabase-guide는 스키마 소유권(kidzly-sync)과 충돌하는 마이그레이션 절차까지 담고 있었다 |
 
 ---
 
