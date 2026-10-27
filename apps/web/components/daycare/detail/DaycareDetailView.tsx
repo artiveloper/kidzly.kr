@@ -17,6 +17,7 @@ import DaycareNearbySection from './DaycareNearbySection';
 import DaycareNearbySectionError from './DaycareNearbySectionError';
 import DaycareNearbySectionSkeleton from './DaycareNearbySectionSkeleton';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import CoupangBanner from '@/components/common/CoupangBanner';
 import { formatDate } from '@/lib/format';
 import { popDaycareReturnUrl } from '@/lib/navigation';
 
@@ -29,9 +30,14 @@ interface DaycareDetailInnerProps {
      * /daycares의 영구 리다이렉트에 맡긴다(지도·모달의 클라이언트 렌더).
      */
     regionLink?: { href: string; label: string };
+    /**
+     * md 이상에서 쿠팡 배너 폭. 기본값은 PC 모달 컬럼(360) − px-3 좌우(24) = 336.
+     * 전체 페이지(max-w-2xl)는 DaycareDetailSSR이 더 넓은 값을 넘긴다.
+     */
+    bannerDesktopWidth?: number;
 }
 
-export default function DaycareDetailView({ id, latestPosts = [], regionLink }: DaycareDetailInnerProps) {
+export default function DaycareDetailView({ id, latestPosts = [], regionLink, bannerDesktopWidth = 336 }: DaycareDetailInnerProps) {
     const router = useRouter();
     const { data: detail } = useDaycareDetail(id);
     const [copied, setCopied] = useState(false);
@@ -131,6 +137,11 @@ export default function DaycareDetailView({ id, latestPosts = [], regionLink }: 
                     />
                 </Suspense>
             </ErrorBoundary>
+
+            {/* 쿠팡 파트너스 — 어린이집 정보·후기를 끊지 않도록 그 아래에 둔다 */}
+            <div className="border-t-8 border-gray-100 px-3 py-5">
+                <CoupangBanner desktopWidth={bannerDesktopWidth} />
+            </div>
 
             {latestPosts.length > 0 && (
                 <section className="border-t-8 border-gray-100 px-3 py-5">

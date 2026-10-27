@@ -166,6 +166,8 @@ export async function DaycareDetailSSR({ id }: { id: string }) {
                             }
                             : undefined
                     }
+                    // 648 = max-w-2xl(672) − px-3 좌우(24)
+                    bannerDesktopWidth={648}
                 />
             </HydrationBoundary>
         </>
