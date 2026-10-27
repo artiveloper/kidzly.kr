@@ -25,7 +25,7 @@
 | Backend | Supabase |
 | Content | Velite (MDX) |
 | Monorepo | Turborepo + pnpm |
-| Deploy | Vercel |
+| Deploy | Hostinger (Node.js, `output: standalone`) |
 
 ## 아키텍처
 

@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import Footer from "@/components/common/Footer"
 
-const LAST_UPDATED = "2026년 10월 23일"
+const LAST_UPDATED = "2026년 10월 27일"
 
 export const metadata: Metadata = {
     title: "개인정보처리방침",
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
                                     { name: "Google LLC", purpose: "서비스 이용 통계 (Google Analytics)", retention: "서비스 이용 종료 시" },
                                     { name: "Google LLC", purpose: "광고 게재 (Google AdSense)", retention: "서비스 이용 종료 시" },
                                     { name: "쿠팡 주식회사", purpose: "제휴 상품 광고 게재 (쿠팡 파트너스)", retention: "서비스 이용 종료 시" },
-                                    { name: "Vercel Inc.", purpose: "서비스 호스팅", retention: "서비스 이용 종료 시" },
+                                    { name: "Hostinger International Ltd.", purpose: "서비스 호스팅", retention: "서비스 이용 종료 시" },
                                     { name: "Naver Corp.", purpose: "블로그 검색 API 제공 (검색어만 전달, 이용자 개인정보 미포함)", retention: "API 호출 즉시" },
                                 ].map((item) => (
                                     <div key={item.purpose} className="bg-gray-50 rounded-lg p-3">

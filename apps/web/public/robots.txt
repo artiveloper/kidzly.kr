@@ -3,7 +3,7 @@ Allow: /
 Disallow: /api/
 
 # 필터·레거시 쿼리 URL은 크롤하지 않는다 — 전부 canonical이 경로형 지역 URL로 합쳐져 색인
-# 가치가 없는데, 크롤되면 /daycares/{시도}/{시군구}가 동적 렌더돼 Vercel 함수 비용만 늘어난다.
+# 가치가 없는데, 크롤되면 /daycares/{시도}/{시군구}가 동적 렌더돼 서버 부하만 늘어난다.
 # (type/vehicle/services/age = 필터, tab/sido/arcode = 경로형 이전 전 레거시 파라미터)
 Disallow: /*?*type=
 Disallow: /*?*vehicle=

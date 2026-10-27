@@ -1,5 +1,7 @@
 # Vercel 비용 최적화 기록
 
+> **2026-10-25 Hostinger로 이전했다.** Vercel 과금 항목(Provisioned Memory·ISR Writes)과 Vercel 대시보드 관찰 방법은 더 이상 해당하지 않는다. ISR 주기·robots 쿼리 크롤 차단·중복 조회 제거는 서버 부하와 Supabase 조회를 줄이므로 그대로 유효하다. 이 문서는 당시 기록으로 남긴다.
+
 2026년 8월 말~9월 초 Vercel Functions **Fluid Provisioned Memory**가 평소 ~5GB Hrs에서 최대 780GB까지 치솟은 사고의 원인 분석과 대응 기록이다. 같은 실수를 반복하지 않기 위한 배경·조치·주의사항·TODO를 남긴다.
 
 ---
