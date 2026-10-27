@@ -11,18 +11,6 @@ const nextConfig = {
         // lucide-react는 Next 기본 목록에 포함되어 있어 넣지 않는다
         optimizePackageImports: ["@workspace/ui"],
     },
-    async headers() {
-        // public/ 자산은 Vercel이 max-age=0, must-revalidate로 내보내 방문마다 재검증 왕복이 생긴다.
-        // 폰트 서브셋은 파일명이 버전 고정이라 immutable로 못 박는다
-        return [
-            {
-                source: "/fonts/:path*",
-                headers: [
-                    { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-                ],
-            },
-        ]
-    },
     async redirects() {
         // /region은 /daycares 경로형 지역 목록으로 완전히 대체됨.
         // 시도·시군구 세그먼트 이름이 그대로 대응하므로 1:1로 넘긴다. 다만 옛 /region은 시군구
