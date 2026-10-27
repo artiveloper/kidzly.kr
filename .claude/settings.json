@@ -3,6 +3,7 @@
         "common-kit@claude-devkits": true,
         "frontend-kit@claude-devkits": true,
         "nextjs-kit@claude-devkits": true,
-        "supabase-kit@claude-devkits": true
+        "supabase-kit@claude-devkits": true,
+        "project-docs-kit@claude-devkits": true
     }
 }
