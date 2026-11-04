@@ -10,9 +10,6 @@ import { sendGAEvent } from '@next/third-parties/google';
 import { useDaycareDetail } from '@/domain/daycare';
 import type { BlogPostMeta } from '@/lib/blog';
 import DaycareDetailContent from './DaycareDetailContent';
-import NaverBlogSection from './NaverBlogSection';
-import NaverBlogSectionError from './NaverBlogSectionError';
-import NaverBlogSectionSkeleton from './NaverBlogSectionSkeleton';
 import DaycareNearbySection from './DaycareNearbySection';
 import DaycareNearbySectionError from './DaycareNearbySectionError';
 import DaycareNearbySectionSkeleton from './DaycareNearbySectionSkeleton';
@@ -122,18 +119,6 @@ export default function DaycareDetailView({ id, latestPosts = [], regionLink, ba
                         excludeId={id}
                         latitude={detail.latitude}
                         longitude={detail.longitude}
-                    />
-                </Suspense>
-            </ErrorBoundary>
-
-            <ErrorBoundary fallback={<NaverBlogSectionError />}>
-                <Suspense fallback={<NaverBlogSectionSkeleton />}>
-                    <NaverBlogSection
-                        target={{
-                            name: detail.name,
-                            address: detail.address,
-                            sigunguName: detail.sigunguName,
-                        }}
                     />
                 </Suspense>
             </ErrorBoundary>
