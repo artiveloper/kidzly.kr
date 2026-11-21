@@ -193,9 +193,9 @@ export async function fetchDaycareNearby(
  * - sigungu_code(= sigungus.arcode)로 필터링 — 이름 문자열 조합 대신 코드 기준 조인.
  *   daycares.sigungu_code, sigungus.arcode 모두 varchar이고 sigungu_code는 NOT NULL이라
  *   타입 캐스팅·null 체크가 필요 없다.
- * - 사각지대: daycares 60,223건 중 sigungus.arcode에 없는 sigungu_code가 3개 코드(12110/12240/12300)
- *   총 4건(0.0066%) 존재한다. 전남광주통합특별시 관련 데이터 오염으로, 무시 가능 수준이라
- *   별도 처리하지 않는다(칩 목록에 해당 시군구가 나타나지 않아 조회 자체가 도달하지 않음).
+ * - sigungus.arcode 에 없는 sigungu_code 의 어린이집은 칩으로 도달할 수 없다. 2026 광주·전남 통합 때
+ *   12xxx 코드가 이런 상태였는데(오염이 아니라 개편이 증분 동기화로 먼저 들어온 것), kidzly-sync 의
+ *   전체 동기화가 시도명 개편을 따라가고 옛 시군구를 지우도록 고쳐져 이제 두 테이블이 맞춰진다.
  * - 이름순 정렬, count:'exact'로 전체 건수 동시 반환
  * - limit 기본 DEFAULT_REGION_LIST_LIMIT(1000) — 실질적으로 지역 내 전체 어린이집을 반환하는
  *   안전장치용 상한. CLAUDE.md §19 "목록 조회 limit() 강제" 준수를 위해 무제한 대신 넉넉한
