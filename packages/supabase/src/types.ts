@@ -81,6 +81,7 @@ export type Database = {
                         strengths: string[];
                         considerations: string[];
                     } | null;
+                    operator_note: string | null;
                 };
                 Insert: Record<string, unknown>;
                 Update: Record<string, unknown>;

@@ -67,6 +67,8 @@ export type DaycareDetail = {
         over6y: number | null;
     } | null;
     aiAnalysisSummary: string | null;
+    /** 어린이집이 보내온 정정 요청 내용. 공공데이터와 다른 점을 운영자가 옮겨 적는다 */
+    operatorNote: string | null;
 };
 
 export type MapBounds = {

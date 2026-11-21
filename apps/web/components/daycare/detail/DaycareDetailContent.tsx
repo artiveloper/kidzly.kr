@@ -98,6 +98,23 @@ export default function DaycareDetailContent({ daycare }: { daycare: DaycareDeta
 
     return (
         <div className="divide-y-6 divide-gray-100">
+            {/* 정정 내용은 아래 공공데이터·AI 분석보다 먼저 읽혀야 해서 맨 앞에 둔다 */}
+            {daycare.operatorNote && (
+                <div className="px-3 pt-5 pb-3">
+                    <section
+                        aria-labelledby="operator-note-title"
+                        className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3"
+                    >
+                        <h2 id="operator-note-title" className="mb-1.5 text-sm font-semibold text-amber-900">
+                            어린이집에서 알려온 내용
+                        </h2>
+                        <p className="text-sm leading-relaxed whitespace-pre-line text-gray-800">
+                            {daycare.operatorNote}
+                        </p>
+                    </section>
+                </div>
+            )}
+
             {daycare.aiAnalysisSummary && (
                 <div className="px-3 pt-5 pb-3">
                     <div className="mb-2.5">

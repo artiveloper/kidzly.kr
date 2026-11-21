@@ -233,5 +233,6 @@ export function toDaycareDetail(row: DaycareRow): DaycareDetail {
             over6y: row.staff_tenure_over_6y ?? null,
         } : null,
         aiAnalysisSummary: row.ai_analysis?.summary ?? null,
+        operatorNote: row.operator_note?.trim() || null,
     };
 }
