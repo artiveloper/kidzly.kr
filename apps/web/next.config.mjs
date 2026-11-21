@@ -1,3 +1,15 @@
+// 행정구역 개편으로 보육 API 에서 사라진 시도명 → 새 시도명
+const LEGACY_SIDO = {
+    "광주광역시": "전남광주통합특별시",
+    "전라남도": "전남광주통합특별시",
+}
+
+const LEGACY_SIDO_REDIRECTS = Object.entries(LEGACY_SIDO).flatMap(([from, to]) => [
+    { source: `/daycares/${from}`, destination: `/daycares/${to}`, permanent: true },
+    { source: `/daycares/${from}/:sigungu`, destination: `/daycares/${to}/:sigungu`, permanent: true },
+    { source: `/rankings/${from}`, destination: `/rankings/${to}`, permanent: true },
+])
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     transpilePackages: ["@workspace/ui", "@workspace/supabase"],
@@ -30,6 +42,11 @@ const nextConfig = {
                 destination: "/contents/보육료-지원-대상-및-금액",
                 permanent: true,
             },
+            // 2026 광주광역시·전라남도 → 전남광주통합특별시. 보육 API 가 옛 시도명을 더 이상 돌려주지
+            // 않아 kidzly-sync 가 sigungus 에서 옛 행을 지우므로 옛 경로는 404 가 된다. 두 시도의
+            // 시군구 이름은 통합 뒤에도 그대로이고 서로 겹치지 않아(광주 5개 구 / 전남 22개 시군)
+            // 시군구 세그먼트를 그대로 넘긴다.
+            ...LEGACY_SIDO_REDIRECTS,
         ]
     },
 }
