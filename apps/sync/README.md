@@ -1,6 +1,6 @@
 # kidzly-sync
 
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python)](https://www.python.org)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python)](https://www.python.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql)](https://www.postgresql.org)
 
 공공데이터포털 어린이집/놀이시설 API에서 데이터를 수집하여 PostgreSQL에 동기화하는 CLI 배치입니다.
@@ -75,7 +75,7 @@ kidzly-sync <job> [--force] [--year-month YYYY-MM]
 
 | 영역 | 기술 |
 |------|------|
-| 언어 | Python 3.12+ |
+| 언어 | Python 3.13 |
 | CLI | `argparse` (`kidzly_sync/cli.py`) |
 | 데이터베이스 | PostgreSQL 15+ |
 | DB 접근 | psycopg3 (ORM 없음, raw SQL upsert) |
@@ -151,7 +151,7 @@ kidzly-sync <job> [--force] [--year-month YYYY-MM]
 
 ### 사전 요구사항
 
-- Python 3.12+ (uv 권장)
+- Python 3.13 (`.python-version`으로 고정, uv가 자동 설치)
 - PostgreSQL 15+
 - 공공데이터포털 어린이집 API 키 (4종), safemap.go.kr·odcloud.kr 서비스 키
 - Telegram Bot Token & Chat ID

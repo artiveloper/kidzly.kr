@@ -61,7 +61,7 @@
 ---
 
 ## 환경 기준
-- **Python**: 3.12+
+- **Python**: 3.13 (`.python-version`으로 고정 — 로컬·CI 동일)
 - **패키징**: uv + hatchling (`pyproject.toml`)
 - **실행 형태**: CLI one-shot 배치 (`kidzly-sync <job>`) — 상주 서버 없음
 - **DB 드라이버**: psycopg3 (ORM 없음, raw SQL)
