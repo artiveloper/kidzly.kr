@@ -26,6 +26,7 @@
 | Content | Velite (MDX) |
 | Monorepo | Turborepo + pnpm |
 | Deploy | Hostinger (Node.js, `output: standalone`) |
+| Data Sync | Python 3.12 + uv 배치 (`apps/sync`, GitHub Actions cron) |
 
 ## 아키텍처
 
@@ -164,21 +165,20 @@ Supabase(PostgreSQL)를 사용합니다. 서비스 앱은 로그인이 없고 �
 RPC(`increment_view_count`, `toggle_like`)로 증분합니다. 관리자 앱만 Supabase Auth로
 로그인하며, 여기서도 어린이집 데이터는 조회만 합니다.
 
-**스키마는 이 저장소가 관리하지 않습니다.** 테이블·인덱스·뷰 전부
-[kidzly-sync](https://github.com/artiveloper/kidzly-sync)의 Flyway 마이그레이션이 소유합니다.
+**스키마는 `apps/sync`(공공 API 동기화 배치)가 단독으로 관리합니다.** 테이블·인덱스·뷰 전부
+`apps/sync/migrations/versions/`의 Alembic 리비전이 소유합니다.
 웹이 쓰는 조회 인덱스와 필터 옵션 뷰도 마찬가지입니다. Supabase SQL 에디터에서 직접 만들지 마세요 —
 이력에 남지 않아 재현이 불가능해집니다.
 
-이 저장소가 갖는 것은 스키마의 **타입 표현**뿐입니다.
+웹 앱(`apps/web`·`apps/admin`)과 `packages/supabase`가 갖는 것은 스키마의 **타입 표현**뿐입니다.
 
 | | 위치 |
 |---|---|
-| 스키마 정의(원본) | kidzly-sync `src/main/resources/db/migration/` |
-| 스키마 스냅샷 | kidzly-sync `schema.sql` (pg_dump 생성, 손으로 고치지 않음) |
-| 타입 (이 저장소) | `packages/supabase/src/types.ts` |
+| 스키마 정의(원본) | `apps/sync/migrations/versions/` (Alembic) |
+| 타입 | `packages/supabase/src/types.ts` |
 
-컬럼을 추가·변경해야 하면 kidzly-sync에 마이그레이션을 넣고, **운영에 적용된 것을 확인한 뒤**
-`types.ts`를 갱신하고 배포합니다. 절차는 kidzly-sync README의 "데이터베이스 스키마" 절에 있습니다.
+컬럼을 추가·변경해야 하면 `apps/sync`에 마이그레이션을 넣고, **운영에 적용된 것을 확인한 뒤**
+`types.ts`를 갱신하고 배포합니다. 절차는 [`apps/sync/README.md`](./apps/sync/README.md)의 "데이터베이스 스키마" 절에 있습니다.
 
 ## 개발 규칙
 

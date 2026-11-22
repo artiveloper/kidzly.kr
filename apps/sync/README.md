@@ -92,7 +92,7 @@ kidzly-sync <job> [--force] [--year-month YYYY-MM]
 
 ## 데이터베이스 스키마
 
-**이 저장소가 kidzly DB 스키마의 단일 소유자다.** kidzly.kr(웹)은 읽기만 하며 스키마를 바꾸지 않는다.
+**`apps/sync`가 kidzly DB 스키마의 단일 소유자다.** 같은 모노레포의 웹 앱(`apps/web`·`apps/admin`)은 읽기만 하며 스키마를 바꾸지 않는다.
 
 웹이 쓰는 객체(`content_stats`, 조회 인덱스, 필터 옵션 뷰)도 여기서 관리한다.
 
@@ -117,7 +117,7 @@ kidzly-sync <job> [--force] [--year-month YYYY-MM]
    ```
 
 3. 커밋 → **운영 반영**. `db-migrate.yml` 워크플로를 `workflow_dispatch`로 수동 실행한다 (`alembic upgrade head`, `cancel-in-progress: false`).
-4. 웹이 읽는 컬럼이 바뀌었으면 kidzly.kr의 `packages/supabase/src/types.ts`를 갱신한다. **마이그레이션이 운영에 적용된 뒤에 웹을 배포한다** — 두 저장소라 배포 순서는 자동으로 보장되지 않는다.
+4. 웹이 읽는 컬럼이 바뀌었으면 같은 PR에서 `packages/supabase/src/types.ts`를 갱신한다. **마이그레이션이 운영에 적용된 뒤에 웹을 배포한다** — 마이그레이션은 수동 워크플로라 웹 배포보다 먼저 돈다는 보장이 아직 없다.
 
 ### 좌표 주의
 
@@ -204,7 +204,7 @@ uv run pytest -m integration   # Testcontainers 필요
 uv run --extra migrations alembic upgrade head
 ```
 
-운영에서는 GitHub Actions가 각 잡을 스케줄에 따라 `uv run --frozen kidzly-sync <job>`으로 실행한다 (`.github/workflows/sync-*-python.yml`). 시크릿은 Infisical에서 OIDC로 주입한다.
+운영에서는 GitHub Actions가 각 잡을 스케줄에 따라 `uv run --frozen kidzly-sync <job>`으로 실행한다 (저장소 루트 `.github/workflows/sync-*-python.yml`, 잡 작업 디렉터리 `apps/sync`). 시크릿은 Infisical에서 OIDC로 주입한다.
 
 ---
 

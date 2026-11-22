@@ -202,7 +202,7 @@ tests/unit/, tests/integration/
 
 ## 하네스: kidzly-sync
 
-프로젝트 전용 스킬/에이전트 대신 [claude-devkits](https://github.com/artiveloper/claude-devkits) 마켓플레이스 킷을 쓴다 (`.claude/settings.json`에 project 스코프로 선언돼 이 저장소에 관여하는 모든 사람에게 적용):
+프로젝트 전용 스킬/에이전트 대신 [claude-devkits](https://github.com/artiveloper/claude-devkits) 마켓플레이스 킷을 쓴다 (모노레포 루트 `.claude/settings.json`에 project 스코프로 선언돼 이 저장소에 관여하는 모든 사람에게 적용):
 
 - `common-kit` — 시스템 아키텍처 원칙 (스택 불문)
 - `backend-kit` — 백엔드·DB·QA 원칙 (스택 불문)
@@ -216,3 +216,4 @@ tests/unit/, tests/integration/
 | 2026-06-25 | 초기 구성 | 전체 | - |
 | 2026-10-14 | Kotlin/Spring 기준 → Python/CLI 기준으로 재작성 | 전체 | Kotlin 코드베이스 제거 완료, 문서가 실제 스택과 불일치했음 |
 | 2026-10-14 | 프로젝트 전용 skills/agents 제거, claude-devkits 마켓플레이스 킷으로 대체 | 하네스 | Kotlin 시절 스킬을 유지 보수하는 대신 범용 원칙 킷 재사용 |
+| 2026-11-22 | kidzly.kr 모노레포의 `apps/sync`로 편입, 킷 선언을 루트 `.claude/settings.json`으로 이동 | 하네스 | 스키마 변경과 웹 `types.ts` 갱신을 한 저장소에서 다루기 위해 |

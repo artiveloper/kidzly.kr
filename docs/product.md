@@ -15,7 +15,7 @@
 
 ## 지금 안 하는 것 (Non-goals)
 - 서비스 앱의 회원가입·로그인 — 공개 읽기 전용으로 둔다(로그인은 운영 관리자 앱만).
-- DB 스키마 관리 — 테이블·인덱스·뷰는 kidzly-sync의 Flyway 마이그레이션이 소유한다. 이 저장소는 타입(`packages/supabase/src/types.ts`)만 갖는다.
+- DB 스키마 관리 — 테이블·인덱스·뷰는 `apps/sync`의 Alembic 마이그레이션이 소유한다. 웹은 타입(`packages/supabase/src/types.ts`)만 갖는다.
 - <그 밖에 의도적으로 범위 밖에 둔 것>
 
 ## 왜 지금

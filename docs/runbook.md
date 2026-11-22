@@ -31,5 +31,5 @@
 - 검색: Google Search Console, <네이버 서치어드바이저 등 링크>
 
 ## 비상 연락
-- 데이터 동기화(하루 1회, 새벽 3시경)·스키마: kidzly-sync 저장소 담당
+- 데이터 동기화·스키마: `apps/sync` 담당 (스케줄은 `.github/workflows/sync-*-python.yml`, 운영 반영은 `db-migrate.yml`)
 - <서비스별 담당 / 외부 벤더 연락처>

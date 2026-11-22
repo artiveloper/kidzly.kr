@@ -4,7 +4,7 @@
 > 목표: 새 팀원이 이 문서만으로 30분 안에 로컬 실행까지.
 
 ## 0. 접근 권한 (합류 첫날 받을 것)
-- [ ] GitHub `artiveloper/kidzly.kr`, 스키마 작업 시 `artiveloper/kidzly-sync`
+- [ ] GitHub `artiveloper/kidzly.kr` (동기화 배치·스키마는 `apps/sync`)
 - [ ] Supabase 프로젝트, 네이버 클라우드 플랫폼(Maps·API Hub) 키 — <비밀키 관리 위치>
 - [ ] <배포 대시보드 / 모니터링>
 
@@ -32,7 +32,7 @@
 
 ## 4. 우리가 일하는 방식
 - 브랜치·PR·리뷰: `main`에 직접 커밋·푸시한다. 커밋은 하나의 논리적 변경 단위로, 마치기 전 `pnpm lint`·`pnpm typecheck`·`pnpm build` 통과
-- 스키마 변경은 이 저장소에서 하지 않는다 — kidzly-sync에 마이그레이션 → 운영 적용 확인 → `types.ts` 갱신
+- 스키마 변경은 `apps/sync`에만 한다 — Alembic 마이그레이션 → `DB Migrate` 워크플로로 운영 적용 확인 → `types.ts` 갱신
 - 콘텐츠 발행은 [content/README.md](content/README.md)
 - 현황·할 일은 [status.md](status.md)
 - 중요한 결정은 [decisions/](decisions/)에 ADR로

@@ -133,7 +133,7 @@ apps/web/domain/{name}/
 
 ### 13. APIs Layer
 
-- 스키마는 kidzly-sync의 Flyway가 소유 — 이 저장소에서 테이블·인덱스·뷰를 만들거나 바꾸지 않는다. Supabase SQL 에디터 직접 실행 금지
+- 스키마는 `apps/sync`의 Alembic 리비전(`apps/sync/migrations/versions/`)이 소유 — 웹 앱·`packages/`에서 테이블·인덱스·뷰를 만들거나 바꾸지 않는다. Supabase SQL 에디터 직접 실행 금지. 배치 작업 규칙은 `apps/sync/CLAUDE.md`
 - 클라이언트는 `@workspace/supabase/client`(`createBrowserClient`) / `@workspace/supabase/server`(`createServerClient`, 준정적 조회는 `createCachedServerClient`) 사용
 - 웹은 로그인이 없어 `@supabase/ssr`를 쓰지 않는다 — `supabase-js` 직접, 브라우저·서버 모두 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`(공개 읽기 전용). `@supabase/ssr` 세션 인증은 `apps/admin`만 쓴다
 - non-null assertion(`!`) 금지 — 명시적 null 체크 후 에러 throw
@@ -346,6 +346,7 @@ apps/web/domain/{name}/
 | 2026-07-01 | temp/ 컨벤션 전면 반영 — WCAG AA, N+1, 날짜 KST, nuqs, 에러경계, Skeleton 규칙 추가 | CLAUDE.md, agents/*, skills/supabase-guide | temp/ 기준 가이드 통합 |
 | 2026-08-16 | "작업 원칙" 9개 조항(생각 먼저, 단순함 우선, 외과적 변경, 목표 기반 실행, 한국어 마침표, 새 파일 한국어 역할 주석, 오류는 읽고 추측 안 함, 실행 검증, 원자적 커밋) 신설, 기존 기술 스펙은 "기술 스펙" 절로 유지하며 10~28번으로 재번호 | CLAUDE.md | 다른 저장소용 CLAUDE.md가 실수로 덮어써진 것을 복구하는 과정에서, 그 문서의 행동 지침 부분이 유용하다고 판단해 키즐리 기준으로 반영 |
 | 2026-10-27 | **`kidzly-refactor` 하네스 폐기, `claude-devkits` 플러그인으로 전환** — 에이전트 5개(architect·domain-engineer·ui-engineer·qa-engineer·code-reviewer)와 `kidzly-refactor`·`supabase-guide` 스킬, `react-query-patterns.md` 삭제. common·frontend·nextjs·supabase 킷을 프로젝트 범위로 설치. 로컬 supabase-guide에만 있던 사실(웹은 `@supabase/ssr` 미사용·publishable key 공용)을 §13으로 옮기고, §13의 클라이언트 경로를 실제 위치(`@workspace/supabase/*`)로 정정. §14의 패턴 문서 포인터를 플러그인 `react-query-guide`로 교체 | CLAUDE.md, .claude/settings.json, .claude/agents/*, .claude/skills/{kidzly-refactor,supabase-guide} | 에이전트 본문 대부분이 항상 로드되는 이 문서의 기술 스펙을 다시 적은 것이었고, 2026-08-16 재번호 이후 절 참조(§3·§5 등)가 모두 어긋난 채 방치돼 있었다. 초기 구성 이후 한 번도 갱신·실행된 흔적이 없고(`_workspace` 산출물 없음), 일반 원칙은 여러 프로젝트가 공유하는 플러그인이 대신한다. 로컬 supabase-guide는 스키마 소유권(kidzly-sync)과 충돌하는 마이그레이션 절차까지 담고 있었다 |
+| 2026-11-22 | **kidzly-sync 저장소를 `apps/sync`로 편입** — §13의 스키마 소유처를 `apps/sync`의 Alembic으로 정정. sync가 쓰던 `backend-kit`·`python-kit`을 `.claude/settings.json`에 추가 | CLAUDE.md, .claude/settings.json | 스키마 변경과 `types.ts` 갱신이 두 저장소로 나뉘어 배포 순서가 보장되지 않았다. 한 저장소로 합쳐 같은 PR에서 다룬다 |
 
 ---
 
