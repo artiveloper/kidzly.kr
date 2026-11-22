@@ -1,0 +1,26 @@
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+.idea
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+.tokensave
+
+### Python ###
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+# 시크릿은 Infisical 이 단일 출처다. 로컬에 .env 를 두지 않는다
+.env
