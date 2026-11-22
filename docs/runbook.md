@@ -5,7 +5,7 @@
 
 ## 배포
 - 호스팅: Hostinger Node.js 앱(`output: standalone`, `.next/standalone/server.js` 실행), 앞단 Hostinger CDN(`hcdn`). 2026-10-25 Vercel에서 이전했고 DNS 네임서버도 Hostinger다
-- 방법: <명령 또는 "main 머지 시 자동"> — 자동 배포 조건 확인 필요
+- 방법: Hostinger는 `deploy` 브랜치에 push가 오면 자동 빌드·배포한다(Root directory `apps/web`). `deploy`는 손으로 push하지 않는다 — `main`에 push하면 `.github/workflows/promote-deploy.yml`이 올려 준다. `apps/sync/**`·`docs/**`·`.claude/**`·루트 `*.md`·sync 워크플로만 바뀐 push는 배포하지 않는다(Hostinger는 경로와 무관하게 push마다 빌드하기 때문). 걸러진 변경을 바로 배포하려면 Actions에서 `Promote to Deploy`를 수동 실행한다
 - 빌드: `apps/web`은 `next build --webpack && node scripts/flatten-standalone.mjs` (Turbopack 빌드는 Hostinger에서 실패해 webpack 사용)
 - 배포 전 로컬 확인: `pnpm lint`, `pnpm typecheck`, `pnpm build`. 콘텐츠 `.mdx`를 바꿨으면 `apps/web`에서 `npx velite build`
 - 확인: <배포 후 헬스체크 방법>

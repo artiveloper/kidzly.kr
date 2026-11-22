@@ -1,0 +1,44 @@
+name: Promote to Deploy
+
+# main 을 deploy 브랜치로 올려 Hostinger 배포를 트리거한다.
+# Hostinger 는 연결된 브랜치에 push 가 오면 경로와 무관하게 다시 빌드한다 (Root directory 가 apps/web 이어도 마찬가지).
+# 그래서 Hostinger 는 deploy 브랜치를 보게 하고, 웹 빌드와 무관한 변경만 담긴 push 는 여기서 걸러 올리지 않는다.
+# 걸러진 커밋도 다음에 웹 변경이 올라갈 때 main 전체와 함께 배포되므로 누락되지 않는다.
+#
+# 목록은 "빌드에 영향이 없다고 확실한 것"만 둔다. 애매한 파일을 넣으면 배포가 조용히 빠지고,
+# 빼 두면 배포가 한 번 더 돌 뿐이다.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'apps/sync/**'
+      - 'docs/**'
+      - '.claude/**'
+      - '*.md'
+      - '.github/workflows/sync-*.yml'
+      - '.github/workflows/db-migrate.yml'
+  # 걸러진 변경이라도 지금 배포해야 할 때 손으로 돌린다
+  workflow_dispatch:
+
+concurrency:
+  # 연속 push 가 겹치면 마지막 것만 올라가면 된다
+  group: promote-deploy
+  cancel-in-progress: true
+
+jobs:
+  promote:
+    # 수동 실행 시 다른 브랜치를 골라 운영에 올리는 사고를 막는다
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 강제 push 를 쓰지 않는다. deploy 가 main 의 조상이 아니게 됐다면(누가 deploy 에 직접 push 등)
+      # 덮어쓰지 말고 실패시켜 사람이 보게 한다.
+      - name: Push main to deploy
+        run: git push origin HEAD:refs/heads/deploy
